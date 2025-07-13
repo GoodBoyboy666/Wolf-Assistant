@@ -1,0 +1,121 @@
+name: Android Release Publisher
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+jobs:
+  build-and-release:
+    name: Build and Release APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      # 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 设置 JDK 环境
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 设置 Gradle 环境
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      # 构建 Keystore
+      - name: Decode Keystore
+        id: decode_keystore
+        uses: timheuer/base64-to-file@v1.2
+        with:
+          fileName: 'release.keystore'
+          encodedString: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+
+      # 设置执行权限
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # 开始构建
+      - name: Build with Gradle
+        run: ./gradlew assembleGithubActionRelease
+        env:
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEYSTORE_PATH: ${{ steps.decode_keystore.outputs.filePath }}
+
+      # 获取项目名与版本
+      - name: Get project and version names
+        id: get_names
+        run: |
+          echo "project_name=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
+          echo "version_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+
+      # 查找构建的 APK 文件
+      - name: Find and Rename APK
+        id: find_apk
+        run: |
+          APK_DIR="app/build/outputs"
+          APK_PATH=$(find "$APK_DIR" -type f -name "*.apk" | head -n 1)
+          if [ -z "$APK_PATH" ]; then
+            echo "::error::Release APK not found!"
+            exit 1
+          fi
+          NEW_APK_NAME="${{ steps.get_names.outputs.project_name }}-${{ steps.get_names.outputs.version_name }}.apk"
+          echo "✅ Found APK at $APK_PATH"
+          mv "$APK_PATH" "$NEW_APK_NAME"
+          echo "🎉 Renamed to $NEW_APK_NAME"
+          echo "apk_path=$NEW_APK_NAME" >> $GITHUB_OUTPUT
+
+      # 查找 Mapping 文件
+      - name: Find Mapping File
+        id: find_mapping
+        run: |
+          MAPPING_DIR="app/build/outputs"
+          MAPPING_PATH=$(find "$MAPPING_DIR" -type f -name "mapping.txt" | head -n 1)
+          if [ ! -f "$MAPPING_PATH" ]; then
+            echo "::warning::mapping.txt not found!"
+            echo "mapping_path=" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Found mapping file at $MAPPING_PATH"
+            echo "mapping_path=$MAPPING_PATH" >> $GITHUB_OUTPUT
+          fi
+
+      # 生成 Release 内容
+      - name: Get Release Body from Git Tag
+        id: get_release_body
+        run: |
+          git tag -l --format='%(contents)' ${{ github.ref_name }} > release_notes.md
+          echo "path=release_notes.md" >> $GITHUB_OUTPUT
+
+      # 判断是否为非正式版本
+      - name: Determine Release Type
+        id: determine_release_type
+        run: |
+          # 检查 tag 是否包含 beta, rc, preview, alpha 等关键字
+          if [[ "${{ github.ref_name }}" == *"-beta"* || "${{ github.ref_name }}" == *"-rc"* || "${{ github.ref_name }}" == *"-preview"* || "${{ github.ref_name }}" == *"-alpha"* ]]; then
+            echo "This is a pre-release."
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+            echo "is_draft=false" >> $GITHUB_OUTPUT
+          else
+            echo "This is a stable release."
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+            echo "is_draft=true" >> $GITHUB_OUTPUT
+          fi
+
+      # 发布版本
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ steps.get_names.outputs.version_name }}
+          body_path: ${{ steps.get_release_body.outputs.path }}
+          draft: ${{ steps.determine_release_type.outputs.is_draft }}
+          prerelease: ${{ steps.determine_release_type.outputs.is_prerelease }}
+          files: |
+            ${{ steps.find_apk.outputs.apk_path }}
+            ${{ steps.find_mapping.outputs.mapping_path }}
