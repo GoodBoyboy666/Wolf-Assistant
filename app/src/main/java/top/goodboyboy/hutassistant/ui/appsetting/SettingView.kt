@@ -31,10 +31,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.auth0.android.jwt.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import top.goodboyboy.hutassistant.BuildConfig
 import top.goodboyboy.hutassistant.ui.components.SettingDivider
 import top.goodboyboy.hutassistant.ui.components.SettingItem
 
