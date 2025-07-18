@@ -20,6 +20,8 @@ android {
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        android.buildFeatures.buildConfig = true
+        buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
     }
 
     signingConfigs {

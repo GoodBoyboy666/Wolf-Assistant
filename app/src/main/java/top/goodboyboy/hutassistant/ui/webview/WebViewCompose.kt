@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
+import top.goodboyboy.hutassistant.common.Event
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -27,6 +28,7 @@ fun WebViewCompose(
     accessToken: String,
     headerTokenKeyName: String,
     urlTokenKeyName: String,
+    refreshEvent: Event<Unit>?,
     onPageStarted: () -> Unit,
     onPageFinished: () -> Unit,
     onProgressChanged: (Int) -> Unit,
@@ -160,6 +162,12 @@ fun WebViewCompose(
             header.put(headerTokenKeyName, accessToken)
         }
         webView.loadUrl(newUrl, header)
+    }
+
+    LaunchedEffect(refreshEvent) {
+        refreshEvent?.getContent()?.let {
+            webView.reload()
+        }
     }
 
     DisposableEffect(webView) {
