@@ -19,6 +19,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -43,6 +44,7 @@ fun BrowserView(
     val scope = rememberCoroutineScope()
     val accessToken = viewModel.accessTokenStateFlow.collectAsState()
     var showWebView by remember { mutableStateOf(false) }
+    val refreshEvent by viewModel.refreshEvent.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         delay(300)
@@ -69,6 +71,7 @@ fun BrowserView(
                 accessToken = accessToken.value!!,
                 headerTokenKeyName = headerTokenKeyName,
                 urlTokenKeyName = urlTokenKeyName,
+                refreshEvent = refreshEvent,
                 {
                     currentProgress = 0f
                     loading = true
@@ -117,9 +120,13 @@ fun BrowserView(
             MenuCompose(
                 // 为确保安全仅传递URL
                 url,
-            ) {
-                onMenuDismissRequest()
-            }
+                {
+                    onMenuDismissRequest()
+                },
+                {
+                    viewModel.onRefresh()
+                },
+            )
         }
     }
 }

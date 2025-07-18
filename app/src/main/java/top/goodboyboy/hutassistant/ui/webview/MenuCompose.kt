@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 fun MenuCompose(
     url: String,
     onDismissRequest: () -> Unit,
+    onRefreshClick: () -> Unit,
 ) {
     val context = LocalContext.current
     ModalBottomSheet(onDismissRequest = { onDismissRequest() }) {
@@ -55,6 +57,20 @@ fun MenuCompose(
             ) {
                 Icon(Icons.Rounded.Share, "分享")
                 Text("分享")
+            }
+            Column(
+                modifier =
+                    Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {
+                            onRefreshClick()
+                            onDismissRequest()
+                        }.padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Icon(Icons.Rounded.Refresh, "刷新")
+                Text("刷新")
             }
         }
     }
