@@ -28,7 +28,7 @@ jobs:
       # 检查是否仅修改文档
       - name: Check for non-documentation file changes
         id: changed-files
-        uses: tj-actions/changed-files@v44
+        uses: tj-actions/changed-files@v46
         with:
           files_ignore: |
             **.md
