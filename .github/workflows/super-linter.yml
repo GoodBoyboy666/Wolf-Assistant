@@ -1,10 +1,7 @@
 name: Lint Code Base
 on:
-  push:
-    branches-ignore: # 忽略对主分支的直接推送
-      - main
   pull_request: # 对 PR 进行检查
-    branches: [ main, develop ]
+    branches: [ main ]
   workflow_dispatch:
     inputs:
       reason:
