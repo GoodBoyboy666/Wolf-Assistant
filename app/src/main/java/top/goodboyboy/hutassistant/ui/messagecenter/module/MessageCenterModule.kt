@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import top.goodboyboy.hutassistant.hutapi.message.MessageAPIService
+import top.goodboyboy.hutassistant.api.hutapi.message.MessageAPIService
 import top.goodboyboy.hutassistant.ui.messagecenter.datasource.MessageDataSource
 import top.goodboyboy.hutassistant.ui.messagecenter.datasource.MessageDataSourceImpl
 import top.goodboyboy.hutassistant.ui.messagecenter.repository.MessageRepository

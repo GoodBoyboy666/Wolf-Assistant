@@ -1,5 +1,6 @@
 package top.goodboyboy.hutassistant.ui.appsetting
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,11 +32,13 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.goodboyboy.hutassistant.BuildConfig
+import top.goodboyboy.hutassistant.ui.appsetting.components.UpdateDialog
 import top.goodboyboy.hutassistant.ui.components.SettingDivider
 import top.goodboyboy.hutassistant.ui.components.SettingItem
 
@@ -42,14 +46,17 @@ import top.goodboyboy.hutassistant.ui.components.SettingItem
 fun SettingView(
     navController: NavController,
     innerPadding: PaddingValues,
+    snackbarHostState: SnackbarHostState,
     viewModel: SettingViewModel = hiltViewModel(),
 ) {
-    val cacheSize = viewModel.cacheSize
+    val cacheSize by viewModel.cacheSize.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
     var showLogoutAlert by remember { mutableStateOf(false) }
     var showAboutCard by remember { mutableStateOf(false) }
+    val checkUpdateState by viewModel.updateState.collectAsStateWithLifecycle()
+    var showUpdateAlert by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         viewModel.getTotalCacheSize(context)
     }
@@ -74,7 +81,7 @@ fun SettingView(
         )
         SettingItem(
             title = "清除缓存",
-            subtitle = "当前缓存占用：${cacheSize.value}",
+            subtitle = "当前缓存占用：$cacheSize",
             icon = Icons.Rounded.Delete,
         ) {
             scope.launch {
@@ -92,13 +99,15 @@ fun SettingView(
             val url = "https://github.com/GoodBoyboy666/HUT-Assistant"
             uriHandler.openUri(url)
         }
+        var updateSubtitle by remember { mutableStateOf("检查应用版本更新") }
         SettingItem(
             title = "检查更新",
-            subtitle = "检查应用版本更新",
+            subtitle = updateSubtitle,
             icon = Icons.Rounded.ArrowUpward,
         ) {
-            val url = "https://github.com/GoodBoyboy666/HUT-Assistant/releases"
-            uriHandler.openUri(url)
+            scope.launch {
+                viewModel.getUpdateInfo()
+            }
         }
         SettingItem(
             title = "关于我们",
@@ -198,6 +207,52 @@ fun SettingView(
                     }
                 },
             )
+        }
+
+        when (checkUpdateState) {
+            is SettingViewModel.CheckUpdateState.Error -> {
+                val message = (checkUpdateState as SettingViewModel.CheckUpdateState.Error).error.message
+                val stackTrace =
+                    (checkUpdateState as SettingViewModel.CheckUpdateState.Error)
+                        .error.cause
+                        ?.stackTraceToString() ?: ""
+                Log.e(
+                    null,
+                    stackTrace,
+                )
+                LaunchedEffect(Unit) {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message,
+                        )
+                    }
+                    viewModel.changeUpdateState(SettingViewModel.CheckUpdateState.Idle)
+                }
+            }
+
+            SettingViewModel.CheckUpdateState.Idle -> {
+                updateSubtitle = "检查应用版本更新"
+            }
+            SettingViewModel.CheckUpdateState.Loading -> {
+                updateSubtitle = "检查中……"
+            }
+            is SettingViewModel.CheckUpdateState.Success -> {
+                val data = (checkUpdateState as SettingViewModel.CheckUpdateState.Success).data
+                if (data == null) {
+                    LaunchedEffect(Unit) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("当前为最新版本哦~")
+                        }
+                        viewModel.changeUpdateState(SettingViewModel.CheckUpdateState.Idle)
+                    }
+                } else {
+                    UpdateDialog(
+                        versionInfo = data,
+                    ) {
+                        viewModel.changeUpdateState(SettingViewModel.CheckUpdateState.Idle)
+                    }
+                }
+            }
         }
     }
 }

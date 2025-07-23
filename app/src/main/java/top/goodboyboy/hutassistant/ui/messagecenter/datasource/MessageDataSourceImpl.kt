@@ -4,8 +4,8 @@ import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
 import okio.IOException
 import retrofit2.HttpException
+import top.goodboyboy.hutassistant.api.hutapi.message.MessageAPIService
 import top.goodboyboy.hutassistant.common.Failure
-import top.goodboyboy.hutassistant.hutapi.message.MessageAPIService
 import top.goodboyboy.hutassistant.ui.messagecenter.datasource.MessageDataSource.DataResult
 import javax.inject.Inject
 

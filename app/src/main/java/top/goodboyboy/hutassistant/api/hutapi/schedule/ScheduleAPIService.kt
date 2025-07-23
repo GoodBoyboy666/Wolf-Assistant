@@ -1,4 +1,4 @@
-package top.goodboyboy.hutassistant.hutapi.schedule
+package top.goodboyboy.hutassistant.api.hutapi.schedule
 
 import okhttp3.ResponseBody
 import retrofit2.http.GET

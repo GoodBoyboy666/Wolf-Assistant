@@ -6,7 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import top.goodboyboy.hutassistant.hutapi.schedule.ScheduleAPIService
+import top.goodboyboy.hutassistant.api.hutapi.schedule.ScheduleAPIService
 import top.goodboyboy.hutassistant.ui.schedulecenter.datasource.ScheduleCacheDataSource
 import top.goodboyboy.hutassistant.ui.schedulecenter.datasource.ScheduleCacheDataSourceImpl
 import top.goodboyboy.hutassistant.ui.schedulecenter.datasource.ScheduleRemoteDataSource

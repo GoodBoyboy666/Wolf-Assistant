@@ -1,21 +1,21 @@
-package top.goodboyboy.hutassistant.hutapi
+package top.goodboyboy.hutassistant.api.hutapi
 
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
-import top.goodboyboy.hutassistant.hutapi.message.MessageAPIService
-import top.goodboyboy.hutassistant.hutapi.portal.PortalAPIService
-import top.goodboyboy.hutassistant.hutapi.schedule.ScheduleAPIService
-import top.goodboyboy.hutassistant.hutapi.service.ServiceListAPIService
-import top.goodboyboy.hutassistant.hutapi.user.LoginAPIService
-import top.goodboyboy.hutassistant.hutapi.user.UserAPIService
+import top.goodboyboy.hutassistant.api.hutapi.message.MessageAPIService
+import top.goodboyboy.hutassistant.api.hutapi.portal.PortalAPIService
+import top.goodboyboy.hutassistant.api.hutapi.schedule.ScheduleAPIService
+import top.goodboyboy.hutassistant.api.hutapi.service.ServiceListAPIService
+import top.goodboyboy.hutassistant.api.hutapi.user.LoginAPIService
+import top.goodboyboy.hutassistant.api.hutapi.user.UserAPIService
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object APIModule {
+object HUTAPIModule {
     @Provides
     @Singleton
     fun provideMessageApiService(): MessageAPIService =

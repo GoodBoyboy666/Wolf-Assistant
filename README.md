@@ -26,6 +26,10 @@ cd HUT-Assistant
 
 非常欢迎各种形式的贡献。如果你对贡献代码感兴趣，欢迎向仓库提交 Pull requests。
 
+> \[!TIP]
+>
+> 为保证代码风格一致性，请在PR前运行ktlintCheck，ktlintFormat两个Gradle任务
+
 ## LICENSE
 
     HUT Assistant
