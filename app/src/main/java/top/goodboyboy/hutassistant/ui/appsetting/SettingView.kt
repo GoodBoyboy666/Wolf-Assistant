@@ -49,7 +49,7 @@ fun SettingView(
     snackbarHostState: SnackbarHostState,
     viewModel: SettingViewModel = hiltViewModel(),
 ) {
-    val cacheSize = viewModel.cacheSize
+    val cacheSize by viewModel.cacheSize.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
@@ -81,7 +81,7 @@ fun SettingView(
         )
         SettingItem(
             title = "清除缓存",
-            subtitle = "当前缓存占用：${cacheSize.value}",
+            subtitle = "当前缓存占用：$cacheSize",
             icon = Icons.Rounded.Delete,
         ) {
             scope.launch {

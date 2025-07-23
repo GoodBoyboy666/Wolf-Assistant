@@ -1,8 +1,6 @@
 package top.goodboyboy.hutassistant.ui.appsetting
 
 import android.content.Context
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -34,8 +32,8 @@ class SettingViewModel
         private val settingsRepository: SettingsRepository,
         private val appSettingRepository: AppSettingRepository,
     ) : ViewModel() {
-        private val _cacheSize = mutableStateOf("正在计算中……")
-        val cacheSize: State<String> get() = _cacheSize
+        private val _cacheSize = MutableStateFlow("正在计算中……")
+        val cacheSize: StateFlow<String> = _cacheSize.asStateFlow()
 
         private val _updateState = MutableStateFlow<CheckUpdateState>(CheckUpdateState.Idle)
         val updateState: StateFlow<CheckUpdateState> = _updateState.asStateFlow()
