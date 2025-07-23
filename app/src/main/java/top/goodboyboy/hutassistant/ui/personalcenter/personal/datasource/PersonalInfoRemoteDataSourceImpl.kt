@@ -4,9 +4,9 @@ import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
 import okio.IOException
 import retrofit2.HttpException
+import top.goodboyboy.hutassistant.api.hutapi.user.UserAPIService
+import top.goodboyboy.hutassistant.api.hutapi.user.UserAvatar
 import top.goodboyboy.hutassistant.common.Failure
-import top.goodboyboy.hutassistant.hutapi.user.UserAPIService
-import top.goodboyboy.hutassistant.hutapi.user.UserAvatar
 import top.goodboyboy.hutassistant.ui.personalcenter.personal.datasource.PersonalInfoRemoteDataSource.DataResult
 import top.goodboyboy.hutassistant.ui.personalcenter.personal.model.PersonalInfo
 import javax.inject.Inject

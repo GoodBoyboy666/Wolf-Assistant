@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import top.goodboyboy.hutassistant.hutapi.service.ServiceListAPIService
+import top.goodboyboy.hutassistant.api.hutapi.service.ServiceListAPIService
 import top.goodboyboy.hutassistant.room.dao.ServiceItemDao
 import top.goodboyboy.hutassistant.room.dao.TokenKeyNameDao
 import top.goodboyboy.hutassistant.ui.servicecenter.service.datasource.ServiceCacheDataSource

@@ -6,7 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import top.goodboyboy.hutassistant.hutapi.portal.PortalAPIService
+import top.goodboyboy.hutassistant.api.hutapi.portal.PortalAPIService
 import top.goodboyboy.hutassistant.ui.home.portal.datasource.PortalCacheDataSource
 import top.goodboyboy.hutassistant.ui.home.portal.datasource.PortalCacheDataSourceImpl
 import top.goodboyboy.hutassistant.ui.home.portal.datasource.PortalRemoteDataSource

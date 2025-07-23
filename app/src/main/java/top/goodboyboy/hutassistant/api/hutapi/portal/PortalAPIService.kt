@@ -1,4 +1,4 @@
-package top.goodboyboy.hutassistant.hutapi.portal
+package top.goodboyboy.hutassistant.api.hutapi.portal
 
 import okhttp3.ResponseBody
 import retrofit2.http.GET

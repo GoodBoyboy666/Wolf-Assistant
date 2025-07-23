@@ -7,8 +7,8 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
 import retrofit2.HttpException
+import top.goodboyboy.hutassistant.api.hutapi.user.LoginAPIService
 import top.goodboyboy.hutassistant.common.Failure
-import top.goodboyboy.hutassistant.hutapi.user.LoginAPIService
 import top.goodboyboy.hutassistant.ui.login.model.UserInfo
 import top.goodboyboy.hutassistant.ui.login.repository.LoginRepository.UserData
 import javax.inject.Inject

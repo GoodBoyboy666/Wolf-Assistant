@@ -1,4 +1,4 @@
-package top.goodboyboy.hutassistant.hutapi.user
+package top.goodboyboy.hutassistant.api.hutapi.user
 
 import androidx.core.net.toUri
 import okhttp3.OkHttpClient

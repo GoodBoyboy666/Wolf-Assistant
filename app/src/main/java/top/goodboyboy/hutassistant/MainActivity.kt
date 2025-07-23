@@ -262,6 +262,7 @@ class MainActivity : ComponentActivity() {
                             SettingView(
                                 navController,
                                 innerPadding,
+                                snackbarHostState,
                             )
                         }
                         composable("oss") {

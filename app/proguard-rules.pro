@@ -25,6 +25,7 @@
 -keep class top.goodboyboy.hutassistant.ui.personalcenter.personal.model.** {*;}
 -keep class top.goodboyboy.hutassistant.ui.schedulecenter.model.** {*;}
 -keep class top.goodboyboy.hutassistant.ui.servicecenter.model.** {*;}
+-keep class top.goodboyboy.hutassistant.common.** {*;}
 -keep class top.goodboyboy.hutassistant.util.GsonUtil {*;}
 -keep class com.google.gson.stream.** { *; }
 -keep class com.google.gson.** { *; }

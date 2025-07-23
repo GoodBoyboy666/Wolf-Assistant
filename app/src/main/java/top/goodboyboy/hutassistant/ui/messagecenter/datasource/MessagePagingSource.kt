@@ -3,7 +3,7 @@ package top.goodboyboy.hutassistant.ui.messagecenter.datasource
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.google.gson.JsonParser
-import top.goodboyboy.hutassistant.hutapi.message.MessageAPIService
+import top.goodboyboy.hutassistant.api.hutapi.message.MessageAPIService
 import top.goodboyboy.hutassistant.ui.messagecenter.model.MessageItem
 
 /**

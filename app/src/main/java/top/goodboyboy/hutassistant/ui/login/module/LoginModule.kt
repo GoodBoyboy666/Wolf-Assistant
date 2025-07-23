@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import top.goodboyboy.hutassistant.hutapi.user.LoginAPIService
+import top.goodboyboy.hutassistant.api.hutapi.user.LoginAPIService
 import top.goodboyboy.hutassistant.ui.login.repository.LoginRepository
 import top.goodboyboy.hutassistant.ui.login.repository.LoginRepositoryImpl
 import javax.inject.Singleton

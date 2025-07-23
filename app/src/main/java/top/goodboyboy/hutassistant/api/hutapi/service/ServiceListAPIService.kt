@@ -1,4 +1,4 @@
-package top.goodboyboy.hutassistant.hutapi.service
+package top.goodboyboy.hutassistant.api.hutapi.service
 
 import okhttp3.RequestBody
 import okhttp3.ResponseBody

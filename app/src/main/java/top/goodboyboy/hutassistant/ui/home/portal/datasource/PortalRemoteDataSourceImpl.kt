@@ -3,8 +3,8 @@ package top.goodboyboy.hutassistant.ui.home.portal.datasource
 import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
 import retrofit2.HttpException
+import top.goodboyboy.hutassistant.api.hutapi.portal.PortalAPIService
 import top.goodboyboy.hutassistant.common.Failure
-import top.goodboyboy.hutassistant.hutapi.portal.PortalAPIService
 import top.goodboyboy.hutassistant.ui.home.portal.model.PortalCategoryItem
 import top.goodboyboy.hutassistant.ui.home.portal.model.PortalInfoItem
 import top.goodboyboy.hutassistant.ui.home.portal.model.RemoteDataResult

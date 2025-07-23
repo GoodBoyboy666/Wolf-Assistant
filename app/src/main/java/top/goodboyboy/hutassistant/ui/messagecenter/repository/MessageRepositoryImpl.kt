@@ -5,7 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import kotlinx.coroutines.flow.Flow
-import top.goodboyboy.hutassistant.hutapi.message.MessageAPIService
+import top.goodboyboy.hutassistant.api.hutapi.message.MessageAPIService
 import top.goodboyboy.hutassistant.ui.messagecenter.datasource.MessageDataSource
 import top.goodboyboy.hutassistant.ui.messagecenter.datasource.MessageFailingPagingSource
 import top.goodboyboy.hutassistant.ui.messagecenter.datasource.MessagePagingSource

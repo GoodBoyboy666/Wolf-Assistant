@@ -6,7 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import top.goodboyboy.hutassistant.hutapi.user.UserAPIService
+import top.goodboyboy.hutassistant.api.hutapi.user.UserAPIService
 import top.goodboyboy.hutassistant.ui.personalcenter.personal.datasource.PersonalInfoCacheDataSource
 import top.goodboyboy.hutassistant.ui.personalcenter.personal.datasource.PersonalInfoCacheDataSourceImpl
 import top.goodboyboy.hutassistant.ui.personalcenter.personal.datasource.PersonalInfoRemoteDataSource
