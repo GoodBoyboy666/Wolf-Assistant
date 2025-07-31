@@ -10,9 +10,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import top.goodboyboy.hutassistant.R
 import top.goodboyboy.hutassistant.ui.schedulecenter.model.ScheduleItem
 import java.time.LocalTime
 import java.time.OffsetDateTime
@@ -55,17 +57,17 @@ fun ScheduleDetail(scheduleItem: ScheduleItem?) {
             Text(scheduleItem.remark, modifier = Modifier.padding(bottom = 10.dp))
             HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp))
             Text(
-                "教室地点：${scheduleItem.address}",
+                stringResource(R.string.classroom_location, scheduleItem.address),
                 textAlign = TextAlign.Justify,
                 modifier = Modifier.padding(2.dp),
             )
             Text(
-                "开始时间：${scheduleItem.startDateStr}",
+                stringResource(R.string.start_time, scheduleItem.startDateStr),
                 textAlign = TextAlign.Justify,
                 modifier = Modifier.padding(2.dp),
             )
             Text(
-                "结束时间：${scheduleItem.endDateStr}",
+                stringResource(R.string.end_time, scheduleItem.endDateStr),
                 textAlign = TextAlign.Justify,
                 modifier = Modifier.padding(2.dp),
             )

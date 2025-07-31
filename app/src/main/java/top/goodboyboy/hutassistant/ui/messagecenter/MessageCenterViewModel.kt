@@ -1,13 +1,16 @@
 package top.goodboyboy.hutassistant.ui.messagecenter
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
+import top.goodboyboy.hutassistant.R
 import top.goodboyboy.hutassistant.settings.SettingsRepository
 import top.goodboyboy.hutassistant.ui.messagecenter.model.MessageItem
 import top.goodboyboy.hutassistant.ui.messagecenter.repository.MessageRepository
@@ -19,9 +22,10 @@ class MessageCenterViewModel
     constructor(
         private val messageRepository: MessageRepository,
         private val settingsRepository: SettingsRepository,
+        @ApplicationContext private val context: Context,
     ) : ViewModel() {
         //    val messageCategory = listOf("工大公告", "学工系统", "办事大厅")
-        val messageCategory = listOf("工大公告", "学工系统")
+        val messageCategory = listOf(context.getString(R.string.HUT_announcement), context.getString(R.string.xgxt))
         private val messageFlows = mutableMapOf<Int, Flow<PagingData<MessageItem>>>()
 
         @OptIn(ExperimentalCoroutinesApi::class)

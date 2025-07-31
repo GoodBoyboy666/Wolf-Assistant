@@ -21,11 +21,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.launch
+import top.goodboyboy.hutassistant.R
 import top.goodboyboy.hutassistant.ui.components.LoadingCompose
 import top.goodboyboy.hutassistant.ui.messagecenter.model.MessageItem
 
@@ -134,9 +136,9 @@ fun MessageList(items: LazyPagingItems<MessageItem>) {
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Text("加载失败: ${e.error.localizedMessage}")
+                            Text(stringResource(R.string.loading_failed, e.error.localizedMessage))
                             Button(onClick = { items.retry() }) {
-                                Text("重试")
+                                Text(stringResource(R.string.retry))
                             }
                         }
                     }
@@ -153,9 +155,9 @@ fun MessageList(items: LazyPagingItems<MessageItem>) {
                             contentAlignment = Alignment.Center,
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("加载更多失败：${e.error.localizedMessage}")
+                                Text(stringResource(R.string.load_more_failed, e.error.localizedMessage))
                                 Button(onClick = { items.retry() }) {
-                                    Text("重试")
+                                    Text(stringResource(R.string.retry))
                                 }
                             }
                         }
