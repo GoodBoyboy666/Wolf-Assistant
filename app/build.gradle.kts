@@ -68,6 +68,12 @@ android {
     buildFeatures {
         compose = true
     }
+
+    testOptions {
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
+    }
 }
 
 dependencies {
@@ -115,4 +121,9 @@ dependencies {
     implementation(libs.retrofit)
 //    ktlintRuleset("io.nlopez.compose.rules:ktlint:0.4.22")
 //    ktlintRuleset("com.sembozdemir.ktlint:ktlint-compose-rules:1.0.1")
+    testImplementation("io.mockk:mockk:1.14.5")
+    androidTestImplementation("io.mockk:mockk-android:1.14.5")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+    testImplementation("app.cash.turbine:turbine:1.2.1")
+    testImplementation(kotlin("test"))
 }

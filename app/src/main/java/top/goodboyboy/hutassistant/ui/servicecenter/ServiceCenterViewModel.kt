@@ -1,13 +1,11 @@
 package top.goodboyboy.hutassistant.ui.servicecenter
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import top.goodboyboy.hutassistant.settings.SettingsRepository
 import top.goodboyboy.hutassistant.ui.servicecenter.service.model.ServiceItem
 import top.goodboyboy.hutassistant.ui.servicecenter.service.repository.ServiceRepository
@@ -38,10 +36,10 @@ class ServiceCenterViewModel
         }
 
         init {
-            viewModelScope.launch {
-                _loadServiceState.value = LoadServiceState.Loading
-                loadService()
-            }
+//            viewModelScope.launch {
+//                _loadServiceState.value = LoadServiceState.Loading
+//                loadService()
+//            }
         }
 
         suspend fun loadService() {
