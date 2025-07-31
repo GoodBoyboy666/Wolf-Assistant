@@ -64,6 +64,9 @@ fun ServiceCenterView(
         delay(300)
         showServiceList = true
     }
+    LaunchedEffect(Unit) {
+        viewModel.loadService()
+    }
     Column(
         modifier =
             Modifier
@@ -80,7 +83,13 @@ fun ServiceCenterView(
         ) {
             when (loadServiceState) {
                 is LoadServiceState.Idle -> {
-                    Text(stringResource(R.string.please_wait))
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Text(stringResource(R.string.please_wait))
+                    }
                 }
 
                 is LoadServiceState.Loading -> {
