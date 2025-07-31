@@ -31,11 +31,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import top.goodboyboy.hutassistant.R
 import top.goodboyboy.hutassistant.ui.components.SettingItem
 import top.goodboyboy.hutassistant.ui.personalcenter.personal.model.PersonalInfo
 
@@ -68,19 +70,19 @@ fun PersonalCenter(
             ) {
                 Column {
                     Text(
-                        "姓名：${personalInfo?.userName}",
+                        stringResource(R.string.name, personalInfo?.userName ?: ""),
                         style = MaterialTheme.typography.titleLarge,
                     )
                     Text(
-                        "学号：${personalInfo?.userUid}",
+                        stringResource(R.string.academic_number) + "：${personalInfo?.userUid}",
                         style = MaterialTheme.typography.titleLarge,
                     )
                     Text(
-                        "班级：${personalInfo?.organizationName}",
+                        stringResource(R.string.class_name, personalInfo?.organizationName ?: ""),
                         style = MaterialTheme.typography.titleLarge,
                     )
                     Text(
-                        "身份：${personalInfo?.identityTypeName}",
+                        stringResource(R.string.identity, personalInfo?.identityTypeName ?: ""),
                         style = MaterialTheme.typography.titleLarge,
                     )
                 }
@@ -106,7 +108,7 @@ fun PersonalCenter(
                 }
 
                 PersonalCenterViewModel.LoadState.Idle -> {
-                    Text("小主请稍等……")
+                    Text(stringResource(R.string.please_wait))
                 }
 
                 PersonalCenterViewModel.LoadState.Loading -> {
@@ -120,7 +122,7 @@ fun PersonalCenter(
                             color = MaterialTheme.colorScheme.secondary,
                             trackColor = MaterialTheme.colorScheme.surfaceVariant,
                         )
-                        Text("正在加载您的个人卡片……")
+                        Text(stringResource(R.string.loading_card))
                     }
                 }
 
@@ -144,15 +146,15 @@ fun PersonalCenter(
                     .padding(start = 20.dp, top = 10.dp, bottom = 10.dp, end = 20.dp),
         ) {
             SettingItem(
-                title = "设置",
-                subtitle = "应用设置",
+                title = stringResource(R.string.settings),
+                subtitle = stringResource(R.string.app_settings),
                 icon = Icons.Rounded.Settings,
             ) {
                 navController.navigate("setting")
             }
             SettingItem(
-                title = "开源许可",
-                subtitle = "第三方开放源代码许可",
+                title = stringResource(R.string.open_source_license),
+                subtitle = stringResource(R.string.third_party_open_source_licenses),
                 icon = Icons.Rounded.Copyright,
             ) {
                 navController.navigate("oss")
@@ -188,7 +190,7 @@ fun PersonalCard(
     ) {
         AsyncImage(
             model = personalInfo.imageUrl,
-            contentDescription = "头像",
+            contentDescription = stringResource(R.string.avatar),
             modifier =
                 Modifier
                     .padding(8.dp)

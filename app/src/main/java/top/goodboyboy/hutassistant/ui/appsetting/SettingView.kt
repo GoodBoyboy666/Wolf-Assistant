@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,6 +39,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.goodboyboy.hutassistant.BuildConfig
+import top.goodboyboy.hutassistant.R
 import top.goodboyboy.hutassistant.ui.appsetting.components.UpdateDialog
 import top.goodboyboy.hutassistant.ui.components.SettingDivider
 import top.goodboyboy.hutassistant.ui.components.SettingItem
@@ -67,21 +69,21 @@ fun SettingView(
                 .padding(innerPadding),
     ) {
         SettingDivider(
-            "账户设置",
+            stringResource(R.string.account_settings),
         )
         SettingItem(
-            title = "退出登录",
-            subtitle = "退出当前账号",
+            title = stringResource(R.string.log_out),
+            subtitle = stringResource(R.string.log_out_of_your_current_account),
             icon = Icons.AutoMirrored.Rounded.Logout,
         ) {
             showLogoutAlert = true
         }
         SettingDivider(
-            "应用设置",
+            stringResource(R.string.app_settings),
         )
         SettingItem(
-            title = "清除缓存",
-            subtitle = "当前缓存占用：$cacheSize",
+            title = stringResource(R.string.clear_cache),
+            subtitle = stringResource(R.string.current_cache_occupancy, cacheSize),
             icon = Icons.Rounded.Delete,
         ) {
             scope.launch {
@@ -89,19 +91,20 @@ fun SettingView(
             }
         }
         SettingDivider(
-            "关于",
+            stringResource(R.string.about),
         )
         SettingItem(
             title = "GitHub",
-            subtitle = "代码仓库",
+            subtitle = stringResource(R.string.code_repositories),
             icon = Icons.Rounded.Code,
         ) {
             val url = "https://github.com/GoodBoyboy666/HUT-Assistant"
             uriHandler.openUri(url)
         }
-        var updateSubtitle by remember { mutableStateOf("检查应用版本更新") }
+        val updateSubtitleStringResource = stringResource(R.string.check_for_app_version_updates)
+        var updateSubtitle by remember { mutableStateOf(updateSubtitleStringResource) }
         SettingItem(
-            title = "检查更新",
+            title = stringResource(R.string.check_for_updates),
             subtitle = updateSubtitle,
             icon = Icons.Rounded.ArrowUpward,
         ) {
@@ -110,8 +113,8 @@ fun SettingView(
             }
         }
         SettingItem(
-            title = "关于我们",
-            subtitle = "版本号：${BuildConfig.VERSION_NAME}",
+            title = stringResource(R.string.about_us),
+            subtitle = stringResource(R.string.version_number, BuildConfig.VERSION_NAME),
             icon = Icons.Rounded.Info,
         ) {
             showAboutCard = true
@@ -120,13 +123,13 @@ fun SettingView(
         if (showLogoutAlert) {
             AlertDialog(
                 icon = {
-                    Icon(Icons.AutoMirrored.Rounded.Logout, contentDescription = "登出")
+                    Icon(Icons.AutoMirrored.Rounded.Logout, contentDescription = stringResource(R.string.log_out))
                 },
                 title = {
-                    Text(text = "退出登录")
+                    Text(text = stringResource(R.string.log_out))
                 },
                 text = {
-                    Text(text = "您确定要退出当前账号吗？此操作不可撤销。")
+                    Text(text = stringResource(R.string.log_out_warning))
                 },
                 onDismissRequest = {
                     showLogoutAlert = false
@@ -145,7 +148,7 @@ fun SettingView(
                             }
                         },
                     ) {
-                        Text("确定")
+                        Text(stringResource(R.string.confirm))
                     }
                 },
                 dismissButton = {
@@ -154,7 +157,7 @@ fun SettingView(
                             showLogoutAlert = false
                         },
                     ) {
-                        Text("取消")
+                        Text(stringResource(R.string.cancel))
                     }
                 },
             )
@@ -163,7 +166,7 @@ fun SettingView(
         if (showAboutCard) {
             AlertDialog(
                 icon = {
-                    Icon(Icons.Rounded.Info, contentDescription = "关于")
+                    Icon(Icons.Rounded.Info, contentDescription = stringResource(R.string.about))
                 },
                 title = {
                     Text(text = "HUT Assistant")
@@ -177,12 +180,12 @@ fun SettingView(
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            text = "版本号：${BuildConfig.VERSION_NAME}",
+                            text = stringResource(R.string.version_number, BuildConfig.VERSION_NAME),
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(5.dp),
                         )
                         Text(
-                            text = "编译类型：${BuildConfig.BUILD_TYPE}",
+                            text = stringResource(R.string.release_type) + BuildConfig.BUILD_TYPE,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(5.dp),
                         )
@@ -203,7 +206,7 @@ fun SettingView(
                             showAboutCard = false
                         },
                     ) {
-                        Text("确定")
+                        Text(stringResource(R.string.confirm))
                     }
                 },
             )
@@ -231,17 +234,19 @@ fun SettingView(
             }
 
             SettingViewModel.CheckUpdateState.Idle -> {
-                updateSubtitle = "检查应用版本更新"
+                updateSubtitle = stringResource(R.string.check_for_app_version_updates)
             }
+
             SettingViewModel.CheckUpdateState.Loading -> {
-                updateSubtitle = "检查中……"
+                updateSubtitle = stringResource(R.string.checking)
             }
+
             is SettingViewModel.CheckUpdateState.Success -> {
                 val data = (checkUpdateState as SettingViewModel.CheckUpdateState.Success).data
                 if (data == null) {
                     LaunchedEffect(Unit) {
                         scope.launch {
-                            snackbarHostState.showSnackbar("当前为最新版本哦~")
+                            snackbarHostState.showSnackbar(context.getString(R.string.latest_version))
                         }
                         viewModel.changeUpdateState(SettingViewModel.CheckUpdateState.Idle)
                     }

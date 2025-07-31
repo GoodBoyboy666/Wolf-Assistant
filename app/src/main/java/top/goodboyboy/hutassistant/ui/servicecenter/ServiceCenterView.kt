@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -40,6 +41,7 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import top.goodboyboy.hutassistant.R
 import top.goodboyboy.hutassistant.ui.components.LoadingCompose
 import top.goodboyboy.hutassistant.ui.servicecenter.ServiceCenterViewModel.LoadServiceState
 import java.net.URLEncoder
@@ -86,7 +88,7 @@ fun ServiceCenterView(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxSize(),
                     ) {
-                        Text("小主请稍等~")
+                        Text(stringResource(R.string.please_wait))
                     }
                 }
 

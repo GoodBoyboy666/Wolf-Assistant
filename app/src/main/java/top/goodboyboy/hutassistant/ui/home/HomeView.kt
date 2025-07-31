@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,6 +49,7 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import top.goodboyboy.hutassistant.R
 import java.net.URLEncoder
 
 @Preview
@@ -64,7 +66,7 @@ fun HomeView(
     snackbarHostState: SnackbarHostState,
     viewModel: HomeViewModel,
 ) {
-    val name by viewModel.userName.collectAsState("小伙伴")
+    val name by viewModel.userName.collectAsState(stringResource(R.string.friends))
     val timeTalk by viewModel.timeTalk.collectAsStateWithLifecycle()
     val shape = RoundedCornerShape(12.dp)
     Column(
@@ -104,14 +106,14 @@ fun HomeView(
                 ) {
                     Icon(
                         Icons.Rounded.QrCodeScanner,
-                        "扫一扫",
+                        stringResource(R.string.scan),
                         modifier =
                             Modifier
                                 .padding(10.dp)
                                 .size(32.dp),
                         tint = MaterialTheme.colorScheme.primary,
                     )
-                    Text("扫一扫", color = MaterialTheme.colorScheme.primary)
+                    Text(stringResource(R.string.scan), color = MaterialTheme.colorScheme.primary)
                 }
                 Column(
                     verticalArrangement = Arrangement.Center,
@@ -129,14 +131,14 @@ fun HomeView(
                 ) {
                     Icon(
                         Icons.Rounded.QrCode,
-                        "付款码",
+                        stringResource(R.string.payment_code),
                         modifier =
                             Modifier
                                 .padding(10.dp)
                                 .size(32.dp),
                         tint = MaterialTheme.colorScheme.primary,
                     )
-                    Text("付款码", color = MaterialTheme.colorScheme.primary)
+                    Text(stringResource(R.string.payment_code), color = MaterialTheme.colorScheme.primary)
                 }
 
                 Column(
@@ -155,14 +157,14 @@ fun HomeView(
                 ) {
                     Icon(
                         Icons.Rounded.CurrencyYen,
-                        "充值",
+                        stringResource(R.string.recharge),
                         modifier =
                             Modifier
                                 .padding(10.dp)
                                 .size(32.dp),
                         tint = MaterialTheme.colorScheme.primary,
                     )
-                    Text("充值", color = MaterialTheme.colorScheme.primary)
+                    Text(stringResource(R.string.recharge), color = MaterialTheme.colorScheme.primary)
                 }
                 Column(
                     verticalArrangement = Arrangement.Center,
@@ -179,14 +181,14 @@ fun HomeView(
                 ) {
                     Icon(
                         Icons.Rounded.CreditCard,
-                        "校园卡",
+                        stringResource(R.string.campus_card),
                         modifier =
                             Modifier
                                 .padding(10.dp)
                                 .size(32.dp),
                         tint = MaterialTheme.colorScheme.primary,
                     )
-                    Text("校园卡", color = MaterialTheme.colorScheme.primary)
+                    Text(stringResource(R.string.campus_card), color = MaterialTheme.colorScheme.primary)
                 }
             }
         }
@@ -214,12 +216,14 @@ fun HomeView(
             ) {
                 when (portalState) {
                     is HomeViewModel.PortalState.Failed -> {
-                        Text("加载失败了（悲）")
-                        Text("原因：" + (portalState as HomeViewModel.PortalState.Failed).message)
+                        Text(stringResource(R.string.load_fail))
+                        Text(
+                            stringResource(R.string.reason) + (portalState as HomeViewModel.PortalState.Failed).message,
+                        )
                     }
 
                     HomeViewModel.PortalState.Idle -> {
-                        Text("等待加载中~")
+                        Text(stringResource(R.string.watting_for_loading))
                     }
 
                     HomeViewModel.PortalState.Success -> {
@@ -283,7 +287,7 @@ fun HomeView(
                             color = MaterialTheme.colorScheme.secondary,
                             trackColor = MaterialTheme.colorScheme.surfaceVariant,
                         )
-                        Text("内容正在赶来的路上哦~")
+                        Text(stringResource(R.string.on_the_way))
                     }
                 }
             }

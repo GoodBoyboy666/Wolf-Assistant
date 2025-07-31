@@ -19,10 +19,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import top.goodboyboy.hutassistant.R
 import top.goodboyboy.hutassistant.ui.components.LoadingCompose
 
 @Composable
@@ -45,6 +48,7 @@ fun BrowserView(
     val accessToken = viewModel.accessTokenStateFlow.collectAsState()
     var showWebView by remember { mutableStateOf(false) }
     val refreshEvent by viewModel.refreshEvent.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         delay(300)
@@ -94,7 +98,7 @@ fun BrowserView(
                 },
                 {
                     scope.launch {
-                        snackbarHostState.showSnackbar("无法调起应用，请检查是否安装了相关应用！")
+                        snackbarHostState.showSnackbar(context.getString(R.string.cant_pull_up_app))
                     }
                 },
                 { title ->
@@ -114,7 +118,7 @@ fun BrowserView(
             )
         }
         if (accessToken.value == null && showWebView == false) {
-            LoadingCompose("正在拉取令牌，请稍等~")
+            LoadingCompose(stringResource(R.string.pulling_tokens))
         }
         if (showMenu) {
             MenuCompose(

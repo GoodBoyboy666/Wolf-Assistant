@@ -25,9 +25,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import top.goodboyboy.hutassistant.R
 import top.goodboyboy.hutassistant.ScreenRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,7 +98,7 @@ fun TopBar(
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                        contentDescription = "返回",
+                        contentDescription = stringResource(R.string.back),
                     )
                 }
             }
@@ -127,7 +129,7 @@ fun TopBar(
                             onRollBackToCurrentDate()
                         },
                     ) {
-                        Icon(Icons.Rounded.History, "返回当前周")
+                        Icon(Icons.Rounded.History, stringResource(R.string.go_back_to_the_current_week))
                     }
                 } else if (currentRoute != null &&
                     // 浏览器页面为浏览器菜单
@@ -140,7 +142,7 @@ fun TopBar(
                     }) {
                         Icon(
                             imageVector = Icons.Rounded.Menu,
-                            contentDescription = "浏览器菜单",
+                            contentDescription = stringResource(R.string.browser_menu),
                         )
                     }
                 }

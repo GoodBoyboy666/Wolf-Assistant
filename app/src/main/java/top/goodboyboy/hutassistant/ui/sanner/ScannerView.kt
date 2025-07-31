@@ -28,10 +28,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import top.goodboyboy.hutassistant.R
 import java.net.URLEncoder
 
 @Composable
@@ -91,7 +93,7 @@ fun ScannerView(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text("请先允许相机权限哦~")
+                    Text(stringResource(R.string.allow_camera_permission))
                     Spacer(modifier = Modifier.padding(10.dp))
                     Button(
                         onClick = {
@@ -102,17 +104,17 @@ fun ScannerView(
                             context.startActivity(intent)
                         },
                     ) {
-                        Text("点我转到设置界面")
+                        Text(stringResource(R.string.go_to_setting_page))
                     }
                     Spacer(modifier = Modifier.padding(10.dp))
-                    Text("如果已经允许了再点点下面按钮试试？👇")
+                    Text(stringResource(R.string.has_allow_text))
                     Spacer(modifier = Modifier.padding(10.dp))
                     Button(
                         onClick = {
                             launcher.launch(Manifest.permission.CAMERA)
                         },
                     ) {
-                        Text("拉起授权")
+                        Text(stringResource(R.string.pull_up_the_authorization))
                     }
                 }
             }

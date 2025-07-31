@@ -3,12 +3,14 @@ package top.goodboyboy.hutassistant.ui.appsetting
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import top.goodboyboy.hutassistant.BuildConfig
+import top.goodboyboy.hutassistant.R
 import top.goodboyboy.hutassistant.common.Failure
 import top.goodboyboy.hutassistant.settings.SettingsRepository
 import top.goodboyboy.hutassistant.ui.appsetting.model.VersionDomainData
@@ -31,8 +33,9 @@ class SettingViewModel
         private val personalInfoRepository: PersonalInfoRepository,
         private val settingsRepository: SettingsRepository,
         private val appSettingRepository: AppSettingRepository,
+        @ApplicationContext private val context: Context,
     ) : ViewModel() {
-        private val _cacheSize = MutableStateFlow("正在计算中……")
+        private val _cacheSize = MutableStateFlow(context.getString(R.string.calculating))
         val cacheSize: StateFlow<String> = _cacheSize.asStateFlow()
 
         private val _updateState = MutableStateFlow<CheckUpdateState>(CheckUpdateState.Idle)
