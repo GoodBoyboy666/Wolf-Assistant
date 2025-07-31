@@ -14,9 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import top.goodboyboy.hutassistant.R
 import top.goodboyboy.hutassistant.ui.appsetting.model.VersionInfo
 import top.goodboyboy.hutassistant.ui.appsetting.model.VersionNameItem
 
@@ -48,10 +50,10 @@ fun UpdateDialog(
     val uriHandler = LocalUriHandler.current
     AlertDialog(
         icon = {
-            Icon(Icons.Rounded.Update, contentDescription = "新版本")
+            Icon(Icons.Rounded.Update, contentDescription = stringResource(R.string.new_version))
         },
         title = {
-            Text(text = "发现新版本")
+            Text(text = stringResource(R.string.discover_new_releases))
         },
         text = {
             Column(
@@ -62,12 +64,20 @@ fun UpdateDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "版本号：${versionInfo.versionNameItem.versionNameString}",
+                    text = stringResource(R.string.version_number, versionInfo.versionNameItem.versionNameString),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(5.dp),
                 )
                 Text(
-                    text = "版本类型：" + if (versionInfo.isPrerelease) "预览版" else "正式版",
+                    text =
+                        stringResource(R.string.release_type) +
+                            if (versionInfo.isPrerelease) {
+                                stringResource(R.string.preview_version)
+                            } else {
+                                stringResource(
+                                    R.string.release_version,
+                                )
+                            },
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(5.dp),
                 )

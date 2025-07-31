@@ -20,7 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import top.goodboyboy.hutassistant.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,15 +50,15 @@ fun MenuCompose(
                                     putExtra(Intent.EXTRA_TEXT, url)
                                     type = "text/plain"
                                 }
-                            val shareIntent = Intent.createChooser(sendIntent, "通过以下方式分享")
+                            val shareIntent = Intent.createChooser(sendIntent, context.getString(R.string.share_it_via))
                             context.startActivity(shareIntent)
                             onDismissRequest()
                         }.padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Icon(Icons.Rounded.Share, "分享")
-                Text("分享")
+                Icon(Icons.Rounded.Share, stringResource(R.string.share))
+                Text(stringResource(R.string.share))
             }
             Column(
                 modifier =
@@ -69,8 +71,8 @@ fun MenuCompose(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Icon(Icons.Rounded.Refresh, "刷新")
-                Text("刷新")
+                Icon(Icons.Rounded.Refresh, stringResource(R.string.refresh))
+                Text(stringResource(R.string.refresh))
             }
         }
     }

@@ -10,11 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import top.goodboyboy.hutassistant.R
 import top.goodboyboy.hutassistant.ScreenRoute
 
 @Composable
@@ -65,7 +67,7 @@ fun LoadPage(innerPadding: PaddingValues) {
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Text(
-                "小主请稍等~",
+                stringResource(R.string.please_wait),
                 modifier =
                     Modifier.align(
                         Alignment.Center,

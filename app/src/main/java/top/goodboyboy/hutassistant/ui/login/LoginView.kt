@@ -31,6 +31,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -42,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import top.goodboyboy.hutassistant.R
 import top.goodboyboy.hutassistant.ScreenRoute
 
 @Preview
@@ -57,6 +60,7 @@ fun LoginView(
     snackbarHostState: SnackbarHostState,
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val loginState by viewModel.loginState.collectAsStateWithLifecycle()
     Column(
@@ -96,9 +100,9 @@ fun LoginView(
                     value = userId,
                     singleLine = true,
                     onValueChange = { userId = it.filter { it.isDigit() } },
-                    label = { Text("学号") },
+                    label = { Text(stringResource(R.string.academic_number)) },
                     leadingIcon = { Icon(Icons.Rounded.AssignmentInd, null) },
-                    placeholder = { Text("请输入学号") },
+                    placeholder = { Text(stringResource(R.string.enter_num)) },
                     keyboardOptions =
                         KeyboardOptions(
                             imeAction = ImeAction.Next,
@@ -113,22 +117,22 @@ fun LoginView(
                             .widthIn(min = 280.dp, max = 280.dp),
                     value = passwd,
                     singleLine = true,
-                    label = { Text("密码") },
+                    label = { Text(stringResource(R.string.password)) },
                     onValueChange = { passwd = it },
-                    placeholder = { Text("请输入密码") },
+                    placeholder = { Text(stringResource(R.string.enter_passwd)) },
                     leadingIcon = { Icon(Icons.Rounded.Password, null) },
                     trailingIcon = {
                         if (!passwdVisible) {
                             IconButton(onClick = {
                                 passwdVisible = true
                             }) {
-                                Icon(Icons.Rounded.VisibilityOff, "显示密码")
+                                Icon(Icons.Rounded.VisibilityOff, stringResource(R.string.show_passwd))
                             }
                         } else {
                             IconButton(onClick = {
                                 passwdVisible = false
                             }) {
-                                Icon(Icons.Rounded.Visibility, "隐藏密码")
+                                Icon(Icons.Rounded.Visibility, stringResource(R.string.hide_passwd))
                             }
                         }
                     },
@@ -145,7 +149,7 @@ fun LoginView(
                     onClick = {
                         if (userId == "" || passwd == "") {
                             scope.launch {
-                                snackbarHostState.showSnackbar("请确保账号密码不为空！")
+                                snackbarHostState.showSnackbar(context.getString(R.string.id_passwd_note_empty))
                             }
                         } else {
                             scope.launch {
@@ -155,7 +159,7 @@ fun LoginView(
                     },
                     enabled = enableLoginButton,
                 ) {
-                    Text("登录")
+                    Text(stringResource(R.string.login))
                 }
 
                 when (loginState) {
@@ -180,7 +184,8 @@ fun LoginView(
                         enableLoginButton = true
                         LaunchedEffect(loginState) {
                             snackbarHostState.showSnackbar(
-                                "登录失败！" + (loginState as LoginViewModel.LoginState.Failed).message,
+                                context.getString(R.string.login_failed) +
+                                    (loginState as LoginViewModel.LoginState.Failed).message,
                             )
                         }
                     }
@@ -190,7 +195,7 @@ fun LoginView(
             }
         }
         Text(
-            "软件不会存储您的账户密码，仅存储登录时返回的令牌。",
+            stringResource(R.string.login_warning),
             modifier = Modifier.padding(20.dp, top = 25.dp),
             style = MaterialTheme.typography.labelMedium,
         )
