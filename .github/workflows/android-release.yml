@@ -16,6 +16,8 @@ jobs:
       # 检出代码
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # 设置 JDK 环境
       - name: Set up JDK 17
