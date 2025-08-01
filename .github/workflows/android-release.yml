@@ -89,10 +89,13 @@ jobs:
           fi
 
       # 生成 Release 内容
-      - name: Get Release Body from Git Tag
+      - name: Get Release Body from Git Commit
         id: get_release_body
         run: |
-          git tag -l --format='%(contents)' ${{ github.ref_name }} > release_notes.md
+          git show -s --format=%B ${{ github.ref_name }} > release_notes.md
+          echo "--- Release File Content Preview ---"
+          cat release_notes.md
+          echo "--- Release End of Preview ---"
           echo "path=release_notes.md" >> $GITHUB_OUTPUT
 
       # 判断是否为非正式版本
