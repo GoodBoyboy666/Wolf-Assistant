@@ -51,7 +51,7 @@ android {
         create("releaseDebuggable") {
             initWith(getByName("release"))
             isDebuggable = true
-            applicationIdSuffix = ".debug"
+            applicationIdSuffix = ".releaseDebuggable"
         }
         create("GitHubActionRelease") {
             initWith(getByName("release"))
