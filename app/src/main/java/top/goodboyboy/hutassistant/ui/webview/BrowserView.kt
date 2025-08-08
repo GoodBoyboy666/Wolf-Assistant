@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +21,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import top.goodboyboy.hutassistant.R
 import top.goodboyboy.hutassistant.ui.components.LoadingCompose
@@ -45,15 +42,9 @@ fun BrowserView(
     var currentProgress by remember { mutableFloatStateOf(0f) }
     var loading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val accessToken = viewModel.accessTokenStateFlow.collectAsState()
-    var showWebView by remember { mutableStateOf(false) }
+    val accessToken by viewModel.accessTokenStateFlow.collectAsStateWithLifecycle()
     val refreshEvent by viewModel.refreshEvent.collectAsStateWithLifecycle()
     val context = LocalContext.current
-
-    LaunchedEffect(Unit) {
-        delay(300)
-        showWebView = true
-    }
 
     Column(
         modifier =
@@ -69,10 +60,10 @@ fun BrowserView(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-        if (accessToken.value != null && showWebView) {
+        if (accessToken != null) {
             WebViewCompose(
                 url = url,
-                accessToken = accessToken.value!!,
+                accessToken = accessToken!!,
                 headerTokenKeyName = headerTokenKeyName,
                 urlTokenKeyName = urlTokenKeyName,
                 refreshEvent = refreshEvent,
@@ -110,14 +101,13 @@ fun BrowserView(
                 {
                     scope.launch {
                         loading = false
-                        showWebView = false
-                        delay(100)
+//                        delay(100)
                         navController.popBackStack()
                     }
                 },
             )
         }
-        if (accessToken.value == null && showWebView == false) {
+        if (accessToken == null) {
             LoadingCompose(stringResource(R.string.pulling_tokens))
         }
         if (showMenu) {

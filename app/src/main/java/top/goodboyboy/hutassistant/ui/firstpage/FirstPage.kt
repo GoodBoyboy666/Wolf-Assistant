@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +28,10 @@ fun FirstPage(
 ) {
     // 此页面用于应用判断是否登录
     val accessToken by viewModel.hasAccessToken.collectAsStateWithLifecycle()
-    val loadState by viewModel.loadState
+    val loadState by viewModel.loadState.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) {
+        viewModel.checkLoginStatue()
+    }
     when (loadState) {
         is FirstPageViewModel.LoadState.Failed -> {}
         FirstPageViewModel.LoadState.Idle -> {

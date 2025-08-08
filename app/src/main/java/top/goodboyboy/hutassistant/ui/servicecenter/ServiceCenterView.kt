@@ -39,7 +39,6 @@ import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import top.goodboyboy.hutassistant.R
 import top.goodboyboy.hutassistant.ui.components.LoadingCompose
@@ -56,16 +55,13 @@ fun ServiceCenterView(
 ) {
     val loadServiceState by viewModel.loadServiceState.collectAsStateWithLifecycle()
     val serviceList by viewModel.serviceList.collectAsStateWithLifecycle()
-    var showServiceList by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        delay(300)
-        showServiceList = true
-    }
-    LaunchedEffect(Unit) {
-        viewModel.loadService()
+        if (loadServiceState is LoadServiceState.Idle) {
+            viewModel.loadService()
+        }
     }
     Column(
         modifier =
@@ -109,68 +105,66 @@ fun ServiceCenterView(
                 }
 
                 is LoadServiceState.Success -> {
-                    if (showServiceList) {
-                        PullToRefreshBox(
-                            isRefreshing = isRefreshing,
-                            onRefresh = {
-                                scope.launch {
-                                    viewModel.cleanServiceList()
-                                    viewModel.changeLoadServiceState(LoadServiceState.Loading)
-                                    viewModel.loadService()
-                                }
-                                isRefreshing = false
-                            },
+                    PullToRefreshBox(
+                        isRefreshing = isRefreshing,
+                        onRefresh = {
+                            scope.launch {
+                                viewModel.cleanServiceList()
+                                viewModel.changeLoadServiceState(LoadServiceState.Loading)
+                                viewModel.loadService()
+                            }
+                            isRefreshing = false
+                        },
+                    ) {
+                        LazyVerticalGrid(
+                            columns = GridCells.Adaptive(48.dp),
+                            contentPadding = PaddingValues(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            LazyVerticalGrid(
-                                columns = GridCells.Adaptive(48.dp),
-                                contentPadding = PaddingValues(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                items(serviceList) { item ->
-                                    Column(
+                            items(serviceList) { item ->
+                                Column(
+                                    modifier =
+                                        Modifier
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .padding(4.dp)
+                                            .clickable {
+                                                val encodeUrl =
+                                                    URLEncoder.encode(
+                                                        item.serviceUrl,
+                                                        "UTF-8",
+                                                    )
+                                                navController.navigate(
+                                                    "browser/$encodeUrl?headerTokenKeyName=${item.tokenAccept?.headerTokenKeyName ?: ""}&urlTokenKeyName=${item.tokenAccept?.urlTokenKeyName ?: ""}",
+                                                )
+                                            },
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    AsyncImage(
+                                        model =
+                                            ImageRequest
+                                                .Builder(context)
+                                                .data(item.imageUrl)
+                                                .diskCachePolicy(CachePolicy.ENABLED)
+                                                .networkCachePolicy(CachePolicy.ENABLED)
+                                                .build(),
+                                        contentDescription = item.text,
                                         modifier =
                                             Modifier
-                                                .clip(RoundedCornerShape(12.dp))
-                                                .padding(4.dp)
-                                                .clickable {
-                                                    val encodeUrl =
-                                                        URLEncoder.encode(
-                                                            item.serviceUrl,
-                                                            "UTF-8",
-                                                        )
-                                                    navController.navigate(
-                                                        "browser/$encodeUrl?headerTokenKeyName=${item.tokenAccept?.headerTokenKeyName ?: ""}&urlTokenKeyName=${item.tokenAccept?.urlTokenKeyName ?: ""}",
-                                                    )
-                                                },
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center,
-                                    ) {
-                                        AsyncImage(
-                                            model =
-                                                ImageRequest
-                                                    .Builder(context)
-                                                    .data(item.imageUrl)
-                                                    .diskCachePolicy(CachePolicy.ENABLED)
-                                                    .networkCachePolicy(CachePolicy.ENABLED)
-                                                    .build(),
-                                            contentDescription = item.text,
-                                            modifier =
-                                                Modifier
-                                                    .padding(8.dp)
-                                                    .fillMaxSize()
-                                                    .aspectRatio(1f),
-                                        )
-                                        Spacer(modifier = Modifier.padding(5.dp))
-                                        Text(
-                                            item.text,
-                                            maxLines = 2,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            overflow = TextOverflow.Ellipsis,
-                                            textAlign = TextAlign.Center,
-                                            modifier = Modifier.fillMaxWidth(),
-                                        )
-                                    }
+                                                .padding(8.dp)
+                                                .fillMaxSize()
+                                                .aspectRatio(1f),
+                                    )
+                                    Spacer(modifier = Modifier.padding(5.dp))
+                                    Text(
+                                        item.text,
+                                        maxLines = 2,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        overflow = TextOverflow.Ellipsis,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth(),
+                                    )
                                 }
                             }
                         }

@@ -43,6 +43,7 @@ class ServiceCenterViewModel
         }
 
         suspend fun loadService() {
+            _loadServiceState.value = LoadServiceState.Loading
             val accessToken = settingsRepository.accessTokenFlow.first()
             val data = serviceRepository.getServiceList(accessToken)
             when (data) {
