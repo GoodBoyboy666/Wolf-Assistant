@@ -20,6 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+-dontobfuscate
 -keep class top.goodboyboy.hutassistant.ui.home.portal.model.** {*;}
 -keep class top.goodboyboy.hutassistant.ui.messagecenter.model.** {*;}
 -keep class top.goodboyboy.hutassistant.ui.personalcenter.personal.model.** {*;}
