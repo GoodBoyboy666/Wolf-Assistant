@@ -1,8 +1,8 @@
-# HUT Assistant
+# 小狼助手
 
 ## 开始
 
-从 [Release](https://github.com/GoodBoyboy666/HUT-Assistant/releases) 中下载Release版APK。
+从 [Release](https://github.com/GoodBoyboy666/Wolf-Assistant/releases) 中下载Release版APK。
 
 > \[!TIP]
 >
@@ -17,8 +17,8 @@
 ## 本地开发
 
 ```bash
-git clone https://github.com/GoodBoyboy666/HUT-Assistant.git
-cd HUT-Assistant
+git clone https://github.com/GoodBoyboy666/Wolf-Assistant.git
+cd Wolf-Assistant
 ./gradlew assembleRelease
 ```
 
@@ -32,7 +32,7 @@ cd HUT-Assistant
 
 ## LICENSE
 
-    HUT Assistant
+    Wolf Assistant
     Copyright (C) 2025  Liang Huaxia
 
     This program is free software: you can redistribute it and/or modify

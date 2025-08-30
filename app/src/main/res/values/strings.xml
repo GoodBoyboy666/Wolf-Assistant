@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">工大助手</string>
+    <string name="app_name">小狼助手</string>
     <string name="new_version">新版本</string>
     <string name="discover_new_releases">发现新版本</string>
     <string name="preview_version">预览版</string>
@@ -48,7 +48,7 @@
     <string name="loading_failed">加载失败: %1$s</string>
     <string name="retry">重试</string>
     <string name="load_more_failed">加载更多失败：%1$s</string>
-    <string name="HUT_announcement">工大公告</string>
+    <string name="announcement">公告</string>
     <string name="xgxt">学工系统</string>
     <string name="name">姓名：%1$s</string>
     <string name="class_name">班级：%1$s</string>
