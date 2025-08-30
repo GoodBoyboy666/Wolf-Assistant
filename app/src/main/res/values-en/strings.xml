@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">HUT Assistant</string>
+    <string name="app_name">Wolf Assistant</string>
     <string name="new_version">New version</string>
     <string name="discover_new_releases">Discover new releases</string>
     <string name="preview_version">Preview</string>
@@ -49,7 +49,7 @@
     <string name="loading_failed">Loading failed: %1$s</string>
     <string name="retry">retry</string>
     <string name="load_more_failed">Load more failed: %1$s</string>
-    <string name="HUT_announcement">HUT announcement</string>
+    <string name="announcement">Announcement</string>
     <string name="xgxt">Student-engineering system</string>
     <string name="name">Name: %1$s</string>
     <string name="class_name">Class: %1$s</string>

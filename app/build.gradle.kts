@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace = "top.goodboyboy.hutassistant"
+    namespace = "top.goodboyboy.wolfassistant"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "top.goodboyboy.hutassistant"
+        applicationId = "top.goodboyboy.wolfassistant"
         minSdk = 28
         targetSdk = 36
         versionCode = 4

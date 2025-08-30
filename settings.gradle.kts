@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "HUT Assistant"
+rootProject.name = "Wolf Assistant"
 include(":app")

@@ -21,13 +21,13 @@
 #-renamesourcefileattribute SourceFile
 
 -dontobfuscate
--keep class top.goodboyboy.hutassistant.ui.home.portal.model.** {*;}
--keep class top.goodboyboy.hutassistant.ui.messagecenter.model.** {*;}
--keep class top.goodboyboy.hutassistant.ui.personalcenter.personal.model.** {*;}
--keep class top.goodboyboy.hutassistant.ui.schedulecenter.model.** {*;}
--keep class top.goodboyboy.hutassistant.ui.servicecenter.model.** {*;}
--keep class top.goodboyboy.hutassistant.common.** {*;}
--keep class top.goodboyboy.hutassistant.util.GsonUtil {*;}
+-keep class top.goodboyboy.wolfassistant.ui.home.portal.model.** {*;}
+-keep class top.goodboyboy.wolfassistant.ui.messagecenter.model.** {*;}
+-keep class top.goodboyboy.wolfassistant.ui.personalcenter.personal.model.** {*;}
+-keep class top.goodboyboy.wolfassistant.ui.schedulecenter.model.** {*;}
+-keep class top.goodboyboy.wolfassistant.ui.servicecenter.model.** {*;}
+-keep class top.goodboyboy.wolfassistant.common.** {*;}
+-keep class top.goodboyboy.wolfassistant.util.GsonUtil {*;}
 -keep class com.google.gson.stream.** { *; }
 -keep class com.google.gson.** { *; }
 -keepclassmembers,allowobfuscation class * {
