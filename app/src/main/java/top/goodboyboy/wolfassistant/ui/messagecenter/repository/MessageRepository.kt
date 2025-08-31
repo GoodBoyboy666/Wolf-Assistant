@@ -13,7 +13,7 @@ interface MessageRepository {
      * @param appID appid（message）
      * @return Flow
      */
-    fun getMessages(
+    suspend fun getMessages(
         accessToken: String,
         appID: String,
     ): Flow<PagingData<MessageItem>>

@@ -98,7 +98,7 @@ class HomeViewModel
             val categories = portalRepository.getPortalCategory()
             when (categories) {
                 is PortalRepository.PortalData.Failed -> {
-                    _portalState.value = PortalState.Failed(categories.e.message + "test")
+                    _portalState.value = PortalState.Failed(categories.e.message)
                     categories.e.cause?.printStackTrace()
                 }
 
