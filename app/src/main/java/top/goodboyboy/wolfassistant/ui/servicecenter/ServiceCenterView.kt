@@ -144,17 +144,18 @@ fun ServiceCenterView(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center,
                                 ) {
-                                    val imageLoader = ImageLoader.Builder(context)
-                                        .components {
-                                            add(
-                                                OkHttpNetworkFetcherFactory(
-                                                    callFactory = {
-                                                        getUnsafeOkHttpClient()
-                                                    }
+                                    val imageLoader =
+                                        ImageLoader
+                                            .Builder(context)
+                                            .components {
+                                                add(
+                                                    OkHttpNetworkFetcherFactory(
+                                                        callFactory = {
+                                                            getUnsafeOkHttpClient()
+                                                        },
+                                                    ),
                                                 )
-                                            )
-                                        }
-                                        .build()
+                                            }.build()
                                     AsyncImage(
                                         model =
                                             ImageRequest
