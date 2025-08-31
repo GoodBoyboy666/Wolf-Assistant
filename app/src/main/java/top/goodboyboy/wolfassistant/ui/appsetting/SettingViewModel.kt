@@ -41,6 +41,8 @@ class SettingViewModel
         private val _updateState = MutableStateFlow<CheckUpdateState>(CheckUpdateState.Idle)
         val updateState: StateFlow<CheckUpdateState> = _updateState.asStateFlow()
 
+        val disableSSLCertVerification = settingsRepository.disableSSLCertVerification
+
         suspend fun getTotalCacheSize(context: Context) {
             withContext(Dispatchers.IO) {
                 val size = CacheUtil.getTotalCacheSize(context)
@@ -86,6 +88,10 @@ class SettingViewModel
 
         fun changeUpdateState(state: CheckUpdateState) {
             _updateState.value = state
+        }
+
+        suspend fun setSSLCertVerification(value: Boolean) {
+            settingsRepository.setSSLCertVerification(value)
         }
 
         sealed class CheckUpdateState {

@@ -126,4 +126,5 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     testImplementation("app.cash.turbine:turbine:1.2.1")
     testImplementation(kotlin("test"))
+    implementation("com.squareup.okhttp3:logging-interceptor:5.1.0")
 }

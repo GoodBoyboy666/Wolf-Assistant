@@ -12,6 +12,7 @@ import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -43,6 +44,7 @@ import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.ui.appsetting.components.UpdateDialog
 import top.goodboyboy.wolfassistant.ui.components.SettingDivider
 import top.goodboyboy.wolfassistant.ui.components.SettingItem
+import top.goodboyboy.wolfassistant.ui.components.SwitchSettingItem
 
 @Composable
 fun SettingView(
@@ -59,6 +61,9 @@ fun SettingView(
     var showAboutCard by remember { mutableStateOf(false) }
     val checkUpdateState by viewModel.updateState.collectAsStateWithLifecycle()
     var showUpdateAlert by remember { mutableStateOf(false) }
+    val disableSSLCertVerification by viewModel.disableSSLCertVerification.collectAsStateWithLifecycle(
+        initialValue = false,
+    )
     LaunchedEffect(Unit) {
         viewModel.getTotalCacheSize(context)
     }
@@ -88,6 +93,16 @@ fun SettingView(
         ) {
             scope.launch {
                 viewModel.cleanAllCache(context)
+            }
+        }
+        SwitchSettingItem(
+            title = "禁用SSL证书检查",
+            subtitle = "打开将不检查SSL证书合法性",
+            icon = Icons.Rounded.Security,
+            checked = disableSSLCertVerification,
+        ) {
+            scope.launch {
+                viewModel.setSSLCertVerification(!disableSSLCertVerification)
             }
         }
         SettingDivider(

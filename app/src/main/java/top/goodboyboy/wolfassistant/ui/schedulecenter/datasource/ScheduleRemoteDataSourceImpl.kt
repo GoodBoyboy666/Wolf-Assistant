@@ -2,10 +2,14 @@ package top.goodboyboy.wolfassistant.ui.schedulecenter.datasource
 
 import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
+import kotlinx.coroutines.flow.first
 import okio.IOException
 import retrofit2.HttpException
+import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
+import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.schedule.ScheduleAPIService
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleRemoteDataSource.DataResult
 import top.goodboyboy.wolfassistant.ui.schedulecenter.model.ScheduleItem
 import java.time.LocalDate
@@ -17,8 +21,12 @@ import kotlin.coroutines.cancellation.CancellationException
 class ScheduleRemoteDataSourceImpl
     @Inject
     constructor(
-        private val apiService: ScheduleAPIService,
+        @param:SafeApi private val apiService: ScheduleAPIService,
+        @param:UnsafeApi private val unsafeAPIService: ScheduleAPIService,
+        private val settingsRepository: SettingsRepository,
     ) : ScheduleRemoteDataSource {
+        val disableSSLCertVerification = settingsRepository.disableSSLCertVerification
+
         override suspend fun getSchedule(
             accessToken: String,
             startDate: LocalDate,
@@ -26,11 +34,19 @@ class ScheduleRemoteDataSourceImpl
         ): DataResult {
             try {
                 val response =
-                    apiService.getSchedule(
-                        accessToken = accessToken,
-                        startDate = startDate.toString(),
-                        endDate = endDate.toString(),
-                    )
+                    if (disableSSLCertVerification.first()) {
+                        unsafeAPIService.getSchedule(
+                            accessToken = accessToken,
+                            startDate = startDate.toString(),
+                            endDate = endDate.toString(),
+                        )
+                    } else {
+                        apiService.getSchedule(
+                            accessToken = accessToken,
+                            startDate = startDate.toString(),
+                            endDate = endDate.toString(),
+                        )
+                    }
                 response.use {
                     val jsonElement =
                         JsonParser.parseString(it.string()).asJsonObject.get("data")

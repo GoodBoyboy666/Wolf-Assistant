@@ -10,6 +10,9 @@ interface ScheduleAPIService {
     suspend fun getSchedule(
         @Header("X-Id-Token") accessToken: String,
         @Header("X-Terminal-Info") terminalInfo: String = "app",
+        @Header(
+            "X-Device-Infos",
+        ) deviceInfos: String = "{'packagename':__UNI__AA077AA,'version':1.1.0,'system':Android 16}",
         @Query("startDate") startDate: String,
         @Query("endDate") endDate: String,
     ): ResponseBody

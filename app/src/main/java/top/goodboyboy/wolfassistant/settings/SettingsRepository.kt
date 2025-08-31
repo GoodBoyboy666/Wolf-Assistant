@@ -41,6 +41,11 @@ class SettingsRepository
                 it[stringPreferencesKey("access_token")] ?: ""
             }
 
+        val disableSSLCertVerification: Flow<Boolean> =
+            dataStore.data.map {
+                it[booleanPreferencesKey("disable_SSLCert_verification")] ?: false
+            }
+
         suspend fun setDarkMode(value: Boolean) {
             dataStore.edit { prefs ->
                 prefs[booleanPreferencesKey("dark_mode")] = value
@@ -74,6 +79,12 @@ class SettingsRepository
         suspend fun cleanAllData() {
             dataStore.edit { prefs ->
                 prefs.clear()
+            }
+        }
+
+        suspend fun setSSLCertVerification(value: Boolean) {
+            dataStore.edit { prefs ->
+                prefs[booleanPreferencesKey("disable_SSLCert_verification")] = value
             }
         }
     }

@@ -2,21 +2,34 @@ package top.goodboyboy.wolfassistant.ui.messagecenter.datasource
 
 import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
+import kotlinx.coroutines.flow.first
 import okio.IOException
 import retrofit2.HttpException
+import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
+import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.message.MessageAPIService
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.messagecenter.datasource.MessageDataSource.DataResult
 import javax.inject.Inject
 
 class MessageDataSourceImpl
     @Inject
     constructor(
-        private val apiService: MessageAPIService,
+        @param:SafeApi private val apiService: MessageAPIService,
+        @param:UnsafeApi private val unsafeAPIService: MessageAPIService,
+        private val settingsRepository: SettingsRepository,
     ) : MessageDataSource {
+        val disableSSLCertVerification = settingsRepository.disableSSLCertVerification
+
         override suspend fun getAppID(accessToken: String): DataResult {
             try {
-                val response = apiService.getAppGroupByTag(accessToken)
+                val response =
+                    if (disableSSLCertVerification.first()) {
+                        unsafeAPIService.getAppGroupByTag(accessToken)
+                    } else {
+                        apiService.getAppGroupByTag(accessToken)
+                    }
                 response.use {
                     val list =
                         JsonParser

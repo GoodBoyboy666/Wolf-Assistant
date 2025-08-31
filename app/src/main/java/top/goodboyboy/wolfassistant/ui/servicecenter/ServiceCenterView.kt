@@ -36,13 +36,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.ui.components.LoadingCompose
 import top.goodboyboy.wolfassistant.ui.servicecenter.ServiceCenterViewModel.LoadServiceState
+import top.goodboyboy.wolfassistant.util.UnsafeOkHttpClient.getUnsafeOkHttpClient
 import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -141,6 +144,17 @@ fun ServiceCenterView(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center,
                                 ) {
+                                    val imageLoader = ImageLoader.Builder(context)
+                                        .components {
+                                            add(
+                                                OkHttpNetworkFetcherFactory(
+                                                    callFactory = {
+                                                        getUnsafeOkHttpClient()
+                                                    }
+                                                )
+                                            )
+                                        }
+                                        .build()
                                     AsyncImage(
                                         model =
                                             ImageRequest
@@ -150,6 +164,7 @@ fun ServiceCenterView(
                                                 .networkCachePolicy(CachePolicy.ENABLED)
                                                 .build(),
                                         contentDescription = item.text,
+                                        imageLoader = imageLoader,
                                         modifier =
                                             Modifier
                                                 .padding(8.dp)
