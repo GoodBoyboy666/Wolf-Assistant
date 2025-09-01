@@ -10,7 +10,10 @@ interface PersonalInfoRepository {
      * @param accessToken 令牌
      * @return DataResult
      */
-    suspend fun getPersonalInfo(accessToken: String): PersonalInfoData
+    suspend fun getPersonalInfo(
+        accessToken: String,
+        disableSSLCertVerification: Boolean,
+    ): PersonalInfoData
 
     /**
      * 清除用户信息缓存

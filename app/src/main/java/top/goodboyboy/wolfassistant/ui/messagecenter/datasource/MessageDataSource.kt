@@ -9,7 +9,10 @@ interface MessageDataSource {
      * @param accessToken
      * @return
      */
-    suspend fun getAppID(accessToken: String): DataResult
+    suspend fun getAppID(
+        accessToken: String,
+        disableSSLCertVerification: Boolean,
+    ): DataResult
 
     sealed class DataResult {
         data class Success(

@@ -2,7 +2,6 @@ package top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource
 
 import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
-import kotlinx.coroutines.flow.first
 import okio.IOException
 import retrofit2.HttpException
 import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
@@ -10,7 +9,6 @@ import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.user.UserAPIService
 import top.goodboyboy.wolfassistant.api.hutapi.user.UserAvatar
 import top.goodboyboy.wolfassistant.common.Failure
-import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoRemoteDataSource.DataResult
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.model.PersonalInfo
 import javax.inject.Inject
@@ -20,14 +18,14 @@ class PersonalInfoRemoteDataSourceImpl
     constructor(
         @param:SafeApi private val apiService: UserAPIService,
         @param:UnsafeApi private val unsafeAPIService: UserAPIService,
-        private val settingsRepository: SettingsRepository,
     ) : PersonalInfoRemoteDataSource {
-        val disableSSLCertVerification = settingsRepository.disableSSLCertVerification
-
-        override suspend fun getPersonalInfo(accessToken: String): DataResult {
+        override suspend fun getPersonalInfo(
+            accessToken: String,
+            disableSSLCertVerification: Boolean,
+        ): DataResult {
             try {
                 val response =
-                    if (disableSSLCertVerification.first()) {
+                    if (disableSSLCertVerification) {
                         unsafeAPIService.getUserInfo(accessToken)
                     } else {
                         apiService.getUserInfo(accessToken)

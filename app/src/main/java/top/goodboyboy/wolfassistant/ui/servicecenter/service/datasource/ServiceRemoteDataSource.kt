@@ -10,7 +10,10 @@ interface ServiceRemoteDataSource {
      * @param accessToken 令牌
      * @return DataResult
      */
-    suspend fun getServiceList(accessToken: String): DataResult
+    suspend fun getServiceList(
+        accessToken: String,
+        disableSSLCertVerification: Boolean,
+    ): DataResult
 
     sealed class DataResult {
         data class Success(

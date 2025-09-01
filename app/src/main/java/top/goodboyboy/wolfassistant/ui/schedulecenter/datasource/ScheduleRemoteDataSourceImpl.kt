@@ -2,14 +2,12 @@ package top.goodboyboy.wolfassistant.ui.schedulecenter.datasource
 
 import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
-import kotlinx.coroutines.flow.first
 import okio.IOException
 import retrofit2.HttpException
 import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.schedule.ScheduleAPIService
 import top.goodboyboy.wolfassistant.common.Failure
-import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleRemoteDataSource.DataResult
 import top.goodboyboy.wolfassistant.ui.schedulecenter.model.ScheduleItem
 import java.time.LocalDate
@@ -23,18 +21,16 @@ class ScheduleRemoteDataSourceImpl
     constructor(
         @param:SafeApi private val apiService: ScheduleAPIService,
         @param:UnsafeApi private val unsafeAPIService: ScheduleAPIService,
-        private val settingsRepository: SettingsRepository,
     ) : ScheduleRemoteDataSource {
-        val disableSSLCertVerification = settingsRepository.disableSSLCertVerification
-
         override suspend fun getSchedule(
             accessToken: String,
+            disableSSLCertVerification: Boolean,
             startDate: LocalDate,
             endDate: LocalDate,
         ): DataResult {
             try {
                 val response =
-                    if (disableSSLCertVerification.first()) {
+                    if (disableSSLCertVerification) {
                         unsafeAPIService.getSchedule(
                             accessToken = accessToken,
                             startDate = startDate.toString(),

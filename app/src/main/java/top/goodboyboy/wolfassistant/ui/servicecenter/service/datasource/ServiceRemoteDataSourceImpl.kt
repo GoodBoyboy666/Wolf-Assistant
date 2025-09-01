@@ -2,7 +2,6 @@ package top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource
 
 import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
-import kotlinx.coroutines.flow.first
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
@@ -11,7 +10,6 @@ import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.service.ServiceListAPIService
 import top.goodboyboy.wolfassistant.common.Failure
-import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceRemoteDataSource.DataResult
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.ServiceItem
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.TokenKeyName
@@ -22,15 +20,15 @@ class ServiceRemoteDataSourceImpl
     constructor(
         @param:SafeApi private val apiService: ServiceListAPIService,
         @param:UnsafeApi private val unsafeAPIService: ServiceListAPIService,
-        private val settingsRepository: SettingsRepository,
     ) : ServiceRemoteDataSource {
-        val disableSSLCertVerification = settingsRepository.disableSSLCertVerification
-
-        override suspend fun getServiceList(accessToken: String): DataResult {
+        override suspend fun getServiceList(
+            accessToken: String,
+            disableSSLCertVerification: Boolean,
+        ): DataResult {
             try {
                 val emptyRequestBody = "".toRequestBody("application/json".toMediaType())
                 val response =
-                    if (disableSSLCertVerification.first()) {
+                    if (disableSSLCertVerification) {
                         unsafeAPIService.getServiceList(
                             accessToken = accessToken,
                             body = emptyRequestBody,

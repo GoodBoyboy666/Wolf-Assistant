@@ -31,6 +31,5 @@ object MessageCenterModule {
     fun provideMessageDataSource(
         @SafeApi apiService: MessageAPIService,
         @UnsafeApi unsafeAPIService: MessageAPIService,
-        settingsRepository: SettingsRepository,
-    ): MessageDataSource = MessageDataSourceImpl(apiService, unsafeAPIService, settingsRepository)
+    ): MessageDataSource = MessageDataSourceImpl(apiService, unsafeAPIService)
 }

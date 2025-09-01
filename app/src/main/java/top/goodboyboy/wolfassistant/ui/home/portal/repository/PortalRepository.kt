@@ -10,7 +10,10 @@ interface PortalRepository {
      *
      * @return PortalData
      */
-    suspend fun getPortalCategory(): PortalData<List<PortalCategoryItem>>
+    suspend fun getPortalCategory(
+        accessToken: String,
+        disableSSLCertVerification: Boolean,
+    ): PortalData<List<PortalCategoryItem>>
 
     /**
      * 获取门户信息列表
@@ -18,7 +21,10 @@ interface PortalRepository {
      * @param portalID 门户ID
      * @return PortalData
      */
-    suspend fun getPortalInfoList(portalID: String): PortalData<List<PortalInfoItem>>
+    suspend fun getPortalInfoList(
+        portalID: String,
+        disableSSLCertVerification: Boolean,
+    ): PortalData<List<PortalInfoItem>>
 
     /**
      * 清理缓存

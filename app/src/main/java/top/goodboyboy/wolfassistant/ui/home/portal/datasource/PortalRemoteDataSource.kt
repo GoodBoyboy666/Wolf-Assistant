@@ -10,7 +10,10 @@ interface PortalRemoteDataSource {
      *
      * @return RemoteDataResult
      */
-    suspend fun getPortalCategory(): RemoteDataResult<List<PortalCategoryItem>>
+    suspend fun getPortalCategory(
+        accessToken: String,
+        disableSSLCertVerification: Boolean,
+    ): RemoteDataResult<List<PortalCategoryItem>>
 
     /**
      * 获取门户信息
@@ -18,5 +21,8 @@ interface PortalRemoteDataSource {
      * @param portalID 门户ID
      * @return RemoteDataResult
      */
-    suspend fun getPortalInfoList(portalID: String): RemoteDataResult<List<PortalInfoItem>>
+    suspend fun getPortalInfoList(
+        portalID: String,
+        disableSSLCertVerification: Boolean,
+    ): RemoteDataResult<List<PortalInfoItem>>
 }

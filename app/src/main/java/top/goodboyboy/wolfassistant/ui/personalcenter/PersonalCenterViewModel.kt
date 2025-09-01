@@ -49,7 +49,11 @@ class PersonalCenterViewModel
 
         suspend fun loadPersonalInfo() {
             val accessToken = settingsRepository.accessTokenFlow.first()
-            val info = personalInfoRepository.getPersonalInfo(accessToken)
+            val info =
+                personalInfoRepository.getPersonalInfo(
+                    accessToken,
+                    settingsRepository.disableSSLCertVerification.first(),
+                )
             when (info) {
                 is PersonalInfoRepository.PersonalInfoData.Failed -> {
                     withContext(Dispatchers.Main) {

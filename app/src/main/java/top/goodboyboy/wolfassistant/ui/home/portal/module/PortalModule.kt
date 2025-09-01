@@ -26,8 +26,7 @@ object PortalModule {
     fun providePortalRemoteDataSource(
         @SafeApi apiService: PortalAPIService,
         @UnsafeApi unsafeAPIService: PortalAPIService,
-        settingsRepository: SettingsRepository,
-    ): PortalRemoteDataSource = PortalRemoteDataSourceImpl(apiService, unsafeAPIService, settingsRepository)
+    ): PortalRemoteDataSource = PortalRemoteDataSourceImpl(apiService, unsafeAPIService)
 
     @Provides
     @Singleton
@@ -40,5 +39,6 @@ object PortalModule {
     fun providePortalRepository(
         remoteDataSource: PortalRemoteDataSource,
         cacheDataSource: PortalCacheDataSource,
-    ): PortalRepository = PortalRepositoryImpl(remoteDataSource, cacheDataSource)
+        settingsRepository: SettingsRepository,
+    ): PortalRepository = PortalRepositoryImpl(remoteDataSource, cacheDataSource, settingsRepository)
 }

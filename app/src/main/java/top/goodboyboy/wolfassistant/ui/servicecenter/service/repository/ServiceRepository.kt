@@ -10,7 +10,10 @@ interface ServiceRepository {
      * @param accessToken 令牌
      * @return DataResult
      */
-    suspend fun getServiceList(accessToken: String): ServiceListData
+    suspend fun getServiceList(
+        accessToken: String,
+        disableSSLCertVerification: Boolean,
+    ): ServiceListData
 
     /**
      * 清除服务列表缓存

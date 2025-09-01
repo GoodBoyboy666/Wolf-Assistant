@@ -9,7 +9,6 @@ import dagger.hilt.components.SingletonComponent
 import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.user.UserAPIService
-import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoCacheDataSource
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoCacheDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoRemoteDataSource
@@ -32,8 +31,7 @@ object PersonalCenterModule {
     fun providePersonalInfoRemoteDataSource(
         @SafeApi apiService: UserAPIService,
         @UnsafeApi unsafeAPIService: UserAPIService,
-        settingsRepository: SettingsRepository,
-    ): PersonalInfoRemoteDataSource = PersonalInfoRemoteDataSourceImpl(apiService, unsafeAPIService, settingsRepository)
+    ): PersonalInfoRemoteDataSource = PersonalInfoRemoteDataSourceImpl(apiService, unsafeAPIService)
 
     @Provides
     @Singleton

@@ -9,7 +9,6 @@ import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.service.ServiceListAPIService
 import top.goodboyboy.wolfassistant.room.dao.ServiceItemDao
 import top.goodboyboy.wolfassistant.room.dao.TokenKeyNameDao
-import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceCacheDataSource
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceCacheDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceRemoteDataSource
@@ -33,8 +32,7 @@ object ServiceModule {
     fun provideServiceRemoteDataSource(
         @SafeApi apiService: ServiceListAPIService,
         @UnsafeApi unsafeAPIService: ServiceListAPIService,
-        settingsRepository: SettingsRepository,
-    ): ServiceRemoteDataSource = ServiceRemoteDataSourceImpl(apiService, unsafeAPIService, settingsRepository)
+    ): ServiceRemoteDataSource = ServiceRemoteDataSourceImpl(apiService, unsafeAPIService)
 
     @Provides
     @Singleton

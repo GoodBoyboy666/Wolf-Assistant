@@ -57,6 +57,7 @@ class ScheduleCenterViewModel
             val data =
                 scheduleCenterRepository.getSchedule(
                     accessToken,
+                    settingsRepository.disableSSLCertVerification.first(),
                     startDate,
                     endDate,
                 )

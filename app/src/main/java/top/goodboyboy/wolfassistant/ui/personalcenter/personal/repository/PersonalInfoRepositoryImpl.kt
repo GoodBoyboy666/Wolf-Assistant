@@ -9,7 +9,10 @@ class PersonalInfoRepositoryImpl(
     private val personalInfoCacheDataSource: PersonalInfoCacheDataSource,
     private val personalInfoRemoteDataSource: PersonalInfoRemoteDataSource,
 ) : PersonalInfoRepository {
-    override suspend fun getPersonalInfo(accessToken: String): PersonalInfoData {
+    override suspend fun getPersonalInfo(
+        accessToken: String,
+        disableSSLCertVerification: Boolean,
+    ): PersonalInfoData {
         val cache = personalInfoCacheDataSource.getPersonalInfo()
         when (cache) {
             is PersonalInfoCacheDataSource.DataResult.Error -> {}
@@ -18,7 +21,7 @@ class PersonalInfoRepositoryImpl(
                 return PersonalInfoData.Success(cache.info)
             }
         }
-        val remote = personalInfoRemoteDataSource.getPersonalInfo(accessToken)
+        val remote = personalInfoRemoteDataSource.getPersonalInfo(accessToken, disableSSLCertVerification)
         when (remote) {
             is PersonalInfoRemoteDataSource.DataResult.Error ->
                 return Failed(remote.error)
