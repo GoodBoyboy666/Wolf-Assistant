@@ -48,7 +48,6 @@ class ServiceCenterViewModel
             val data =
                 serviceRepository.getServiceList(
                     accessToken,
-                    settingsRepository.disableSSLCertVerification.first(),
                 )
             when (data) {
                 is ServiceRepository.ServiceListData.Failed -> {

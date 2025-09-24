@@ -43,6 +43,7 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.R
+import top.goodboyboy.wolfassistant.ui.appsetting.GlobalInitConfig
 import top.goodboyboy.wolfassistant.ui.components.LoadingCompose
 import top.goodboyboy.wolfassistant.ui.servicecenter.ServiceCenterViewModel.LoadServiceState
 import top.goodboyboy.wolfassistant.util.UnsafeOkHttpClient.getUnsafeOkHttpClient
@@ -151,7 +152,7 @@ fun ServiceCenterView(
                                                 add(
                                                     OkHttpNetworkFetcherFactory(
                                                         callFactory = {
-                                                            getUnsafeOkHttpClient()
+                                                            getUnsafeOkHttpClient(GlobalInitConfig.onlyIPv4)
                                                         },
                                                     ),
                                                 )
