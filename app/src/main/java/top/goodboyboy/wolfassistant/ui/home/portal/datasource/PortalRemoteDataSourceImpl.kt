@@ -3,8 +3,6 @@ package top.goodboyboy.wolfassistant.ui.home.portal.datasource
 import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
 import retrofit2.HttpException
-import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
-import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.portal.PortalAPIService
 import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.ui.home.portal.model.PortalCategoryItem
@@ -16,24 +14,14 @@ import javax.inject.Inject
 class PortalRemoteDataSourceImpl
     @Inject
     constructor(
-        @param:SafeApi private val apiService: PortalAPIService,
-        @param:UnsafeApi private val unsafeApiService: PortalAPIService,
+        private val apiService: PortalAPIService,
     ) : PortalRemoteDataSource {
-        override suspend fun getPortalCategory(
-            accessToken: String,
-            disableSSLCertVerification: Boolean,
-        ): RemoteDataResult<List<PortalCategoryItem>> {
+        override suspend fun getPortalCategory(accessToken: String): RemoteDataResult<List<PortalCategoryItem>> {
             try {
                 val response =
-                    if (disableSSLCertVerification) {
-                        unsafeApiService.getPortalCategory(
-                            accessToken = accessToken,
-                        )
-                    } else {
-                        apiService.getPortalCategory(
-                            accessToken = accessToken,
-                        )
-                    }
+                    apiService.getPortalCategory(
+                        accessToken = accessToken,
+                    )
                 response.use {
                     val portalCategory =
                         JsonParser
@@ -69,17 +57,10 @@ class PortalRemoteDataSourceImpl
             }
         }
 
-        override suspend fun getPortalInfoList(
-            portalID: String,
-            disableSSLCertVerification: Boolean,
-        ): RemoteDataResult<List<PortalInfoItem>> {
+        override suspend fun getPortalInfoList(portalID: String): RemoteDataResult<List<PortalInfoItem>> {
             try {
                 val response =
-                    if (disableSSLCertVerification) {
-                        unsafeApiService.getPortalInfo(portalID)
-                    } else {
-                        apiService.getPortalInfo(portalID)
-                    }
+                    apiService.getPortalInfo(portalID)
 
                 response.use {
                     val portalInfos =

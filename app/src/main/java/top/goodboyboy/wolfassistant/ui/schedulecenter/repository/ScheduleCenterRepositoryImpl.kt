@@ -12,7 +12,6 @@ class ScheduleCenterRepositoryImpl(
 ) : ScheduleCenterRepository {
     override suspend fun getSchedule(
         accessToken: String,
-        disableSSLCertVerification: Boolean,
         startDate: LocalDate,
         endDate: LocalDate,
     ): ScheduleData {
@@ -37,7 +36,6 @@ class ScheduleCenterRepositoryImpl(
         val remote =
             scheduleRemoteDataSource.getSchedule(
                 accessToken,
-                disableSSLCertVerification,
                 startDate,
                 endDate,
             )

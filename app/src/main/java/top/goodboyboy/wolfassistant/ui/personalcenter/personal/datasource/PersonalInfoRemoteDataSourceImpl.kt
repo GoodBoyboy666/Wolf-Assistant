@@ -4,8 +4,6 @@ import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
 import okio.IOException
 import retrofit2.HttpException
-import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
-import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.user.UserAPIService
 import top.goodboyboy.wolfassistant.api.hutapi.user.UserAvatar
 import top.goodboyboy.wolfassistant.common.Failure
@@ -16,20 +14,12 @@ import javax.inject.Inject
 class PersonalInfoRemoteDataSourceImpl
     @Inject
     constructor(
-        @param:SafeApi private val apiService: UserAPIService,
-        @param:UnsafeApi private val unsafeAPIService: UserAPIService,
+        private val apiService: UserAPIService,
     ) : PersonalInfoRemoteDataSource {
-        override suspend fun getPersonalInfo(
-            accessToken: String,
-            disableSSLCertVerification: Boolean,
-        ): DataResult {
+        override suspend fun getPersonalInfo(accessToken: String): DataResult {
             try {
                 val response =
-                    if (disableSSLCertVerification) {
-                        unsafeAPIService.getUserInfo(accessToken)
-                    } else {
-                        apiService.getUserInfo(accessToken)
-                    }
+                    apiService.getUserInfo(accessToken)
                 response.use {
                     val infoJsonObject =
                         JsonParser

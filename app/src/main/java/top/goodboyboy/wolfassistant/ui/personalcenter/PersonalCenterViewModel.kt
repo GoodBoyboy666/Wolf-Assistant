@@ -52,7 +52,6 @@ class PersonalCenterViewModel
             val info =
                 personalInfoRepository.getPersonalInfo(
                     accessToken,
-                    settingsRepository.disableSSLCertVerification.first(),
                 )
             when (info) {
                 is PersonalInfoRepository.PersonalInfoData.Failed -> {

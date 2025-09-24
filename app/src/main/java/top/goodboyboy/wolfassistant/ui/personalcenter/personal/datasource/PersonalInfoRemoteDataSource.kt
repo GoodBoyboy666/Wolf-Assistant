@@ -9,10 +9,7 @@ interface PersonalInfoRemoteDataSource {
      *
      * @return DataResult
      */
-    suspend fun getPersonalInfo(
-        accessToken: String,
-        disableSSLCertVerification: Boolean,
-    ): DataResult
+    suspend fun getPersonalInfo(accessToken: String): DataResult
 
     sealed class DataResult {
         data class Success(

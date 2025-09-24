@@ -13,10 +13,7 @@ class ServiceRepositoryImpl
         private val serviceCacheDataSource: ServiceCacheDataSource,
         private val serviceRemoteDataSource: ServiceRemoteDataSource,
     ) : ServiceRepository {
-        override suspend fun getServiceList(
-            accessToken: String,
-            disableSSLCertVerification: Boolean,
-        ): ServiceListData {
+        override suspend fun getServiceList(accessToken: String): ServiceListData {
             val cache = serviceCacheDataSource.getServiceList()
             when (cache) {
                 is ServiceCacheDataSource.DataResult.Error -> {
@@ -33,7 +30,6 @@ class ServiceRepositoryImpl
             val remote =
                 serviceRemoteDataSource.getServiceList(
                     accessToken,
-                    disableSSLCertVerification,
                 )
             when (remote) {
                 is ServiceRemoteDataSource.DataResult.Error -> {

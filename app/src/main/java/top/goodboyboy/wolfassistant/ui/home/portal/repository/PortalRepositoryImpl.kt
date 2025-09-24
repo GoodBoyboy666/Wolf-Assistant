@@ -17,10 +17,7 @@ class PortalRepositoryImpl
         private val portalRemoteDataSource: PortalRemoteDataSource,
         private val portalCacheDataSource: PortalCacheDataSource,
     ) : PortalRepository {
-        override suspend fun getPortalCategory(
-            accessToken: String,
-            disableSSLCertVerification: Boolean,
-        ): PortalData<List<PortalCategoryItem>> {
+        override suspend fun getPortalCategory(accessToken: String): PortalData<List<PortalCategoryItem>> {
             val getCacheResult = portalCacheDataSource.getPortalCategory(12)
             when (getCacheResult) {
                 is CacheDataResult.Error -> {
@@ -35,7 +32,6 @@ class PortalRepositoryImpl
             val result =
                 portalRemoteDataSource.getPortalCategory(
                     accessToken,
-                    disableSSLCertVerification,
                 )
             when (result) {
                 is RemoteDataResult.Error -> {
@@ -51,10 +47,7 @@ class PortalRepositoryImpl
             }
         }
 
-        override suspend fun getPortalInfoList(
-            portalID: String,
-            disableSSLCertVerification: Boolean,
-        ): PortalData<List<PortalInfoItem>> {
+        override suspend fun getPortalInfoList(portalID: String): PortalData<List<PortalInfoItem>> {
             val getCacheResult = portalCacheDataSource.getPortalInfoList(portalID, 6)
             when (getCacheResult) {
                 is CacheDataResult.Error -> {
@@ -69,7 +62,6 @@ class PortalRepositoryImpl
             val result =
                 portalRemoteDataSource.getPortalInfoList(
                     portalID,
-                    disableSSLCertVerification,
                 )
             when (result) {
                 is RemoteDataResult.Error -> {

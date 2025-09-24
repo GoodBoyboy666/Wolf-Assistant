@@ -9,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
@@ -44,7 +43,6 @@ class MessageCenterViewModel
                         val appidData =
                             messageRepository.getAppID(
                                 accessToken,
-                                settingsRepository.disableSSLCertVerification.first(),
                             )
                         when (appidData) {
                             is MessageRepository.AppIDData.Failed -> {
@@ -61,7 +59,6 @@ class MessageCenterViewModel
                                 messageRepository.getMessages(
                                     accessToken = accessToken,
                                     appID = appID,
-                                    disableSSLCertVerification = settingsRepository.disableSSLCertVerification.first(),
                                 )
                             }
                         }

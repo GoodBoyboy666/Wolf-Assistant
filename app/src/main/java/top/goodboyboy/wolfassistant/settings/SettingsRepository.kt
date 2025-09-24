@@ -45,6 +45,10 @@ class SettingsRepository
             dataStore.data.map {
                 it[booleanPreferencesKey("disable_SSLCert_verification")] ?: false
             }
+        val onlyIPv4: Flow<Boolean> =
+            dataStore.data.map {
+                it[booleanPreferencesKey("only_IPv4")] ?: false
+            }
 
         suspend fun setDarkMode(value: Boolean) {
             dataStore.edit { prefs ->
@@ -85,6 +89,12 @@ class SettingsRepository
         suspend fun setSSLCertVerification(value: Boolean) {
             dataStore.edit { prefs ->
                 prefs[booleanPreferencesKey("disable_SSLCert_verification")] = value
+            }
+        }
+
+        suspend fun setOnlyIPv4(value: Boolean) {
+            dataStore.edit { prefs ->
+                prefs[booleanPreferencesKey("only_IPv4")] = value
             }
         }
     }

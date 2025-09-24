@@ -15,7 +15,6 @@ interface ScheduleCenterRepository {
      */
     suspend fun getSchedule(
         accessToken: String,
-        disableSSLCertVerification: Boolean,
         startDate: LocalDate,
         endDate: LocalDate,
     ): ScheduleData

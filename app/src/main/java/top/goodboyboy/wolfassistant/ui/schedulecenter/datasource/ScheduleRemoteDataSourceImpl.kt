@@ -4,8 +4,6 @@ import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
 import okio.IOException
 import retrofit2.HttpException
-import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
-import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.schedule.ScheduleAPIService
 import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleRemoteDataSource.DataResult
@@ -19,30 +17,21 @@ import kotlin.coroutines.cancellation.CancellationException
 class ScheduleRemoteDataSourceImpl
     @Inject
     constructor(
-        @param:SafeApi private val apiService: ScheduleAPIService,
-        @param:UnsafeApi private val unsafeAPIService: ScheduleAPIService,
+        private val apiService: ScheduleAPIService,
     ) : ScheduleRemoteDataSource {
         override suspend fun getSchedule(
             accessToken: String,
-            disableSSLCertVerification: Boolean,
             startDate: LocalDate,
             endDate: LocalDate,
         ): DataResult {
             try {
                 val response =
-                    if (disableSSLCertVerification) {
-                        unsafeAPIService.getSchedule(
-                            accessToken = accessToken,
-                            startDate = startDate.toString(),
-                            endDate = endDate.toString(),
-                        )
-                    } else {
-                        apiService.getSchedule(
-                            accessToken = accessToken,
-                            startDate = startDate.toString(),
-                            endDate = endDate.toString(),
-                        )
-                    }
+                    apiService.getSchedule(
+                        accessToken = accessToken,
+                        startDate = startDate.toString(),
+                        endDate = endDate.toString(),
+                    )
+
                 response.use {
                     val jsonElement =
                         JsonParser.parseString(it.string()).asJsonObject.get("data")

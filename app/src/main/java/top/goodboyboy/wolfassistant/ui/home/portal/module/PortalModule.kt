@@ -6,10 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
-import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.portal.PortalAPIService
-import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.home.portal.datasource.PortalCacheDataSource
 import top.goodboyboy.wolfassistant.ui.home.portal.datasource.PortalCacheDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.home.portal.datasource.PortalRemoteDataSource
@@ -23,10 +20,8 @@ import javax.inject.Singleton
 object PortalModule {
     @Provides
     @Singleton
-    fun providePortalRemoteDataSource(
-        @SafeApi apiService: PortalAPIService,
-        @UnsafeApi unsafeAPIService: PortalAPIService,
-    ): PortalRemoteDataSource = PortalRemoteDataSourceImpl(apiService, unsafeAPIService)
+    fun providePortalRemoteDataSource(apiService: PortalAPIService): PortalRemoteDataSource =
+        PortalRemoteDataSourceImpl(apiService)
 
     @Provides
     @Singleton
@@ -39,6 +34,5 @@ object PortalModule {
     fun providePortalRepository(
         remoteDataSource: PortalRemoteDataSource,
         cacheDataSource: PortalCacheDataSource,
-        settingsRepository: SettingsRepository,
-    ): PortalRepository = PortalRepositoryImpl(remoteDataSource, cacheDataSource, settingsRepository)
+    ): PortalRepository = PortalRepositoryImpl(remoteDataSource, cacheDataSource)
 }

@@ -16,7 +16,6 @@ interface MessageRepository {
     suspend fun getMessages(
         accessToken: String,
         appID: String,
-        disableSSLCertVerification: Boolean,
     ): Flow<PagingData<MessageItem>>
 
     /**
@@ -25,10 +24,7 @@ interface MessageRepository {
      * @param accessToken 令牌
      * @return
      */
-    suspend fun getAppID(
-        accessToken: String,
-        disableSSLCertVerification: Boolean,
-    ): AppIDData
+    suspend fun getAppID(accessToken: String): AppIDData
 
     fun createErrorFlow(error: Throwable): Flow<PagingData<MessageItem>>
 

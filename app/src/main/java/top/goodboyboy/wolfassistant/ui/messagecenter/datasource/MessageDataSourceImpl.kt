@@ -4,8 +4,6 @@ import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
 import okio.IOException
 import retrofit2.HttpException
-import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
-import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.message.MessageAPIService
 import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.ui.messagecenter.datasource.MessageDataSource.DataResult
@@ -14,20 +12,13 @@ import javax.inject.Inject
 class MessageDataSourceImpl
     @Inject
     constructor(
-        @param:SafeApi private val apiService: MessageAPIService,
-        @param:UnsafeApi private val unsafeAPIService: MessageAPIService,
+        private val apiService: MessageAPIService,
     ) : MessageDataSource {
-        override suspend fun getAppID(
-            accessToken: String,
-            disableSSLCertVerification: Boolean,
-        ): DataResult {
+        override suspend fun getAppID(accessToken: String): DataResult {
             try {
                 val response =
-                    if (disableSSLCertVerification) {
-                        unsafeAPIService.getAppGroupByTag(accessToken)
-                    } else {
-                        apiService.getAppGroupByTag(accessToken)
-                    }
+                    apiService.getAppGroupByTag(accessToken)
+
                 response.use {
                     val list =
                         JsonParser

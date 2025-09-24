@@ -99,7 +99,6 @@ class HomeViewModel
             val categories =
                 portalRepository.getPortalCategory(
                     settingsRepository.accessTokenFlow.first(),
-                    settingsRepository.disableSSLCertVerification.first(),
                 )
             when (categories) {
                 is PortalRepository.PortalData.Failed -> {
@@ -123,7 +122,6 @@ class HomeViewModel
                 val infos =
                     portalRepository.getPortalInfoList(
                         category.portalID,
-                        settingsRepository.disableSSLCertVerification.first(),
                     )
                 when (infos) {
                     is PortalRepository.PortalData.Failed -> {

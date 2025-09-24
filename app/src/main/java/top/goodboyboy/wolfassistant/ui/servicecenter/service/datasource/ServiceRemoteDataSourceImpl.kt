@@ -6,8 +6,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
 import retrofit2.HttpException
-import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
-import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.service.ServiceListAPIService
 import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceRemoteDataSource.DataResult
@@ -18,27 +16,17 @@ import javax.inject.Inject
 class ServiceRemoteDataSourceImpl
     @Inject
     constructor(
-        @param:SafeApi private val apiService: ServiceListAPIService,
-        @param:UnsafeApi private val unsafeAPIService: ServiceListAPIService,
+        private val apiService: ServiceListAPIService,
     ) : ServiceRemoteDataSource {
-        override suspend fun getServiceList(
-            accessToken: String,
-            disableSSLCertVerification: Boolean,
-        ): DataResult {
+        override suspend fun getServiceList(accessToken: String): DataResult {
             try {
                 val emptyRequestBody = "".toRequestBody("application/json".toMediaType())
                 val response =
-                    if (disableSSLCertVerification) {
-                        unsafeAPIService.getServiceList(
-                            accessToken = accessToken,
-                            body = emptyRequestBody,
-                        )
-                    } else {
-                        apiService.getServiceList(
-                            accessToken = accessToken,
-                            body = emptyRequestBody,
-                        )
-                    }
+                    apiService.getServiceList(
+                        accessToken = accessToken,
+                        body = emptyRequestBody,
+                    )
+
                 val list = mutableListOf<ServiceItem>()
                 response.use {
                     val serviceJsonArray =
