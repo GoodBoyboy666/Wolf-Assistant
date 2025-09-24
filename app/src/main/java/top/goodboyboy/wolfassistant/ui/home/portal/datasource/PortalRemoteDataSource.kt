@@ -10,7 +10,7 @@ interface PortalRemoteDataSource {
      *
      * @return RemoteDataResult
      */
-    suspend fun getPortalCategory(): RemoteDataResult<List<PortalCategoryItem>>
+    suspend fun getPortalCategory(accessToken: String): RemoteDataResult<List<PortalCategoryItem>>
 
     /**
      * 获取门户信息

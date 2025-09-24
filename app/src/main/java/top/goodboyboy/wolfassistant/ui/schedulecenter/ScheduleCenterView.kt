@@ -59,8 +59,8 @@ fun ScheduleCenterView(
     val currentDate = remember { LocalDate.now() }
     val startDate = remember { currentDate.minusDays(500) }
     val endDate = remember { currentDate.plusDays(500) }
-    var firstDay by remember { mutableStateOf<LocalDate?>(null) }
-    var lastDay by remember { mutableStateOf<LocalDate?>(null) }
+//    var firstDay by viewModel.firstDay.collectAsStateWithLifecycle()
+//    var lastDay by viewModel.lastDay.collectAsStateWithLifecycle()
     val firstDayOfWeek = remember { firstDayOfWeekFromLocale() }
     var selection by remember { mutableStateOf(currentDate) }
     var visibleWeekText by remember { mutableStateOf("") }
@@ -85,9 +85,8 @@ fun ScheduleCenterView(
             .collect { week ->
                 val first = week.days.first().date
                 val last = week.days.last().date
-                firstDay = first
-                lastDay = last
-                viewModel.changeState(LoadScheduleState.Loading)
+                viewModel.setFirstAndLastDay(first, last)
+                viewModel.loadScheduleList()
                 visibleWeekText = "${first.year}年${first.monthValue}月"
                 onWeekSelect(first)
 //                Log.d(
@@ -102,6 +101,11 @@ fun ScheduleCenterView(
                 state.animateScrollToWeek(currentDate)
                 onFinishedRollBackToCurrentDate()
             }
+        }
+    }
+    LaunchedEffect(Unit) {
+        viewModel.errorMessage.collect { message ->
+            snackbarHostState.showSnackbar(message)
         }
     }
     Column(
@@ -131,11 +135,6 @@ fun ScheduleCenterView(
 
         when (loadScheduleState) {
             is LoadScheduleState.Failed -> {
-                LaunchedEffect(Unit) {
-                    scope.launch {
-                        snackbarHostState.showSnackbar((loadScheduleState as LoadScheduleState.Failed).message)
-                    }
-                }
                 showSchedule = true
             }
 
@@ -148,17 +147,6 @@ fun ScheduleCenterView(
 
             LoadScheduleState.Success -> {
                 showSchedule = true
-            }
-        }
-
-        LaunchedEffect(firstDay) {
-            val localFirstDay = firstDay
-            val localLastDay = lastDay
-            if (localFirstDay != null && localLastDay != null && loadScheduleState is LoadScheduleState.Loading) {
-                viewModel.loadSchedule(
-                    localFirstDay,
-                    localLastDay,
-                )
             }
         }
 
@@ -176,7 +164,7 @@ fun ScheduleCenterView(
                     onRefresh = {
                         scope.launch {
                             viewModel.cleanCache()
-                            viewModel.changeState(LoadScheduleState.Loading)
+                            viewModel.loadScheduleList()
                         }
                     },
                     modifier = Modifier.fillMaxSize(),

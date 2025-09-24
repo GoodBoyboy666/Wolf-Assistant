@@ -6,11 +6,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material3.AlertDialog
@@ -64,6 +67,10 @@ fun SettingView(
     val disableSSLCertVerification by viewModel.disableSSLCertVerification.collectAsStateWithLifecycle(
         initialValue = false,
     )
+    val onlyIPv4 by viewModel.onlyIPv4.collectAsStateWithLifecycle(
+        initialValue = false,
+    )
+    val scrollState = rememberScrollState()
     LaunchedEffect(Unit) {
         viewModel.getTotalCacheSize(context)
     }
@@ -71,7 +78,8 @@ fun SettingView(
         modifier =
             Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .verticalScroll(scrollState),
     ) {
         SettingDivider(
             stringResource(R.string.account_settings),
@@ -97,12 +105,22 @@ fun SettingView(
         }
         SwitchSettingItem(
             title = "禁用SSL证书检查",
-            subtitle = "打开将不检查SSL证书合法性",
+            subtitle = "开启将不检查SSL证书合法性，修改将于下次启动生效",
             icon = Icons.Rounded.Security,
             checked = disableSSLCertVerification,
         ) {
             scope.launch {
                 viewModel.setSSLCertVerification(!disableSSLCertVerification)
+            }
+        }
+        SwitchSettingItem(
+            title = "仅IPv4",
+            subtitle = "开启将仅使用IPv4访问，修改将于下次启动生效",
+            icon = Icons.Rounded.Dns,
+            checked = onlyIPv4,
+        ) {
+            scope.launch {
+                viewModel.setOnlyIPv4(!onlyIPv4)
             }
         }
         SettingDivider(

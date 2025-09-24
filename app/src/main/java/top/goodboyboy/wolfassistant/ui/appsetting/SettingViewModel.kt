@@ -42,6 +42,7 @@ class SettingViewModel
         val updateState: StateFlow<CheckUpdateState> = _updateState.asStateFlow()
 
         val disableSSLCertVerification = settingsRepository.disableSSLCertVerification
+        val onlyIPv4 = settingsRepository.onlyIPv4
 
         suspend fun getTotalCacheSize(context: Context) {
             withContext(Dispatchers.IO) {
@@ -92,6 +93,10 @@ class SettingViewModel
 
         suspend fun setSSLCertVerification(value: Boolean) {
             settingsRepository.setSSLCertVerification(value)
+        }
+
+        suspend fun setOnlyIPv4(value: Boolean) {
+            settingsRepository.setOnlyIPv4(value)
         }
 
         sealed class CheckUpdateState {

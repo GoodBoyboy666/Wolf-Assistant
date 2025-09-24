@@ -4,12 +4,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
-import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.service.ServiceListAPIService
 import top.goodboyboy.wolfassistant.room.dao.ServiceItemDao
 import top.goodboyboy.wolfassistant.room.dao.TokenKeyNameDao
-import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceCacheDataSource
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceCacheDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceRemoteDataSource
@@ -30,11 +27,8 @@ object ServiceModule {
 
     @Provides
     @Singleton
-    fun provideServiceRemoteDataSource(
-        @SafeApi apiService: ServiceListAPIService,
-        @UnsafeApi unsafeAPIService: ServiceListAPIService,
-        settingsRepository: SettingsRepository,
-    ): ServiceRemoteDataSource = ServiceRemoteDataSourceImpl(apiService, unsafeAPIService, settingsRepository)
+    fun provideServiceRemoteDataSource(apiService: ServiceListAPIService): ServiceRemoteDataSource =
+        ServiceRemoteDataSourceImpl(apiService)
 
     @Provides
     @Singleton

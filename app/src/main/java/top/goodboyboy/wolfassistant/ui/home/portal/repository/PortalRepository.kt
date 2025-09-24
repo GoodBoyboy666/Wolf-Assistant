@@ -10,7 +10,7 @@ interface PortalRepository {
      *
      * @return PortalData
      */
-    suspend fun getPortalCategory(): PortalData<List<PortalCategoryItem>>
+    suspend fun getPortalCategory(accessToken: String): PortalData<List<PortalCategoryItem>>
 
     /**
      * 获取门户信息列表

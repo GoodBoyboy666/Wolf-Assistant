@@ -1,12 +1,15 @@
 package top.goodboyboy.wolfassistant.ui.firstpage
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
+import top.goodboyboy.wolfassistant.ui.appsetting.GlobalInitConfig
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,13 +37,29 @@ class FirstPageViewModel
         }
 
         suspend fun checkLoginStatue() {
-            _loadState.value = LoadState.Loading
             val accessToken = settingsRepository.accessTokenFlow.first()
-            if (accessToken.isNotEmpty()) {
-                _hasAccessToken.value = true
-            } else {
-                _hasAccessToken.value = false
-            }
+            _hasAccessToken.value = accessToken.isNotEmpty()
+        }
+
+        suspend fun initGlobalConfig() {
+            val disableSSL = settingsRepository.disableSSLCertVerification.first()
+            val onlyIPv4 = settingsRepository.onlyIPv4.first()
+            GlobalInitConfig.setConfig(
+                disableSSL,
+                onlyIPv4,
+            )
+        }
+
+        suspend fun initAPP() {
+            _loadState.value = LoadState.Loading
+            checkLoginStatue()
+            initGlobalConfig()
             _loadState.value = LoadState.Success
+        }
+
+        init {
+            viewModelScope.launch {
+                initAPP()
+            }
         }
     }

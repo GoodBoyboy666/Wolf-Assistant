@@ -5,11 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
-import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.message.MessageAPIService
-import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.messagecenter.datasource.MessageDataSource
 import top.goodboyboy.wolfassistant.ui.messagecenter.datasource.MessageFailingPagingSource
 import top.goodboyboy.wolfassistant.ui.messagecenter.datasource.MessagePagingSource
@@ -22,34 +18,24 @@ import javax.inject.Singleton
 class MessageRepositoryImpl
     @Inject
     constructor(
-        @param:SafeApi val apiService: MessageAPIService,
-        @param:UnsafeApi val unsafeAPIService: MessageAPIService,
-        private val settingsRepository: SettingsRepository,
+        val apiService: MessageAPIService,
         val messageDataSource: MessageDataSource,
     ) : MessageRepository {
-        val disableSSLCertVerification = settingsRepository.disableSSLCertVerification
-
         override suspend fun getMessages(
             accessToken: String,
             appID: String,
-        ): Flow<PagingData<MessageItem>> {
-            val disable = disableSSLCertVerification.first()
-            return Pager(
+        ): Flow<PagingData<MessageItem>> =
+            Pager(
                 config = PagingConfig(pageSize = 10, enablePlaceholders = false),
                 pagingSourceFactory = {
                     MessagePagingSource(
                         accessToken = accessToken,
                         appID = appID,
                         apiService =
-                            if (disable) {
-                                unsafeAPIService
-                            } else {
-                                apiService
-                            },
+                        apiService,
                     )
                 },
             ).flow
-        }
 
         override suspend fun getAppID(accessToken: String): AppIDData {
             val remote = messageDataSource.getAppID(accessToken)

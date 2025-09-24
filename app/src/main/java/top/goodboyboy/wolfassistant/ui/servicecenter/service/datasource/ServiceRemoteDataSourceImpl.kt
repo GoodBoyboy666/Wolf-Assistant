@@ -2,16 +2,12 @@ package top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource
 
 import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
-import kotlinx.coroutines.flow.first
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
 import retrofit2.HttpException
-import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
-import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.service.ServiceListAPIService
 import top.goodboyboy.wolfassistant.common.Failure
-import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceRemoteDataSource.DataResult
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.ServiceItem
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.TokenKeyName
@@ -20,27 +16,17 @@ import javax.inject.Inject
 class ServiceRemoteDataSourceImpl
     @Inject
     constructor(
-        @param:SafeApi private val apiService: ServiceListAPIService,
-        @param:UnsafeApi private val unsafeAPIService: ServiceListAPIService,
-        private val settingsRepository: SettingsRepository,
+        private val apiService: ServiceListAPIService,
     ) : ServiceRemoteDataSource {
-        val disableSSLCertVerification = settingsRepository.disableSSLCertVerification
-
         override suspend fun getServiceList(accessToken: String): DataResult {
             try {
                 val emptyRequestBody = "".toRequestBody("application/json".toMediaType())
                 val response =
-                    if (disableSSLCertVerification.first()) {
-                        unsafeAPIService.getServiceList(
-                            accessToken = accessToken,
-                            body = emptyRequestBody,
-                        )
-                    } else {
-                        apiService.getServiceList(
-                            accessToken = accessToken,
-                            body = emptyRequestBody,
-                        )
-                    }
+                    apiService.getServiceList(
+                        accessToken = accessToken,
+                        body = emptyRequestBody,
+                    )
+
                 val list = mutableListOf<ServiceItem>()
                 response.use {
                     val serviceJsonArray =

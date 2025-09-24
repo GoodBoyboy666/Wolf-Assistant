@@ -40,7 +40,10 @@ class MessageCenterViewModel
                     if (accessToken.isNullOrBlank()) {
                         messageRepository.createErrorFlow(Throwable("accessToken为空或null"))
                     } else {
-                        val appidData = messageRepository.getAppID(accessToken)
+                        val appidData =
+                            messageRepository.getAppID(
+                                accessToken,
+                            )
                         when (appidData) {
                             is MessageRepository.AppIDData.Failed -> {
                                 messageRepository.createErrorFlow(Throwable("获取APPID失败"))

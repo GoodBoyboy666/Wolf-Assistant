@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.home.portal.model.PortalCategoryItem
@@ -95,7 +96,10 @@ class HomeViewModel
          *
          */
         suspend fun loadPortalCategories() {
-            val categories = portalRepository.getPortalCategory()
+            val categories =
+                portalRepository.getPortalCategory(
+                    settingsRepository.accessTokenFlow.first(),
+                )
             when (categories) {
                 is PortalRepository.PortalData.Failed -> {
                     _portalState.value = PortalState.Failed(categories.e.message)
@@ -115,7 +119,10 @@ class HomeViewModel
         suspend fun loadPortalInfo() {
             val allInfos = mutableListOf<List<PortalInfoItem>>()
             portalCategoryList.value.forEach { category ->
-                val infos = portalRepository.getPortalInfoList(category.portalID)
+                val infos =
+                    portalRepository.getPortalInfoList(
+                        category.portalID,
+                    )
                 when (infos) {
                     is PortalRepository.PortalData.Failed -> {
                         allInfos.add(emptyList())

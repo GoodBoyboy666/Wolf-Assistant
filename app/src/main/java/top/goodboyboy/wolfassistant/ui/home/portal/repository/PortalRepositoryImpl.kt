@@ -17,7 +17,7 @@ class PortalRepositoryImpl
         private val portalRemoteDataSource: PortalRemoteDataSource,
         private val portalCacheDataSource: PortalCacheDataSource,
     ) : PortalRepository {
-        override suspend fun getPortalCategory(): PortalData<List<PortalCategoryItem>> {
+        override suspend fun getPortalCategory(accessToken: String): PortalData<List<PortalCategoryItem>> {
             val getCacheResult = portalCacheDataSource.getPortalCategory(12)
             when (getCacheResult) {
                 is CacheDataResult.Error -> {
@@ -29,7 +29,10 @@ class PortalRepositoryImpl
                     return Success(getCacheResult.data)
                 }
             }
-            val result = portalRemoteDataSource.getPortalCategory()
+            val result =
+                portalRemoteDataSource.getPortalCategory(
+                    accessToken,
+                )
             when (result) {
                 is RemoteDataResult.Error -> {
                     return Failed(result.error)
@@ -56,7 +59,10 @@ class PortalRepositoryImpl
                     return Success(getCacheResult.data)
                 }
             }
-            val result = portalRemoteDataSource.getPortalInfoList(portalID)
+            val result =
+                portalRemoteDataSource.getPortalInfoList(
+                    portalID,
+                )
             when (result) {
                 is RemoteDataResult.Error -> {
                     return Failed(result.error)

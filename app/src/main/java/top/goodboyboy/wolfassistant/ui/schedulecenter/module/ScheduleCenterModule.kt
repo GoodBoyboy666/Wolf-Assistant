@@ -6,10 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
-import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.schedule.ScheduleAPIService
-import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleCacheDataSource
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleCacheDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleRemoteDataSource
@@ -29,11 +26,8 @@ object ScheduleCenterModule {
 
     @Provides
     @Singleton
-    fun provideScheduleRemoteDataSource(
-        @SafeApi apiService: ScheduleAPIService,
-        @UnsafeApi unsafeAPIService: ScheduleAPIService,
-        settingsRepository: SettingsRepository,
-    ): ScheduleRemoteDataSource = ScheduleRemoteDataSourceImpl(apiService, unsafeAPIService, settingsRepository)
+    fun provideScheduleRemoteDataSource(apiService: ScheduleAPIService): ScheduleRemoteDataSource =
+        ScheduleRemoteDataSourceImpl(apiService)
 
     @Provides
     @Singleton

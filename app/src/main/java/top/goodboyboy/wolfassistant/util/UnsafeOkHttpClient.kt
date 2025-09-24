@@ -13,7 +13,7 @@ import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
 object UnsafeOkHttpClient {
-    fun getUnsafeOkHttpClient(): OkHttpClient =
+    fun getUnsafeOkHttpClient(onlyIPv4: Boolean): OkHttpClient =
         try {
             val trustAllCerts =
                 arrayOf<TrustManager>(
@@ -51,15 +51,26 @@ object UnsafeOkHttpClient {
             sslContext.init(null, trustAllCerts, SecureRandom())
             val sslSocketFactory = sslContext.socketFactory
 
-            OkHttpClient
-                .Builder()
+            if (onlyIPv4) {
+                OkHttpClient
+                    .Builder()
 //                .addInterceptor(loggingInterceptor)
-                .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
-                .protocols(listOf(Protocol.HTTP_1_1))
-                .hostnameVerifier { _, _ -> true }
-                .connectionSpecs(listOf(permissiveConnectionSpec, ConnectionSpec.CLEARTEXT)) // 应用宽容的加密套件
-                .dns(ipv4OnlyDns)
-                .build()
+                    .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
+                    .protocols(listOf(Protocol.HTTP_1_1))
+                    .hostnameVerifier { _, _ -> true }
+                    .connectionSpecs(listOf(permissiveConnectionSpec, ConnectionSpec.CLEARTEXT)) // 应用宽容的加密套件
+                    .dns(ipv4OnlyDns)
+                    .build()
+            } else {
+                OkHttpClient
+                    .Builder()
+//                .addInterceptor(loggingInterceptor)
+                    .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
+                    .protocols(listOf(Protocol.HTTP_1_1))
+                    .hostnameVerifier { _, _ -> true }
+                    .connectionSpecs(listOf(permissiveConnectionSpec, ConnectionSpec.CLEARTEXT)) // 应用宽容的加密套件
+                    .build()
+            }
         } catch (e: Exception) {
             throw RuntimeException(e)
         }

@@ -3,16 +3,12 @@ package top.goodboyboy.wolfassistant.ui.login.repository
 import com.auth0.android.jwt.JWT
 import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
-import kotlinx.coroutines.flow.first
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
 import retrofit2.HttpException
-import top.goodboyboy.wolfassistant.api.hutapi.SafeApi
-import top.goodboyboy.wolfassistant.api.hutapi.UnsafeApi
 import top.goodboyboy.wolfassistant.api.hutapi.user.LoginAPIService
 import top.goodboyboy.wolfassistant.common.Failure
-import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.login.model.UserInfo
 import top.goodboyboy.wolfassistant.ui.login.repository.LoginRepository.UserData
 import javax.inject.Inject
@@ -20,12 +16,8 @@ import javax.inject.Inject
 class LoginRepositoryImpl
     @Inject
     constructor(
-        @param:SafeApi private val apiService: LoginAPIService,
-        @param:UnsafeApi private val unsafeAPIService: LoginAPIService,
-        private val settingsRepository: SettingsRepository,
+        private val apiService: LoginAPIService,
     ) : LoginRepository {
-        val disableSSLCertVerification = settingsRepository.disableSSLCertVerification
-
         override suspend fun loginUser(
             username: String,
             password: String,
@@ -38,27 +30,16 @@ class LoginRepositoryImpl
                 val emptyRequestBody =
                     "".toRequestBody("application/x-www-form-urlencoded".toMediaType())
                 val response =
-                    if (disableSSLCertVerification.first()) {
-                        unsafeAPIService.loginUser(
-                            username,
-                            password,
-                            appId,
-                            deviceId,
-                            osType,
-                            clientId,
-                            emptyRequestBody,
-                        )
-                    } else {
-                        apiService.loginUser(
-                            username,
-                            password,
-                            appId,
-                            deviceId,
-                            osType,
-                            clientId,
-                            emptyRequestBody,
-                        )
-                    }
+                    apiService.loginUser(
+                        username,
+                        password,
+                        appId,
+                        deviceId,
+                        osType,
+                        clientId,
+                        emptyRequestBody,
+                    )
+
                 response.use {
                     val accessToken =
                         JsonParser
