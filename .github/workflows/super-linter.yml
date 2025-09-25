@@ -36,6 +36,7 @@ jobs:
             LICENSE
             .gitignore
             .github/**
+            app/build.gradle.kts
 
       # 设置 JDK 环境
       - name: Set up JDK 17

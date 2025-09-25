@@ -1,5 +1,6 @@
 ## 🚀 PR 类型 (PR Type)
 
+- [ ] 🎉 版本发布 (Release)
 - [ ] 🐛 Bug 修复 (Bugfix)
 - [ ] ✨ 新功能 (Feature)
 - [ ] ♻️ 重构 (Refactor)
