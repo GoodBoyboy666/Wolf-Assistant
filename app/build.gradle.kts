@@ -74,6 +74,13 @@ android {
             it.useJUnitPlatform()
         }
     }
+
+    packaging {
+        resources {
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/LICENSE-notice.md"
+        }
+    }
 }
 
 dependencies {
@@ -121,10 +128,10 @@ dependencies {
     implementation(libs.retrofit)
 //    ktlintRuleset("io.nlopez.compose.rules:ktlint:0.4.22")
 //    ktlintRuleset("com.sembozdemir.ktlint:ktlint-compose-rules:1.0.1")
-    testImplementation("io.mockk:mockk:1.14.5")
-    androidTestImplementation("io.mockk:mockk-android:1.14.5")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
-    testImplementation("app.cash.turbine:turbine:1.2.1")
+    testImplementation(libs.mockk)
+    androidTestImplementation(libs.mockk.android)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
     testImplementation(kotlin("test"))
-    implementation("com.squareup.okhttp3:logging-interceptor:5.1.0")
+    implementation(libs.logging.interceptor)
 }
