@@ -1,9 +1,9 @@
 package top.goodboyboy.wolfassistant.ui.appsetting
 
+import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,9 +33,9 @@ class SettingViewModel
         private val personalInfoRepository: PersonalInfoRepository,
         private val settingsRepository: SettingsRepository,
         private val appSettingRepository: AppSettingRepository,
-        @ApplicationContext private val context: Context,
+        private val application: Application,
     ) : ViewModel() {
-        private val _cacheSize = MutableStateFlow(context.getString(R.string.calculating))
+        private val _cacheSize = MutableStateFlow(application.getString(R.string.calculating))
         val cacheSize: StateFlow<String> = _cacheSize.asStateFlow()
 
         private val _updateState = MutableStateFlow<CheckUpdateState>(CheckUpdateState.Idle)

@@ -1,12 +1,11 @@
 package top.goodboyboy.wolfassistant.ui.messagecenter
 
-import android.content.Context
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -22,10 +21,10 @@ class MessageCenterViewModel
     constructor(
         private val messageRepository: MessageRepository,
         private val settingsRepository: SettingsRepository,
-        @ApplicationContext private val context: Context,
+        private val application: Application,
     ) : ViewModel() {
         //    val messageCategory = listOf("公告", "学工系统", "办事大厅")
-        val messageCategory = listOf(context.getString(R.string.announcement), context.getString(R.string.xgxt))
+        val messageCategory = listOf(application.getString(R.string.announcement), application.getString(R.string.xgxt))
         private val messageFlows = mutableMapOf<Int, Flow<PagingData<MessageItem>>>()
 
         @OptIn(ExperimentalCoroutinesApi::class)
