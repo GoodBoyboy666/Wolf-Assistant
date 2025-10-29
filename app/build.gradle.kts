@@ -27,7 +27,7 @@ android {
     signingConfigs {
         create("GitHubActionRelease") {
             val keystorePath = System.getenv("SIGNING_KEYSTORE_PATH")
-            if (keystorePath != null) {
+            if (keystorePath != null && keystorePath.isNotEmpty()) {
                 storeFile = file(keystorePath)
                 storePassword = System.getenv("SIGNING_STORE_PASSWORD")
                 keyAlias = System.getenv("SIGNING_KEY_ALIAS")
@@ -55,7 +55,10 @@ android {
         }
         create("GitHubActionRelease") {
             initWith(getByName("release"))
-            signingConfig = signingConfigs.getByName("GitHubActionRelease")
+            val keystorePath = System.getenv("SIGNING_KEYSTORE_PATH")
+            if (keystorePath != null && keystorePath.isNotEmpty()) {
+                signingConfig = signingConfigs.getByName("GitHubActionRelease")
+            }
         }
     }
     compileOptions {
