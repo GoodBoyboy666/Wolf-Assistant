@@ -38,7 +38,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import top.goodboyboy.wolfassistant.common.GlobalEventBus
 import top.goodboyboy.wolfassistant.ui.components.LoadingCompose
+import top.goodboyboy.wolfassistant.ui.components.TopBarConstants
+import top.goodboyboy.wolfassistant.ui.event.TopBarTitleEvent
 import top.goodboyboy.wolfassistant.ui.schedulecenter.ScheduleCenterViewModel.LoadScheduleState
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -52,7 +55,7 @@ fun ScheduleCenterView(
     innerPadding: PaddingValues,
     snackbarHostState: SnackbarHostState,
     viewModel: ScheduleCenterViewModel,
-    onWeekSelect: (LocalDate) -> Unit,
+    globalEventBus: GlobalEventBus,
 ) {
     val currentDate = remember { LocalDate.now() }
     val startDate = remember { currentDate.minusDays(500) }
@@ -61,7 +64,6 @@ fun ScheduleCenterView(
 //    var lastDay by viewModel.lastDay.collectAsStateWithLifecycle()
     val firstDayOfWeek = remember { firstDayOfWeekFromLocale() }
     var selection by remember { mutableStateOf(currentDate) }
-    var visibleWeekText by remember { mutableStateOf("") }
     val state =
         rememberWeekCalendarState(
             startDate = startDate,
@@ -85,8 +87,12 @@ fun ScheduleCenterView(
                 val last = week.days.last().date
                 viewModel.setFirstAndLastDay(first, last)
                 viewModel.loadScheduleList()
-                visibleWeekText = "${first.year}年${first.monthValue}月"
-                onWeekSelect(first)
+                globalEventBus.emit(
+                    TopBarTitleEvent(
+                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                        title = "${first.year}年${first.monthValue}月",
+                    ),
+                )
 //                Log.d(
 //                    "Calendar",
 //                    "Scroll finished. Loading data for week starting on: $first ~ $last"

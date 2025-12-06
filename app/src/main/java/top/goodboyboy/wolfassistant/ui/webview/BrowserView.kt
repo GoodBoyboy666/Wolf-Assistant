@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -22,7 +24,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.R
+import top.goodboyboy.wolfassistant.common.GlobalEventBus
 import top.goodboyboy.wolfassistant.ui.components.LoadingCompose
+import top.goodboyboy.wolfassistant.ui.components.TopBarConstants
+import top.goodboyboy.wolfassistant.ui.event.BrowserMenuClickEvent
+import top.goodboyboy.wolfassistant.ui.event.TopBarTitleEvent
 
 @Composable
 fun BrowserView(
@@ -32,18 +38,35 @@ fun BrowserView(
     navController: NavController,
     snackbarHostState: SnackbarHostState,
     innerPadding: PaddingValues,
-    showMenu: Boolean,
     viewModel: BrowserViewModel,
-    onTitleReceived: (String) -> Unit,
-    onBrowserDispose: () -> Unit,
-    onMenuDismissRequest: () -> Unit,
+    globalEventBus: GlobalEventBus,
 ) {
     var currentProgress by remember { mutableFloatStateOf(0f) }
     var loading by remember { mutableStateOf(false) }
+    var showMenu by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val loadState by viewModel.loadState.collectAsStateWithLifecycle()
     val refreshEvent by viewModel.refreshEvent.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        globalEventBus.subscribeToTarget<BrowserMenuClickEvent>("BrowserView").collect {
+            showMenu = true
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            scope.launch {
+                globalEventBus.emit(
+                    TopBarTitleEvent(
+                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                        title = "",
+                    ),
+                )
+            }
+        }
+    }
 
     Column(
         modifier =
@@ -104,10 +127,24 @@ fun BrowserView(
                         }
                     },
                     { title ->
-                        onTitleReceived(title)
+                        scope.launch {
+                            globalEventBus.emit(
+                                TopBarTitleEvent(
+                                    targetTag = TopBarConstants.TOP_BAR_TAG,
+                                    title = title,
+                                ),
+                            )
+                        }
                     },
                     {
-                        onBrowserDispose()
+                        scope.launch {
+                            globalEventBus.emit(
+                                TopBarTitleEvent(
+                                    targetTag = TopBarConstants.TOP_BAR_TAG,
+                                    title = "",
+                                ),
+                            )
+                        }
                     },
                     {
                         scope.launch {
@@ -122,7 +159,7 @@ fun BrowserView(
                         // 为确保安全仅传递URL
                         url,
                         {
-                            onMenuDismissRequest()
+                            showMenu = false
                         },
                         {
                             viewModel.onRefresh()

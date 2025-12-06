@@ -12,11 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -29,10 +26,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
 import top.goodboyboy.wolfassistant.ui.appsetting.SettingView
 import top.goodboyboy.wolfassistant.ui.components.BottomBar
 import top.goodboyboy.wolfassistant.ui.components.TopBar
+import top.goodboyboy.wolfassistant.ui.components.TopBarConstants
+import top.goodboyboy.wolfassistant.ui.event.TopBarTitleEvent
 import top.goodboyboy.wolfassistant.ui.firstpage.FirstPage
 import top.goodboyboy.wolfassistant.ui.home.HomeView
 import top.goodboyboy.wolfassistant.ui.home.HomeViewModel
@@ -71,8 +71,6 @@ class MainActivity : ComponentActivity() {
                         .value
                         ?.destination
                         ?.route
-                var title by remember { mutableStateOf("") }
-                var showMenu by remember { mutableStateOf(false) }
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     snackbarHost = {
@@ -85,23 +83,10 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     topBar = {
-                        if (currentRoute != null &&
-                            currentRoute.startsWith(
-                                "browser",
-                            )
-                        ) {
-                            TopBar(title, navController, onMenuClick = {
-                                showMenu = true
-                            })
-                        } else if (currentRoute == ScreenRoute.Schedule.route) {
-                            TopBar(title, navController, globalEventBus)
-                        } else if (currentRoute in ScreenRoute.items.map { it.route }) {
-                            TopBar(title, navController)
-                        } else if (currentRoute in listOf("setting")) {
-                            TopBar(title, navController)
-                        }
+                        TopBar(navController, globalEventBus)
                     },
                 ) { innerPadding ->
+                    val scope = rememberCoroutineScope()
                     val owner =
                         checkNotNull(LocalViewModelStoreOwner.current) {
                             "No ViewModelStoreOwner provided"
@@ -146,7 +131,14 @@ class MainActivity : ComponentActivity() {
 //                            BackHandler(enabled = true) {
 //                                (context as? Activity)?.finish()
 //                            }
-                            title = ScreenRoute.Home.title
+                            scope.launch {
+                                globalEventBus.emit(
+                                    TopBarTitleEvent(
+                                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                                        title = ScreenRoute.Home.title,
+                                    ),
+                                )
+                            }
                             val viewModel = hiltViewModel<HomeViewModel>(owner)
                             HomeView(
                                 innerPadding,
@@ -156,7 +148,14 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(ScreenRoute.ServiceCenter.route) { backStackEntry ->
-                            title = ScreenRoute.ServiceCenter.title
+                            scope.launch {
+                                globalEventBus.emit(
+                                    TopBarTitleEvent(
+                                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                                        title = ScreenRoute.ServiceCenter.title,
+                                    ),
+                                )
+                            }
                             val viewModel = hiltViewModel<ServiceCenterViewModel>(owner)
                             ServiceCenterView(
                                 innerPadding,
@@ -166,7 +165,14 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(ScreenRoute.MessageCenter.route) {
-                            title = ScreenRoute.MessageCenter.title
+                            scope.launch {
+                                globalEventBus.emit(
+                                    TopBarTitleEvent(
+                                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                                        title = ScreenRoute.MessageCenter.title,
+                                    ),
+                                )
+                            }
                             val viewModel = hiltViewModel<MessageCenterViewModel>(owner)
                             MessageCenterView(
                                 innerPadding,
@@ -179,13 +185,18 @@ class MainActivity : ComponentActivity() {
                                 innerPadding,
                                 snackbarHostState,
                                 viewModel,
-                                { week ->
-                                    title = "${week.year}年${week.monthValue}月"
-                                },
+                                globalEventBus,
                             )
                         }
                         composable(ScreenRoute.PersonalCenter.route) { backStackEntry ->
-                            title = ScreenRoute.PersonalCenter.title
+                            scope.launch {
+                                globalEventBus.emit(
+                                    TopBarTitleEvent(
+                                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                                        title = ScreenRoute.PersonalCenter.title,
+                                    ),
+                                )
+                            }
                             val viewModel = hiltViewModel<PersonalCenterViewModel>(owner)
                             PersonalCenter(
                                 innerPadding,
@@ -220,8 +231,13 @@ class MainActivity : ComponentActivity() {
                                 ),
                         ) { backStackEntry ->
                             val viewModel = hiltViewModel<BrowserViewModel>(owner)
-                            LaunchedEffect(Unit) {
-                                title = ""
+                            scope.launch {
+                                globalEventBus.emit(
+                                    TopBarTitleEvent(
+                                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                                        title = "",
+                                    ),
+                                )
                             }
                             val url = backStackEntry.arguments?.getString("url") ?: ""
                             val originalUrl =
@@ -240,17 +256,8 @@ class MainActivity : ComponentActivity() {
                                 navController,
                                 snackbarHostState,
                                 innerPadding,
-                                showMenu,
                                 viewModel,
-                                { titleText ->
-                                    title = titleText
-                                },
-                                {
-                                    title = ""
-                                },
-                                {
-                                    showMenu = false
-                                },
+                                globalEventBus,
                             )
                         }
                         composable("scanner") {
@@ -259,7 +266,14 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("setting") {
-                            title = "设置"
+                            scope.launch {
+                                globalEventBus.emit(
+                                    TopBarTitleEvent(
+                                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                                        title = "设置",
+                                    ),
+                                )
+                            }
                             SettingView(
                                 navController,
                                 innerPadding,

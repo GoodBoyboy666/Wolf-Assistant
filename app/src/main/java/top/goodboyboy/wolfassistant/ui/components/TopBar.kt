@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,31 +35,62 @@ import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.ScreenRoute
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
+import top.goodboyboy.wolfassistant.ui.event.BrowserMenuClickEvent
+import top.goodboyboy.wolfassistant.ui.event.TopBarTitleEvent
 import top.goodboyboy.wolfassistant.ui.schedulecenter.ScheduleCenterViewModel
 import top.goodboyboy.wolfassistant.ui.schedulecenter.event.RollBackToCurrentDateEvent
+
+object TopBarConstants {
+    const val TOP_BAR_TAG = "TopBar"
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
-    title: String = "",
     navController: NavController,
-    globalEventBus: GlobalEventBus? = null,
-    onMenuClick: () -> Unit = {},
+    globalEventBus: GlobalEventBus,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val scope = rememberCoroutineScope()
 
+    var title by remember { mutableStateOf("") }
     var showNavigationIcon by remember { mutableStateOf(false) }
     var showActions by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        globalEventBus.subscribeToTarget<TopBarTitleEvent>(TopBarConstants.TOP_BAR_TAG).collect { event ->
+            title = event.title
+        }
+    }
+
+    LaunchedEffect(currentRoute) {
+        showNavigationIcon = currentRoute in listOf("setting") ||
+            (currentRoute != null && currentRoute.startsWith("browser"))
+
+        showActions = (currentRoute != null && currentRoute.startsWith("browser")) ||
+            (currentRoute == ScreenRoute.Schedule.route)
+    }
+
+    val shouldShowTopBar =
+        currentRoute != null &&
+            (
+                currentRoute.startsWith("browser") ||
+                    currentRoute in ScreenRoute.items.map { it.route } ||
+                    currentRoute in listOf("setting")
+            )
+
+    if (!shouldShowTopBar) {
+        return
+    }
 
     CenterAlignedTopAppBar(
         title = {
             AnimatedContent(
                 // title优先级最高，然后是Route的名称
                 targetState =
-                    if (title != "") {
+                    if (title.isNotEmpty()) {
                         title
                     } else {
                         ScreenRoute.items.firstOrNull { it.route == currentRoute }?.title
@@ -133,7 +165,7 @@ fun TopBar(
                     IconButton(
                         onClick = {
                             scope.launch {
-                                globalEventBus?.emit(
+                                globalEventBus.emit(
                                     RollBackToCurrentDateEvent(
                                         targetTag = ScheduleCenterViewModel.SCHEDULE_CENTER_TAG,
                                     ),
@@ -150,7 +182,13 @@ fun TopBar(
                     )
                 ) {
                     IconButton(onClick = {
-                        onMenuClick()
+                        scope.launch {
+                            globalEventBus.emit(
+                                BrowserMenuClickEvent(
+                                    targetTag = "BrowserView",
+                                ),
+                            )
+                        }
                     }) {
                         Icon(
                             imageVector = Icons.Rounded.Menu,
