@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import top.goodboyboy.wolfassistant.common.GlobalEventBus
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
+import top.goodboyboy.wolfassistant.ui.schedulecenter.event.RollBackToCurrentDateEvent
 import top.goodboyboy.wolfassistant.ui.schedulecenter.model.ScheduleItem
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepository.ScheduleData.Failed
@@ -24,7 +26,12 @@ class ScheduleCenterViewModel
     constructor(
         private val scheduleCenterRepository: ScheduleCenterRepository,
         private val settingsRepository: SettingsRepository,
+        globalEventBus: GlobalEventBus,
     ) : ViewModel() {
+        companion object {
+            const val SCHEDULE_CENTER_TAG = "ScheduleCenter"
+        }
+
         private val _loadScheduleState = MutableStateFlow<LoadScheduleState>(LoadScheduleState.Idle)
         val loadScheduleState: StateFlow<LoadScheduleState> = _loadScheduleState.asStateFlow()
 
@@ -39,6 +46,12 @@ class ScheduleCenterViewModel
 
         private val _lastDay = MutableStateFlow<LocalDate?>(null)
         val lastDay: StateFlow<LocalDate?> = _lastDay
+
+        // 监听回到当前日期的事件
+        val rollBackToCurrentDateEvent =
+            globalEventBus.subscribeToTarget<RollBackToCurrentDateEvent>(
+                SCHEDULE_CENTER_TAG,
+            )
 
         sealed class LoadScheduleState {
             object Idle : LoadScheduleState()

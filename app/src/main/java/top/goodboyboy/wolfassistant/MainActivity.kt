@@ -29,6 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import dagger.hilt.android.AndroidEntryPoint
+import top.goodboyboy.wolfassistant.common.GlobalEventBus
 import top.goodboyboy.wolfassistant.ui.appsetting.SettingView
 import top.goodboyboy.wolfassistant.ui.components.BottomBar
 import top.goodboyboy.wolfassistant.ui.components.TopBar
@@ -49,9 +50,13 @@ import top.goodboyboy.wolfassistant.ui.theme.WolfAssistantTheme
 import top.goodboyboy.wolfassistant.ui.webview.BrowserView
 import top.goodboyboy.wolfassistant.ui.webview.BrowserViewModel
 import java.net.URLDecoder
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var globalEventBus: GlobalEventBus
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -68,7 +73,6 @@ class MainActivity : ComponentActivity() {
                         ?.route
                 var title by remember { mutableStateOf("") }
                 var showMenu by remember { mutableStateOf(false) }
-                var rollBackToCurrentDate by remember { mutableStateOf(false) }
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     snackbarHost = {
@@ -90,9 +94,7 @@ class MainActivity : ComponentActivity() {
                                 showMenu = true
                             })
                         } else if (currentRoute == ScreenRoute.Schedule.route) {
-                            TopBar(title, navController, onRollBackToCurrentDate = {
-                                rollBackToCurrentDate = true
-                            })
+                            TopBar(title, navController, globalEventBus)
                         } else if (currentRoute in ScreenRoute.items.map { it.route }) {
                             TopBar(title, navController)
                         } else if (currentRoute in listOf("setting")) {
@@ -180,10 +182,6 @@ class MainActivity : ComponentActivity() {
                                 { week ->
                                     title = "${week.year}年${week.monthValue}月"
                                 },
-                                rollBackToCurrentDate,
-                                {
-                                    rollBackToCurrentDate = false
-                                },
                             )
                         }
                         composable(ScreenRoute.PersonalCenter.route) { backStackEntry ->
@@ -200,7 +198,7 @@ class MainActivity : ComponentActivity() {
                             FirstPage(
                                 innerPadding,
                                 navController,
-                                snackbarHostState
+                                snackbarHostState,
                             )
                         }
                         composable(

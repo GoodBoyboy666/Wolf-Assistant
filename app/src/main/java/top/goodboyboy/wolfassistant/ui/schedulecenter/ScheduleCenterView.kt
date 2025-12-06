@@ -53,8 +53,6 @@ fun ScheduleCenterView(
     snackbarHostState: SnackbarHostState,
     viewModel: ScheduleCenterViewModel,
     onWeekSelect: (LocalDate) -> Unit,
-    rollBackToCurrentDate: Boolean,
-    onFinishedRollBackToCurrentDate: () -> Unit,
 ) {
     val currentDate = remember { LocalDate.now() }
     val startDate = remember { currentDate.minusDays(500) }
@@ -95,12 +93,9 @@ fun ScheduleCenterView(
 //                )
             }
     }
-    LaunchedEffect(rollBackToCurrentDate) {
-        if (rollBackToCurrentDate == true) {
-            scope.launch {
-                state.animateScrollToWeek(currentDate)
-                onFinishedRollBackToCurrentDate()
-            }
+    LaunchedEffect(Unit) {
+        viewModel.rollBackToCurrentDateEvent.collect { _ ->
+            state.animateScrollToWeek(currentDate)
         }
     }
     LaunchedEffect(Unit) {

@@ -24,25 +24,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.ScreenRoute
+import top.goodboyboy.wolfassistant.common.GlobalEventBus
+import top.goodboyboy.wolfassistant.ui.schedulecenter.ScheduleCenterViewModel
+import top.goodboyboy.wolfassistant.ui.schedulecenter.event.RollBackToCurrentDateEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
     title: String = "",
     navController: NavController,
+    globalEventBus: GlobalEventBus? = null,
     onMenuClick: () -> Unit = {},
-    onRollBackToCurrentDate: () -> Unit = {},
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val scope = rememberCoroutineScope()
 
     var showNavigationIcon by remember { mutableStateOf(false) }
     var showActions by remember { mutableStateOf(false) }
@@ -126,7 +132,13 @@ fun TopBar(
                 if (currentRoute != null && currentRoute == ScreenRoute.Schedule.route) {
                     IconButton(
                         onClick = {
-                            onRollBackToCurrentDate()
+                            scope.launch {
+                                globalEventBus?.emit(
+                                    RollBackToCurrentDateEvent(
+                                        targetTag = ScheduleCenterViewModel.SCHEDULE_CENTER_TAG,
+                                    ),
+                                )
+                            }
                         },
                     ) {
                         Icon(Icons.Rounded.History, stringResource(R.string.go_back_to_the_current_week))
