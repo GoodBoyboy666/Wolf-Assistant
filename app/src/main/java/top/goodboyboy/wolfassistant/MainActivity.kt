@@ -200,6 +200,7 @@ class MainActivity : ComponentActivity() {
                             FirstPage(
                                 innerPadding,
                                 navController,
+                                snackbarHostState
                             )
                         }
                         composable(
