@@ -65,7 +65,8 @@ fun WebViewCompose(
                                 if (isExternalLink(url)) {
                                     try {
                                         val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-                                        view?.context?.startActivity(intent)
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                        context.startActivity(intent)
                                         return true
                                     } catch (_: ActivityNotFoundException) {
                                         onActivityNotFoundException()
