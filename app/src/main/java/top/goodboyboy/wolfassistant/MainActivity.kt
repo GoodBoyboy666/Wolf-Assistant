@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -26,7 +26,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
 import top.goodboyboy.wolfassistant.ui.appsetting.SettingView
 import top.goodboyboy.wolfassistant.ui.components.BottomBar
@@ -86,7 +85,6 @@ class MainActivity : ComponentActivity() {
                         TopBar(navController, globalEventBus)
                     },
                 ) { innerPadding ->
-                    val scope = rememberCoroutineScope()
                     val owner =
                         checkNotNull(LocalViewModelStoreOwner.current) {
                             "No ViewModelStoreOwner provided"
@@ -130,8 +128,7 @@ class MainActivity : ComponentActivity() {
 //                            val context = LocalContext.current
 //                            BackHandler(enabled = true) {
 //                                (context as? Activity)?.finish()
-//                            }
-                            scope.launch {
+                            LaunchedEffect(Unit) {
                                 globalEventBus.emit(
                                     TopBarTitleEvent(
                                         targetTag = TopBarConstants.TOP_BAR_TAG,
@@ -147,8 +144,8 @@ class MainActivity : ComponentActivity() {
                                 viewModel,
                             )
                         }
-                        composable(ScreenRoute.ServiceCenter.route) { backStackEntry ->
-                            scope.launch {
+                        composable(ScreenRoute.ServiceCenter.route) {
+                            LaunchedEffect(Unit) {
                                 globalEventBus.emit(
                                     TopBarTitleEvent(
                                         targetTag = TopBarConstants.TOP_BAR_TAG,
@@ -165,7 +162,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(ScreenRoute.MessageCenter.route) {
-                            scope.launch {
+                            LaunchedEffect(Unit) {
                                 globalEventBus.emit(
                                     TopBarTitleEvent(
                                         targetTag = TopBarConstants.TOP_BAR_TAG,
@@ -179,7 +176,7 @@ class MainActivity : ComponentActivity() {
                                 viewModel,
                             )
                         }
-                        composable(ScreenRoute.Schedule.route) { backStackEntry ->
+                        composable(ScreenRoute.Schedule.route) {
                             val viewModel = hiltViewModel<ScheduleCenterViewModel>(owner)
                             ScheduleCenterView(
                                 innerPadding,
@@ -188,8 +185,8 @@ class MainActivity : ComponentActivity() {
                                 globalEventBus,
                             )
                         }
-                        composable(ScreenRoute.PersonalCenter.route) { backStackEntry ->
-                            scope.launch {
+                        composable(ScreenRoute.PersonalCenter.route) {
+                            LaunchedEffect(Unit) {
                                 globalEventBus.emit(
                                     TopBarTitleEvent(
                                         targetTag = TopBarConstants.TOP_BAR_TAG,
@@ -231,7 +228,7 @@ class MainActivity : ComponentActivity() {
                                 ),
                         ) { backStackEntry ->
                             val viewModel = hiltViewModel<BrowserViewModel>(owner)
-                            scope.launch {
+                            LaunchedEffect(Unit) {
                                 globalEventBus.emit(
                                     TopBarTitleEvent(
                                         targetTag = TopBarConstants.TOP_BAR_TAG,
@@ -266,7 +263,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("setting") {
-                            scope.launch {
+                            LaunchedEffect(Unit) {
                                 globalEventBus.emit(
                                     TopBarTitleEvent(
                                         targetTag = TopBarConstants.TOP_BAR_TAG,
