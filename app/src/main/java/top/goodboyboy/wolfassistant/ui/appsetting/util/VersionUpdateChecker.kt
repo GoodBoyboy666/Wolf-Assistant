@@ -18,13 +18,20 @@ class VersionUpdateChecker
 
                 is GitHubDataSource.VersionDataResult.Success -> {
                     val latestVersionNameItem = latestVersionResult.data.versionNameItem
-                    if (latestVersionNameItem.majorVersionNumber > oldVersionNameItem.majorVersionNumber ||
-                        latestVersionNameItem.secondaryVersionNumber > oldVersionNameItem.secondaryVersionNumber ||
-                        latestVersionNameItem.revisionVersionNumber > oldVersionNameItem.revisionVersionNumber
-                    ) {
-                        return VersionDomainData.Success(latestVersionResult.data)
+
+                    val isNewer = when {
+                        latestVersionNameItem.majorVersionNumber > oldVersionNameItem.majorVersionNumber -> true
+                        latestVersionNameItem.majorVersionNumber < oldVersionNameItem.majorVersionNumber -> false
+                        latestVersionNameItem.secondaryVersionNumber > oldVersionNameItem.secondaryVersionNumber -> true
+                        latestVersionNameItem.secondaryVersionNumber < oldVersionNameItem.secondaryVersionNumber -> false
+                        latestVersionNameItem.revisionVersionNumber > oldVersionNameItem.revisionVersionNumber -> true
+                        else -> false
+                    }
+
+                    return if (isNewer) {
+                        VersionDomainData.Success(latestVersionResult.data)
                     } else {
-                        return VersionDomainData.NOUpdate
+                        VersionDomainData.NOUpdate
                     }
                 }
             }
