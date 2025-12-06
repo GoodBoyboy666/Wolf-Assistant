@@ -56,7 +56,7 @@ class FirstPageViewModel
         internal suspend fun checkLoginStatue() {
             val accessToken = settingsRepository.accessTokenFlow.first()
             _hasAccessToken.value = accessToken.isNotEmpty()
-            if(accessToken.isNotEmpty()) {
+            if (accessToken.isNotEmpty()) {
                 val isExpired = JWT(accessToken).isExpired(0)
                 _hasTokenExpired.value = isExpired
             }
@@ -77,7 +77,7 @@ class FirstPageViewModel
                 checkLoginStatue()
                 initGlobalConfig()
                 _loadState.value = LoadState.Success
-            }catch (e: Exception) {
+            } catch (e: Exception) {
                 _loadState.value = LoadState.Failed(e.message ?: "Unknown Error")
             }
         }

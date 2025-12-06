@@ -61,7 +61,7 @@ fun FirstPage(
                 navController.navigate(ScreenRoute.Home.route) {
                     popUpTo(0)
                 }
-            }else if(hasTokenExpired){
+            } else if (hasTokenExpired) {
                 TokenExpiredDialog(
                     {
                         navController.navigate(ScreenRoute.Home.route) {
@@ -75,10 +75,9 @@ fun FirstPage(
                                 popUpTo(0)
                             }
                         }
-                    }
+                    },
                 )
-            }
-            else {
+            } else {
                 navController.navigate("login") {
                     popUpTo(0)
                 }
@@ -132,11 +131,11 @@ fun TokenExpiredDialogPreview() {
 @Composable
 fun TokenExpiredDialog(
     onDismissRequest: () -> Unit,
-    onConfirmRequest:()-> Unit
+    onConfirmRequest: () -> Unit,
 ) {
     AlertDialog(
         icon = {
-            Icon(Icons.Rounded.Update,"登录状态过期")
+            Icon(Icons.Rounded.Update, "登录状态过期")
         },
         title = {
             Text(text = "登录状态已过期")
