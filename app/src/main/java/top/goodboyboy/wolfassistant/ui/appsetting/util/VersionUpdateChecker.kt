@@ -2,7 +2,6 @@ package top.goodboyboy.wolfassistant.ui.appsetting.util
 
 import top.goodboyboy.wolfassistant.ui.appsetting.datasource.GitHubDataSource
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionDomainData
-import top.goodboyboy.wolfassistant.ui.appsetting.util.VersionUtil
 import javax.inject.Inject
 
 class VersionUpdateChecker
