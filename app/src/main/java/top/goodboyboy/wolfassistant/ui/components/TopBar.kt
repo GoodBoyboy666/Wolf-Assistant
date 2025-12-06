@@ -66,9 +66,11 @@ fun TopBar(
     }
 
     LaunchedEffect(currentRoute) {
+        // 设置页面和浏览器页面均使用回退按钮
         showNavigationIcon = currentRoute in listOf("setting") ||
             (currentRoute != null && currentRoute.startsWith("browser"))
 
+        // 浏览器页面和课表页面展示action按钮
         showActions = (currentRoute != null && currentRoute.startsWith("browser")) ||
             (currentRoute == ScreenRoute.Schedule.route)
     }
@@ -90,9 +92,7 @@ fun TopBar(
             AnimatedContent(
                 // title优先级最高，然后是Route的名称
                 targetState =
-                    if (title.isNotEmpty()) {
-                        title
-                    } else {
+                    title.ifEmpty {
                         ScreenRoute.items.firstOrNull { it.route == currentRoute }?.title
                             ?: ""
                     },
@@ -115,17 +115,6 @@ fun TopBar(
             }
         },
         navigationIcon = {
-            // 设置页面和浏览器页面均使用回退按钮
-            if (currentRoute in listOf("setting") ||
-                currentRoute != null &&
-                currentRoute.startsWith(
-                    "browser",
-                )
-            ) {
-                showNavigationIcon = true
-            } else {
-                showNavigationIcon = false
-            }
             AnimatedVisibility(
                 visible = showNavigationIcon,
                 enter = slideInVertically { -it } + fadeIn(),
@@ -142,26 +131,13 @@ fun TopBar(
             }
         },
         actions = {
-            // 浏览器页面和课表页面展示action按钮
-            if (currentRoute != null &&
-                currentRoute.startsWith(
-                    "browser",
-                )
-            ) {
-                showActions = true
-            } else if (currentRoute != null && currentRoute == ScreenRoute.Schedule.route) {
-                showActions = true
-            } else {
-                showActions = false
-            }
-
             AnimatedVisibility(
                 visible = showActions,
                 enter = slideInVertically { -it } + fadeIn(),
                 exit = slideOutVertically { -it } + fadeOut(),
             ) {
                 // 课表页面为返回当前周按钮
-                if (currentRoute != null && currentRoute == ScreenRoute.Schedule.route) {
+                if (currentRoute == ScreenRoute.Schedule.route) {
                     IconButton(
                         onClick = {
                             scope.launch {
@@ -175,9 +151,7 @@ fun TopBar(
                     ) {
                         Icon(Icons.Rounded.History, stringResource(R.string.go_back_to_the_current_week))
                     }
-                } else if (currentRoute != null &&
-                    // 浏览器页面为浏览器菜单
-                    currentRoute.startsWith(
+                } else if (currentRoute.startsWith(
                         "browser",
                     )
                 ) {
