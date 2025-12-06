@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.common.Event
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import javax.inject.Inject
@@ -17,16 +17,38 @@ class BrowserViewModel
     constructor(
         private val settingsRepository: SettingsRepository,
     ) : ViewModel() {
-        val accessTokenStateFlow =
-            settingsRepository.accessTokenFlow.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = null,
-            )
+        sealed class LoadState {
+            object Idle : LoadState()
+
+            object Loading : LoadState()
+
+            data class Success(
+                val accessToken: String,
+            ) : LoadState()
+
+            data class Failed(
+                val message: String,
+            ) : LoadState()
+        }
+
+        private val _loadState = MutableStateFlow<LoadState>(LoadState.Idle)
+        val loadState = _loadState.asStateFlow()
         private val _refreshEvent = MutableStateFlow<Event<Unit>?>(null)
         val refreshEvent = _refreshEvent.asStateFlow()
 
         fun onRefresh() {
             _refreshEvent.value = Event(Unit)
+        }
+
+        init {
+            viewModelScope.launch {
+                _loadState.value = LoadState.Loading
+                val accessToken = settingsRepository.accessTokenFlow.first()
+                if (accessToken.isNotEmpty()) {
+                    _loadState.value = LoadState.Success(accessToken)
+                } else {
+                    _loadState.value = LoadState.Failed("No access token found")
+                }
+            }
         }
     }

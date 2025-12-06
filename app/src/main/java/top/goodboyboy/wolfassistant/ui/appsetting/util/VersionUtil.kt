@@ -1,4 +1,4 @@
-package top.goodboyboy.wolfassistant.ui.appsetting
+package top.goodboyboy.wolfassistant.ui.appsetting.util
 
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionNameItem
 

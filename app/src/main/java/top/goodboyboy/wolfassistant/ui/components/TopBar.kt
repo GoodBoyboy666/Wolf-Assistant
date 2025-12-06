@@ -21,40 +21,78 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.ScreenRoute
+import top.goodboyboy.wolfassistant.common.GlobalEventBus
+import top.goodboyboy.wolfassistant.ui.event.BrowserMenuClickEvent
+import top.goodboyboy.wolfassistant.ui.event.TopBarTitleEvent
+import top.goodboyboy.wolfassistant.ui.schedulecenter.ScheduleCenterViewModel
+import top.goodboyboy.wolfassistant.ui.schedulecenter.event.RollBackToCurrentDateEvent
+
+object TopBarConstants {
+    const val TOP_BAR_TAG = "TopBar"
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
-    title: String = "",
     navController: NavController,
-    onMenuClick: () -> Unit = {},
-    onRollBackToCurrentDate: () -> Unit = {},
+    globalEventBus: GlobalEventBus,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val scope = rememberCoroutineScope()
 
+    var title by remember { mutableStateOf("") }
     var showNavigationIcon by remember { mutableStateOf(false) }
     var showActions by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        globalEventBus.subscribeToTarget<TopBarTitleEvent>(TopBarConstants.TOP_BAR_TAG).collect { event ->
+            title = event.title
+        }
+    }
+
+    LaunchedEffect(currentRoute) {
+        // 设置页面和浏览器页面均使用回退按钮
+        showNavigationIcon = currentRoute in listOf("setting") ||
+            (currentRoute != null && currentRoute.startsWith("browser"))
+
+        // 浏览器页面和课表页面展示action按钮
+        showActions = (currentRoute != null && currentRoute.startsWith("browser")) ||
+            (currentRoute == ScreenRoute.Schedule.route)
+    }
+
+    val shouldShowTopBar =
+        currentRoute != null &&
+            (
+                currentRoute.startsWith("browser") ||
+                    currentRoute in ScreenRoute.items.map { it.route } ||
+                    currentRoute in listOf("setting")
+            )
+
+    if (!shouldShowTopBar) {
+        return
+    }
 
     CenterAlignedTopAppBar(
         title = {
             AnimatedContent(
                 // title优先级最高，然后是Route的名称
                 targetState =
-                    if (title != "") {
-                        title
-                    } else {
+                    title.ifEmpty {
                         ScreenRoute.items.firstOrNull { it.route == currentRoute }?.title
                             ?: ""
                     },
@@ -77,17 +115,6 @@ fun TopBar(
             }
         },
         navigationIcon = {
-            // 设置页面和浏览器页面均使用回退按钮
-            if (currentRoute in listOf("setting") ||
-                currentRoute != null &&
-                currentRoute.startsWith(
-                    "browser",
-                )
-            ) {
-                showNavigationIcon = true
-            } else {
-                showNavigationIcon = false
-            }
             AnimatedVisibility(
                 visible = showNavigationIcon,
                 enter = slideInVertically { -it } + fadeIn(),
@@ -104,41 +131,38 @@ fun TopBar(
             }
         },
         actions = {
-            // 浏览器页面和课表页面展示action按钮
-            if (currentRoute != null &&
-                currentRoute.startsWith(
-                    "browser",
-                )
-            ) {
-                showActions = true
-            } else if (currentRoute != null && currentRoute == ScreenRoute.Schedule.route) {
-                showActions = true
-            } else {
-                showActions = false
-            }
-
             AnimatedVisibility(
                 visible = showActions,
                 enter = slideInVertically { -it } + fadeIn(),
                 exit = slideOutVertically { -it } + fadeOut(),
             ) {
                 // 课表页面为返回当前周按钮
-                if (currentRoute != null && currentRoute == ScreenRoute.Schedule.route) {
+                if (currentRoute == ScreenRoute.Schedule.route) {
                     IconButton(
                         onClick = {
-                            onRollBackToCurrentDate()
+                            scope.launch {
+                                globalEventBus.emit(
+                                    RollBackToCurrentDateEvent(
+                                        targetTag = ScheduleCenterViewModel.SCHEDULE_CENTER_TAG,
+                                    ),
+                                )
+                            }
                         },
                     ) {
                         Icon(Icons.Rounded.History, stringResource(R.string.go_back_to_the_current_week))
                     }
-                } else if (currentRoute != null &&
-                    // 浏览器页面为浏览器菜单
-                    currentRoute.startsWith(
+                } else if (currentRoute.startsWith(
                         "browser",
                     )
                 ) {
                     IconButton(onClick = {
-                        onMenuClick()
+                        scope.launch {
+                            globalEventBus.emit(
+                                BrowserMenuClickEvent(
+                                    targetTag = "BrowserView",
+                                ),
+                            )
+                        }
                     }) {
                         Icon(
                             imageVector = Icons.Rounded.Menu,

@@ -5,9 +5,9 @@ import com.google.gson.JsonParser
 import retrofit2.HttpException
 import top.goodboyboy.wolfassistant.api.github.update.UpdateAPIService
 import top.goodboyboy.wolfassistant.common.Failure
-import top.goodboyboy.wolfassistant.ui.appsetting.VersionUtil
 import top.goodboyboy.wolfassistant.ui.appsetting.datasource.GitHubDataSource.VersionDataResult
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionInfo
+import top.goodboyboy.wolfassistant.ui.appsetting.util.VersionUtil
 import java.io.IOException
 import javax.inject.Inject
 

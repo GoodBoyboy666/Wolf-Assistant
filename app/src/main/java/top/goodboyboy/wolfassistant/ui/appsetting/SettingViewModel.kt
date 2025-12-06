@@ -65,7 +65,7 @@ class SettingViewModel
             serviceRepository.cleanServiceList()
             scheduleCenterRepository.cleanScheduleCache()
             personalInfoRepository.cleanPersonalInfoCache()
-            settingsRepository.cleanAllData()
+            settingsRepository.cleanUser()
             cleanAllCache(context)
         }
 

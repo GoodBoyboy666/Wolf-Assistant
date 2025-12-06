@@ -10,6 +10,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import top.goodboyboy.wolfassistant.common.GlobalEventBus
 import javax.inject.Singleton
 
 @Module
@@ -29,4 +30,8 @@ object AppModule {
         PreferenceDataStoreFactory.create(
             produceFile = { context.preferencesDataStoreFile("app_settings") },
         )
+
+    @Provides
+    @Singleton
+    fun provideGlobalEventBus(): GlobalEventBus = GlobalEventBus()
 }
