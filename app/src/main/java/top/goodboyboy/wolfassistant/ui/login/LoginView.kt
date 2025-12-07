@@ -83,6 +83,8 @@ fun LoginView(
         var enableUserTextField by remember { mutableStateOf(true) }
         var enablePasswdTextField by remember { mutableStateOf(true) }
         var enableLoginButton by remember { mutableStateOf(true) }
+        val passwordNotEmpty = stringResource(R.string.id_passwd_note_empty)
+        val loginFailed = stringResource(R.string.login_failed)
 
         OutlinedCard(
             modifier = Modifier.padding(top = 32.dp),
@@ -150,7 +152,7 @@ fun LoginView(
                     onClick = {
                         if (userId == "" || passwd == "") {
                             scope.launch {
-                                snackbarHostState.showSnackbar(context.getString(R.string.id_passwd_note_empty))
+                                snackbarHostState.showSnackbar(passwordNotEmpty)
                             }
                         } else {
                             scope.launch {
@@ -163,7 +165,7 @@ fun LoginView(
                     Text(stringResource(R.string.login))
                 }
 
-                when (loginState) {
+                when (val state = loginState) {
                     is LoginViewModel.LoginState.Loading -> {
                         enableUserTextField = false
                         enablePasswdTextField = false
@@ -185,8 +187,8 @@ fun LoginView(
                         enableLoginButton = true
                         LaunchedEffect(loginState) {
                             snackbarHostState.showSnackbar(
-                                context.getString(R.string.login_failed) +
-                                    (loginState as LoginViewModel.LoginState.Failed).message,
+                                loginFailed +
+                                    state.message,
                             )
                         }
                     }

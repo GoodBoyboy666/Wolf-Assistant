@@ -19,7 +19,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
@@ -47,7 +47,8 @@ fun BrowserView(
     val scope = rememberCoroutineScope()
     val loadState by viewModel.loadState.collectAsStateWithLifecycle()
     val refreshEvent by viewModel.refreshEvent.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+    // Precompute the localized message at composition time so we don't call a @Composable from a coroutine
+    val cantPullUpMessage = stringResource(R.string.cant_pull_up_app)
 
     LaunchedEffect(Unit) {
         globalEventBus.subscribeToTarget<BrowserMenuClickEvent>("BrowserView").collect {
@@ -78,8 +79,10 @@ fun BrowserView(
     ) {
         when (val state = loadState) {
             is BrowserViewModel.LoadState.Failed -> {
-                scope.launch {
-                    snackbarHostState.showSnackbar(state.message)
+                LaunchedEffect(state) {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(state.message)
+                    }
                 }
             }
 
@@ -116,14 +119,14 @@ fun BrowserView(
                     { origin, callback ->
                         callback.invoke(origin, true, false)
                     },
-                    { request, error ->
+                    { _, _ ->
 //                scope.launch {
 //                    snackbarHostState.showSnackbar(error?.description.toString())
 //                }
                     },
                     {
                         scope.launch {
-                            snackbarHostState.showSnackbar(context.getString(R.string.cant_pull_up_app))
+                            snackbarHostState.showSnackbar(cantPullUpMessage)
                         }
                     },
                     { title ->

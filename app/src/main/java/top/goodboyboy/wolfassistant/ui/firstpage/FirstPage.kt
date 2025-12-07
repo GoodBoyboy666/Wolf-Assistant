@@ -14,6 +14,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -47,8 +48,10 @@ fun FirstPage(
     when (val state = loadState) {
         is FirstPageViewModel.LoadState.Failed -> {
             LoadPage(innerPadding)
-            scope.launch {
-                snackbarHostState.showSnackbar(state.message)
+            LaunchedEffect(state) {
+                scope.launch {
+                    snackbarHostState.showSnackbar(state.message)
+                }
             }
         }
 
