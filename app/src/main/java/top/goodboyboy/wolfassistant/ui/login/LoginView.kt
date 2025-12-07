@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.AssignmentInd
 import androidx.compose.material.icons.rounded.Password
 import androidx.compose.material.icons.rounded.Visibility
@@ -32,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -72,9 +72,9 @@ fun LoginView(
         verticalArrangement = Arrangement.Center,
     ) {
         Icon(
-            Icons.Rounded.AccountCircle,
-            null,
-            Modifier.size(72.dp),
+            painter = painterResource(R.drawable.ic_launcher_foreground),
+            contentDescription = null,
+            modifier = Modifier.size(128.dp),
         )
 
         var userId by remember { mutableStateOf("") }
@@ -83,15 +83,18 @@ fun LoginView(
         var enableUserTextField by remember { mutableStateOf(true) }
         var enablePasswdTextField by remember { mutableStateOf(true) }
         var enableLoginButton by remember { mutableStateOf(true) }
+        val passwordNotEmpty = stringResource(R.string.id_passwd_note_empty)
+        val loginFailed = stringResource(R.string.login_failed)
 
         OutlinedCard(
-            modifier = Modifier.padding(top = 64.dp),
+            modifier = Modifier.padding(top = 32.dp),
         ) {
             Column(
                 modifier = Modifier.padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
+                Text("请输入智慧工大的账户凭据登录", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(
                     modifier =
                         Modifier
@@ -149,7 +152,7 @@ fun LoginView(
                     onClick = {
                         if (userId == "" || passwd == "") {
                             scope.launch {
-                                snackbarHostState.showSnackbar(context.getString(R.string.id_passwd_note_empty))
+                                snackbarHostState.showSnackbar(passwordNotEmpty)
                             }
                         } else {
                             scope.launch {
@@ -162,7 +165,7 @@ fun LoginView(
                     Text(stringResource(R.string.login))
                 }
 
-                when (loginState) {
+                when (val state = loginState) {
                     is LoginViewModel.LoginState.Loading -> {
                         enableUserTextField = false
                         enablePasswdTextField = false
@@ -184,8 +187,8 @@ fun LoginView(
                         enableLoginButton = true
                         LaunchedEffect(loginState) {
                             snackbarHostState.showSnackbar(
-                                context.getString(R.string.login_failed) +
-                                    (loginState as LoginViewModel.LoginState.Failed).message,
+                                loginFailed +
+                                    state.message,
                             )
                         }
                     }

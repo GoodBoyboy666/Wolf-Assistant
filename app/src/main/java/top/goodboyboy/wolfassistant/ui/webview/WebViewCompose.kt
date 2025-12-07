@@ -43,7 +43,7 @@ fun WebViewCompose(
     val webView =
         remember {
             WebView.setWebContentsDebuggingEnabled(false)
-            WebView(context).apply {
+            WebView(context.applicationContext).apply {
                 layoutParams =
                     ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
@@ -65,9 +65,10 @@ fun WebViewCompose(
                                 if (isExternalLink(url)) {
                                     try {
                                         val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-                                        view?.context?.startActivity(intent)
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                        context.startActivity(intent)
                                         return true
-                                    } catch (e: ActivityNotFoundException) {
+                                    } catch (_: ActivityNotFoundException) {
                                         onActivityNotFoundException()
                                     }
                                 }
@@ -98,14 +99,6 @@ fun WebViewCompose(
                             super.onReceivedError(view, request, error)
                             onError(request, error)
                         }
-//                override fun shouldInterceptRequest(
-//                    view: WebView,
-//                    request: WebResourceRequest
-//                ): WebResourceResponse? {
-//                    val ua = request.requestHeaders["User-Agent"]
-//                    println("Current UA in request: $ua")
-//                    return null
-//                }
                     }
                 webChromeClient =
                     object : WebChromeClient() {
@@ -173,13 +166,19 @@ fun WebViewCompose(
     DisposableEffect(webView) {
         onDispose {
             onWebViewDispose()
-            webView.stopLoading()
-            webView.destroy()
+            webView.apply {
+                stopLoading()
+                webViewClient = WebViewClient()
+                webChromeClient = WebChromeClient()
+                (parent as? ViewGroup)?.removeView(this)
+                clearHistory()
+//                clearCache(true)
+                destroy()
+            }
         }
     }
-    AndroidView(
-        factory = { webView },
-    )
+
+    AndroidView(factory = { webView })
 
     BackHandler(
         enabled = true,

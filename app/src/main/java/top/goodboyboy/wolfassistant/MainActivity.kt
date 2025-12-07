@@ -12,11 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -29,9 +27,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import dagger.hilt.android.AndroidEntryPoint
+import top.goodboyboy.wolfassistant.common.GlobalEventBus
 import top.goodboyboy.wolfassistant.ui.appsetting.SettingView
+import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionDomainData
+import top.goodboyboy.wolfassistant.ui.appsetting.util.VersionUpdateChecker
 import top.goodboyboy.wolfassistant.ui.components.BottomBar
 import top.goodboyboy.wolfassistant.ui.components.TopBar
+import top.goodboyboy.wolfassistant.ui.components.TopBarConstants
+import top.goodboyboy.wolfassistant.ui.event.TopBarTitleEvent
 import top.goodboyboy.wolfassistant.ui.firstpage.FirstPage
 import top.goodboyboy.wolfassistant.ui.home.HomeView
 import top.goodboyboy.wolfassistant.ui.home.HomeViewModel
@@ -49,9 +52,16 @@ import top.goodboyboy.wolfassistant.ui.theme.WolfAssistantTheme
 import top.goodboyboy.wolfassistant.ui.webview.BrowserView
 import top.goodboyboy.wolfassistant.ui.webview.BrowserViewModel
 import java.net.URLDecoder
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var globalEventBus: GlobalEventBus
+
+    @Inject
+    lateinit var versionUpdateChecker: VersionUpdateChecker
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -60,15 +70,37 @@ class MainActivity : ComponentActivity() {
             WolfAssistantTheme {
                 val navController = rememberNavController()
                 val snackbarHostState = remember { SnackbarHostState() }
+
+                LaunchedEffect(Unit) {
+                    try {
+                        val result = versionUpdateChecker.checkUpdate(BuildConfig.VERSION_NAME)
+                        when (result) {
+                            is VersionDomainData.Success -> {
+                                val snackbarResult =
+                                    snackbarHostState.showSnackbar(
+                                        message = "发现新版本: ${result.data.versionNameItem.versionNameString}",
+                                        actionLabel = "去更新",
+                                        duration = androidx.compose.material3.SnackbarDuration.Long,
+                                    )
+                                if (snackbarResult == SnackbarResult.ActionPerformed) {
+                                    navController.navigate("setting")
+                                }
+                            }
+                            is VersionDomainData.NOUpdate -> {
+                            }
+                            is VersionDomainData.Error -> {
+                            }
+                        }
+                    } catch (_: Exception) {
+                    }
+                }
+
                 val currentRoute =
                     navController
                         .currentBackStackEntryAsState()
                         .value
                         ?.destination
                         ?.route
-                var title by remember { mutableStateOf("") }
-                var showMenu by remember { mutableStateOf(false) }
-                var rollBackToCurrentDate by remember { mutableStateOf(false) }
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     snackbarHost = {
@@ -81,23 +113,7 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     topBar = {
-                        if (currentRoute != null &&
-                            currentRoute.startsWith(
-                                "browser",
-                            )
-                        ) {
-                            TopBar(title, navController, onMenuClick = {
-                                showMenu = true
-                            })
-                        } else if (currentRoute == ScreenRoute.Schedule.route) {
-                            TopBar(title, navController, onRollBackToCurrentDate = {
-                                rollBackToCurrentDate = true
-                            })
-                        } else if (currentRoute in ScreenRoute.items.map { it.route }) {
-                            TopBar(title, navController)
-                        } else if (currentRoute in listOf("setting")) {
-                            TopBar(title, navController)
-                        }
+                        TopBar(navController, globalEventBus)
                     },
                 ) { innerPadding ->
                     val owner =
@@ -143,8 +159,14 @@ class MainActivity : ComponentActivity() {
 //                            val context = LocalContext.current
 //                            BackHandler(enabled = true) {
 //                                (context as? Activity)?.finish()
-//                            }
-                            title = ScreenRoute.Home.title
+                            LaunchedEffect(Unit) {
+                                globalEventBus.emit(
+                                    TopBarTitleEvent(
+                                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                                        title = ScreenRoute.Home.title,
+                                    ),
+                                )
+                            }
                             val viewModel = hiltViewModel<HomeViewModel>(owner)
                             HomeView(
                                 innerPadding,
@@ -153,8 +175,15 @@ class MainActivity : ComponentActivity() {
                                 viewModel,
                             )
                         }
-                        composable(ScreenRoute.ServiceCenter.route) { backStackEntry ->
-                            title = ScreenRoute.ServiceCenter.title
+                        composable(ScreenRoute.ServiceCenter.route) {
+                            LaunchedEffect(Unit) {
+                                globalEventBus.emit(
+                                    TopBarTitleEvent(
+                                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                                        title = ScreenRoute.ServiceCenter.title,
+                                    ),
+                                )
+                            }
                             val viewModel = hiltViewModel<ServiceCenterViewModel>(owner)
                             ServiceCenterView(
                                 innerPadding,
@@ -164,30 +193,38 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(ScreenRoute.MessageCenter.route) {
-                            title = ScreenRoute.MessageCenter.title
+                            LaunchedEffect(Unit) {
+                                globalEventBus.emit(
+                                    TopBarTitleEvent(
+                                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                                        title = ScreenRoute.MessageCenter.title,
+                                    ),
+                                )
+                            }
                             val viewModel = hiltViewModel<MessageCenterViewModel>(owner)
                             MessageCenterView(
                                 innerPadding,
                                 viewModel,
                             )
                         }
-                        composable(ScreenRoute.Schedule.route) { backStackEntry ->
+                        composable(ScreenRoute.Schedule.route) {
                             val viewModel = hiltViewModel<ScheduleCenterViewModel>(owner)
                             ScheduleCenterView(
                                 innerPadding,
                                 snackbarHostState,
                                 viewModel,
-                                { week ->
-                                    title = "${week.year}年${week.monthValue}月"
-                                },
-                                rollBackToCurrentDate,
-                                {
-                                    rollBackToCurrentDate = false
-                                },
+                                globalEventBus,
                             )
                         }
-                        composable(ScreenRoute.PersonalCenter.route) { backStackEntry ->
-                            title = ScreenRoute.PersonalCenter.title
+                        composable(ScreenRoute.PersonalCenter.route) {
+                            LaunchedEffect(Unit) {
+                                globalEventBus.emit(
+                                    TopBarTitleEvent(
+                                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                                        title = ScreenRoute.PersonalCenter.title,
+                                    ),
+                                )
+                            }
                             val viewModel = hiltViewModel<PersonalCenterViewModel>(owner)
                             PersonalCenter(
                                 innerPadding,
@@ -200,6 +237,7 @@ class MainActivity : ComponentActivity() {
                             FirstPage(
                                 innerPadding,
                                 navController,
+                                snackbarHostState,
                             )
                         }
                         composable(
@@ -222,7 +260,12 @@ class MainActivity : ComponentActivity() {
                         ) { backStackEntry ->
                             val viewModel = hiltViewModel<BrowserViewModel>(owner)
                             LaunchedEffect(Unit) {
-                                title = ""
+                                globalEventBus.emit(
+                                    TopBarTitleEvent(
+                                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                                        title = "",
+                                    ),
+                                )
                             }
                             val url = backStackEntry.arguments?.getString("url") ?: ""
                             val originalUrl =
@@ -241,17 +284,8 @@ class MainActivity : ComponentActivity() {
                                 navController,
                                 snackbarHostState,
                                 innerPadding,
-                                showMenu,
                                 viewModel,
-                                { titleText ->
-                                    title = titleText
-                                },
-                                {
-                                    title = ""
-                                },
-                                {
-                                    showMenu = false
-                                },
+                                globalEventBus,
                             )
                         }
                         composable("scanner") {
@@ -260,7 +294,14 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("setting") {
-                            title = "设置"
+                            LaunchedEffect(Unit) {
+                                globalEventBus.emit(
+                                    TopBarTitleEvent(
+                                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                                        title = "设置",
+                                    ),
+                                )
+                            }
                             SettingView(
                                 navController,
                                 innerPadding,

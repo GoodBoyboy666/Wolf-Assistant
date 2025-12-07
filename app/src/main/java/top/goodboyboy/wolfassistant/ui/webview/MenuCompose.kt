@@ -32,6 +32,7 @@ fun MenuCompose(
     onRefreshClick: () -> Unit,
 ) {
     val context = LocalContext.current
+    val shareItVia = stringResource(R.string.share_it_via)
     ModalBottomSheet(onDismissRequest = { onDismissRequest() }) {
         Row(
             modifier =
@@ -50,7 +51,7 @@ fun MenuCompose(
                                     putExtra(Intent.EXTRA_TEXT, url)
                                     type = "text/plain"
                                 }
-                            val shareIntent = Intent.createChooser(sendIntent, context.getString(R.string.share_it_via))
+                            val shareIntent = Intent.createChooser(sendIntent, shareItVia)
                             context.startActivity(shareIntent)
                             onDismissRequest()
                         }.padding(20.dp),

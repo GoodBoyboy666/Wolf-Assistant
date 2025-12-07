@@ -71,6 +71,7 @@ fun SettingView(
         initialValue = false,
     )
     val scrollState = rememberScrollState()
+    val latestVersion = stringResource(R.string.latest_version)
     LaunchedEffect(Unit) {
         viewModel.getTotalCacheSize(context)
     }
@@ -279,7 +280,7 @@ fun SettingView(
                 if (data == null) {
                     LaunchedEffect(Unit) {
                         scope.launch {
-                            snackbarHostState.showSnackbar(context.getString(R.string.latest_version))
+                            snackbarHostState.showSnackbar(latestVersion)
                         }
                         viewModel.changeUpdateState(SettingViewModel.CheckUpdateState.Idle)
                     }

@@ -86,6 +86,15 @@ class SettingsRepository
             }
         }
 
+        suspend fun cleanUser() {
+            dataStore.edit { prefs ->
+                prefs.remove(stringPreferencesKey("user_name"))
+                prefs.remove(stringPreferencesKey("user_id"))
+                prefs.remove(stringPreferencesKey("access_token"))
+                prefs.remove(stringPreferencesKey("user_organization"))
+            }
+        }
+
         suspend fun setSSLCertVerification(value: Boolean) {
             dataStore.edit { prefs ->
                 prefs[booleanPreferencesKey("disable_SSLCert_verification")] = value

@@ -16,8 +16,8 @@ android {
         applicationId = "top.goodboyboy.wolfassistant"
         minSdk = 28
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.1.4"
+        versionCode = 7
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         android.buildFeatures.buildConfig = true
@@ -78,6 +78,9 @@ android {
         unitTests.all {
             it.useJUnitPlatform()
         }
+        unitTests {
+            isIncludeAndroidResources = true
+        }
     }
 
     packaging {
@@ -102,6 +105,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter)
+    testImplementation(libs.jupiter.junit.jupiter)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -141,4 +145,6 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation(libs.logging.interceptor)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.jwtdecode)
+    testImplementation("org.robolectric:robolectric:4.16")
 }
