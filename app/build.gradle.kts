@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
-    id("com.mikepenz.aboutlibraries.plugin")
+    id("com.mikepenz.aboutlibraries.plugin.android")
     id("org.jlleitschuh.gradle.ktlint")
 }
 
@@ -132,6 +132,7 @@ dependencies {
 //    implementation(libs.barcode.scanning)
     implementation(libs.google.zxing.core)
     implementation(libs.calendar)
+    implementation(libs.aboutlibraries.core)
     implementation(libs.aboutlibraries.compose.m3)
     implementation(libs.androidx.paging.runtime.ktx)
     implementation(libs.androidx.paging.compose)
