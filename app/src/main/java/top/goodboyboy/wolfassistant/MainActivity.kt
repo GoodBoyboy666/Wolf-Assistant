@@ -14,6 +14,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -25,6 +26,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.mikepenz.aboutlibraries.ui.compose.android.produceLibraries
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import dagger.hilt.android.AndroidEntryPoint
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
@@ -309,7 +311,9 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("oss") {
+                            val libraries by produceLibraries(R.raw.aboutlibraries)
                             LibrariesContainer(
+                                libraries = libraries,
                                 modifier =
                                     Modifier
                                         .fillMaxSize()

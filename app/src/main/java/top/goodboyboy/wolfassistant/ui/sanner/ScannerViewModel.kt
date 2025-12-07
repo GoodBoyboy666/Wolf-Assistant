@@ -1,12 +1,12 @@
 package top.goodboyboy.wolfassistant.ui.sanner
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import javax.inject.Inject
@@ -17,29 +17,30 @@ class ScannerViewModel
     constructor(
         settingsRepository: SettingsRepository,
     ) : ViewModel() {
-        private val accessToken = mutableStateOf("")
-        private val _accessTokenLoadState =
-            MutableStateFlow<AccessTokenLoadState>(AccessTokenLoadState.Idle)
-        val accessTokenLoadState: StateFlow<AccessTokenLoadState> = _accessTokenLoadState.asStateFlow()
+        private val _initState =
+            MutableStateFlow<InitState>(InitState.Idle)
+        val initState: StateFlow<InitState> = _initState.asStateFlow()
 
-        sealed class AccessTokenLoadState {
-            object Idle : AccessTokenLoadState()
+        sealed class InitState {
+            object Idle : InitState()
 
-            object Loading : AccessTokenLoadState()
+            object Loading : InitState()
 
-            object Success : AccessTokenLoadState()
+            object Success : InitState()
 
             data class Error(
                 val error: String,
-            ) : AccessTokenLoadState()
+            ) : InitState()
         }
 
         init {
-            _accessTokenLoadState.value = AccessTokenLoadState.Loading
+            _initState.value = InitState.Loading
             viewModelScope.launch {
-                settingsRepository.accessTokenFlow.collect { data ->
-                    accessToken.value = data
-                    _accessTokenLoadState.value = AccessTokenLoadState.Success
+                val accessToken = settingsRepository.accessTokenFlow.first()
+                if (accessToken.isNotEmpty()) {
+                    _initState.value = InitState.Success
+                } else {
+                    _initState.value = InitState.Error("Access token 为空")
                 }
             }
         }

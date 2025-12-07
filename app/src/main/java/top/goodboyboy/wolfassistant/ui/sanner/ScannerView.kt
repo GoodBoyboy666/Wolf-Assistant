@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
@@ -42,36 +41,32 @@ fun ScannerView(
     viewModel: ScannerViewModel = hiltViewModel(),
 ) {
     var isGrated by remember { mutableStateOf(false) }
-    val loadAccessToken by viewModel.accessTokenLoadState.collectAsStateWithLifecycle()
+    val initState by viewModel.initState.collectAsStateWithLifecycle()
     val launcher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission(),
             onResult = { granted ->
-                if (granted) {
-                    isGrated = true
-                } else {
-                    isGrated = false
-                }
+                isGrated = granted
             },
         )
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         launcher.launch(Manifest.permission.CAMERA)
     }
-    when (loadAccessToken) {
+    when (val state = initState) {
         // 懒得判断了
-        is ScannerViewModel.AccessTokenLoadState.Error -> {
-            Text("出错了（悲）\n原因：" + (loadAccessToken as ScannerViewModel.AccessTokenLoadState.Error).error)
+        is ScannerViewModel.InitState.Error -> {
+            Text("出错了（悲）\n原因：" + state.error)
         }
 
-        ScannerViewModel.AccessTokenLoadState.Idle -> {}
-        ScannerViewModel.AccessTokenLoadState.Loading -> {}
-        ScannerViewModel.AccessTokenLoadState.Success -> {
+        ScannerViewModel.InitState.Idle -> {}
+        ScannerViewModel.InitState.Loading -> {}
+        ScannerViewModel.InitState.Success -> {
             if (isGrated) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     CameraPreview { data ->
-                        println(data)
                         val encodedUrl = URLEncoder.encode(data, "UTF-8")
                         val headerTokenKeyName = "x-id-token"
                         navController.navigate("browser/$encodedUrl?headerTokenKeyName=$headerTokenKeyName") {
@@ -87,7 +82,6 @@ fun ScannerView(
                     )
                 }
             } else {
-                val context = LocalContext.current
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
@@ -120,8 +114,8 @@ fun ScannerView(
             }
         }
     }
-    BackHandler(enabled = true) {
-        isGrated = false
-        navController.popBackStack()
-    }
+//    BackHandler(enabled = true) {
+//        isGrated = false
+//        navController.popBackStack()
+//    }
 }
