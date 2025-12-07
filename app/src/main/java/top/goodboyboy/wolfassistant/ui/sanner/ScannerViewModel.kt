@@ -36,10 +36,10 @@ class ScannerViewModel
         init {
             _initState.value = InitState.Loading
             viewModelScope.launch {
-                val accessToken= settingsRepository.accessTokenFlow.first()
-                if(accessToken.isNotEmpty()) {
+                val accessToken = settingsRepository.accessTokenFlow.first()
+                if (accessToken.isNotEmpty()) {
                     _initState.value = InitState.Success
-                }else{
+                } else {
                     _initState.value = InitState.Error("Access token 为空")
                 }
             }

@@ -53,7 +53,7 @@ fun ScannerView(
     LaunchedEffect(Unit) {
         launcher.launch(Manifest.permission.CAMERA)
     }
-    when (val state =  initState) {
+    when (val state = initState) {
         // 懒得判断了
         is ScannerViewModel.InitState.Error -> {
             Text("出错了（悲）\n原因：" + state.error)
