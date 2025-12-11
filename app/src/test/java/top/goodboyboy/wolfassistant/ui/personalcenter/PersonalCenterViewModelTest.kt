@@ -31,7 +31,6 @@ import top.goodboyboy.wolfassistant.ui.personalcenter.personal.repository.Person
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class PersonalCenterViewModelTest {
-
     private lateinit var viewModel: PersonalCenterViewModel
     private lateinit var personalInfoRepository: PersonalInfoRepository
     private lateinit var settingsRepository: SettingsRepository
@@ -75,13 +74,14 @@ class PersonalCenterViewModelTest {
         runTest(testDispatcher) {
             // 准备数据：模拟有效的 token 和成功的用户信息返回
             val token = "token"
-            val expected = PersonalInfo(
-                userUid = "uid",
-                userName = "name",
-                organizationName = "org",
-                identityTypeName = "student",
-                imageUrl = "",
-            )
+            val expected =
+                PersonalInfo(
+                    userUid = "uid",
+                    userName = "name",
+                    organizationName = "org",
+                    identityTypeName = "student",
+                    imageUrl = "",
+                )
             // 模拟 settingsRepository 返回 token
             coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
             // 模拟 personalInfoRepository 返回成功数据

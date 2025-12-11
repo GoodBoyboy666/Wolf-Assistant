@@ -1,6 +1,5 @@
 package top.goodboyboy.wolfassistant.ui.home
 
-import app.cash.turbine.test
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -66,86 +65,93 @@ class HomeViewModelTest {
      * 测试：在早晨时段调用 loadTimeTalk 会设置为早安问候语
      */
     @Test
-    fun `loadTimeTalk sets morning greeting`() = runTest(testDispatcher) {
-        mockkStatic(LocalTime::class)
-        every { LocalTime.now() } returns LocalTime.of(8, 0)
+    fun `loadTimeTalk sets morning greeting`() =
+        runTest(testDispatcher) {
+            mockkStatic(LocalTime::class)
+            every { LocalTime.now() } returns LocalTime.of(8, 0)
 
-        viewModel = HomeViewModel(portalRepository, settingsRepository)
+            viewModel = HomeViewModel(portalRepository, settingsRepository)
 
-        assertEquals("新的一天又开始了，祝你过得快乐!", viewModel.timeTalk.value)
-    }
+            assertEquals("新的一天又开始了，祝你过得快乐!", viewModel.timeTalk.value)
+        }
 
     /**
      * 测试：初始化时成功加载门户分类与信息，并将 portalState 置为 Success
      */
     @Test
-    fun `init loads portal categories and infos successfully`() = runTest(testDispatcher) {
-        val categories = listOf(PortalCategoryItem("1", "Category 1"))
-        val infos = listOf(PortalInfoItem("Title", "Author", "2025-01-01", "https://example.com"))
+    fun `init loads portal categories and infos successfully`() =
+        runTest(testDispatcher) {
+            val categories = listOf(PortalCategoryItem("1", "Category 1"))
+            val infos = listOf(PortalInfoItem("Title", "Author", "2025-01-01", "https://example.com"))
 
-        coEvery { portalRepository.getPortalCategory("TestToken") } returns PortalRepository.PortalData.Success(categories)
-        coEvery { portalRepository.getPortalInfoList("1") } returns PortalRepository.PortalData.Success(infos)
-        mockkStatic(LocalTime::class)
-        every { LocalTime.now() } returns LocalTime.of(10, 0)
+            coEvery { portalRepository.getPortalCategory("TestToken") } returns
+                PortalRepository.PortalData.Success(categories)
+            coEvery { portalRepository.getPortalInfoList("1") } returns PortalRepository.PortalData.Success(infos)
+            mockkStatic(LocalTime::class)
+            every { LocalTime.now() } returns LocalTime.of(10, 0)
 
-        viewModel = HomeViewModel(portalRepository, settingsRepository)
-        testDispatcher.scheduler.advanceUntilIdle()
+            viewModel = HomeViewModel(portalRepository, settingsRepository)
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        assertEquals(categories, viewModel.portalCategoryList.value)
-        assertEquals(listOf(infos), viewModel.portalInfoList.value)
-        assertTrue(viewModel.portalState.value is HomeViewModel.PortalState.Success)
-    }
+            assertEquals(categories, viewModel.portalCategoryList.value)
+            assertEquals(listOf(infos), viewModel.portalInfoList.value)
+            assertTrue(viewModel.portalState.value is HomeViewModel.PortalState.Success)
+        }
 
     /**
      * 测试：当门户分类加载失败时，portalState 应为 Failed，且数据列表保持为空
      */
     @Test
-    fun `init handles portal category loading failure`() = runTest(testDispatcher) {
-        val failure = Failure.IOError("Network error", null)
-        coEvery { portalRepository.getPortalCategory("TestToken") } returns PortalRepository.PortalData.Failed(failure)
-        mockkStatic(LocalTime::class)
-        every { LocalTime.now() } returns LocalTime.of(10, 0)
+    fun `init handles portal category loading failure`() =
+        runTest(testDispatcher) {
+            val failure = Failure.IOError("Network error", null)
+            coEvery { portalRepository.getPortalCategory("TestToken") } returns
+                PortalRepository.PortalData.Failed(failure)
+            mockkStatic(LocalTime::class)
+            every { LocalTime.now() } returns LocalTime.of(10, 0)
 
-        viewModel = HomeViewModel(portalRepository, settingsRepository)
-        testDispatcher.scheduler.advanceUntilIdle()
+            viewModel = HomeViewModel(portalRepository, settingsRepository)
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        val state = viewModel.portalState.value
-        assertTrue(state is HomeViewModel.PortalState.Failed)
-        val msg = (state as HomeViewModel.PortalState.Failed).message
-        assertEquals("Network error", msg)
+            val state = viewModel.portalState.value
+            assertTrue(state is HomeViewModel.PortalState.Failed)
+            val msg = (state as HomeViewModel.PortalState.Failed).message
+            assertEquals("Network error", msg)
 
-        // lists should remain empty on failure
-        assertEquals(emptyList<PortalCategoryItem>(), viewModel.portalCategoryList.value)
-        assertEquals(emptyList<List<PortalInfoItem>>(), viewModel.portalInfoList.value)
-    }
+            // lists should remain empty on failure
+            assertEquals(emptyList<PortalCategoryItem>(), viewModel.portalCategoryList.value)
+            assertEquals(emptyList<List<PortalInfoItem>>(), viewModel.portalInfoList.value)
+        }
 
     /**
      * 测试：cleanPortal 会清空内存中门户分类和信息，并调用仓库的清理方法
      */
     @Test
-    fun `cleanPortal clears data and calls repository clean`() = runTest(testDispatcher) {
-        val categories = listOf(PortalCategoryItem("1", "Category 1"))
-        val infos = listOf(PortalInfoItem("Title", "Author", "2025-01-01", "https://example.com"))
+    fun `cleanPortal clears data and calls repository clean`() =
+        runTest(testDispatcher) {
+            val categories = listOf(PortalCategoryItem("1", "Category 1"))
+            val infos = listOf(PortalInfoItem("Title", "Author", "2025-01-01", "https://example.com"))
 
-        coEvery { portalRepository.getPortalCategory("TestToken") } returns PortalRepository.PortalData.Success(categories)
-        coEvery { portalRepository.getPortalInfoList("1") } returns PortalRepository.PortalData.Success(infos)
-        coEvery { portalRepository.cleanCache() } returns Unit
-        mockkStatic(LocalTime::class)
-        every { LocalTime.now() } returns LocalTime.of(10, 0)
+            coEvery { portalRepository.getPortalCategory("TestToken") } returns
+                PortalRepository.PortalData.Success(categories)
+            coEvery { portalRepository.getPortalInfoList("1") } returns PortalRepository.PortalData.Success(infos)
+            coEvery { portalRepository.cleanCache() } returns Unit
+            mockkStatic(LocalTime::class)
+            every { LocalTime.now() } returns LocalTime.of(10, 0)
 
-        viewModel = HomeViewModel(portalRepository, settingsRepository)
-        testDispatcher.scheduler.advanceUntilIdle()
+            viewModel = HomeViewModel(portalRepository, settingsRepository)
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        // ensure data loaded
-        assertEquals(categories, viewModel.portalCategoryList.value)
-        assertEquals(listOf(infos), viewModel.portalInfoList.value)
+            // ensure data loaded
+            assertEquals(categories, viewModel.portalCategoryList.value)
+            assertEquals(listOf(infos), viewModel.portalInfoList.value)
 
-        // call clean
-        viewModel.cleanPortal()
-        testDispatcher.scheduler.advanceUntilIdle()
+            // call clean
+            viewModel.cleanPortal()
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        assertEquals(emptyList<PortalCategoryItem>(), viewModel.portalCategoryList.value)
-        assertEquals(emptyList<List<PortalInfoItem>>(), viewModel.portalInfoList.value)
-        coVerify(exactly = 1) { portalRepository.cleanCache() }
-    }
+            assertEquals(emptyList<PortalCategoryItem>(), viewModel.portalCategoryList.value)
+            assertEquals(emptyList<List<PortalInfoItem>>(), viewModel.portalInfoList.value)
+            coVerify(exactly = 1) { portalRepository.cleanCache() }
+        }
 }

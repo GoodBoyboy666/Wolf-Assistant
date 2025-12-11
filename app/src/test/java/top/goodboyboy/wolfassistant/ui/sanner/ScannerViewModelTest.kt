@@ -27,7 +27,6 @@ import top.goodboyboy.wolfassistant.settings.SettingsRepository
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ScannerViewModelTest {
-
     private lateinit var viewModel: ScannerViewModel
     private val settingsRepository: SettingsRepository = mockk()
     private val testDispatcher = StandardTestDispatcher()
@@ -53,37 +52,39 @@ class ScannerViewModelTest {
      * 测试：当 AccessToken 不为空时，初始化状态应设为 Success
      */
     @Test
-    fun `init should set Success state when access token is not empty`() = runTest(testDispatcher) {
-        // 准备数据：模拟 SettingsRepository 返回有效的 token
-        val token = "valid-token"
-        every { settingsRepository.accessTokenFlow } returns flowOf(token)
+    fun `init should set Success state when access token is not empty`() =
+        runTest(testDispatcher) {
+            // 准备数据：模拟 SettingsRepository 返回有效的 token
+            val token = "valid-token"
+            every { settingsRepository.accessTokenFlow } returns flowOf(token)
 
-        // 执行操作：初始化 ViewModel
-        viewModel = ScannerViewModel(settingsRepository)
-        // 让协程调度器执行完所有挂起的任务
-        testDispatcher.scheduler.advanceUntilIdle()
+            // 执行操作：初始化 ViewModel
+            viewModel = ScannerViewModel(settingsRepository)
+            // 让协程调度器执行完所有挂起的任务
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        // 验证结果：状态应为 Success
-        assertTrue(viewModel.initState.value is ScannerViewModel.InitState.Success)
-    }
+            // 验证结果：状态应为 Success
+            assertTrue(viewModel.initState.value is ScannerViewModel.InitState.Success)
+        }
 
     /**
      * 测试：当 AccessToken 为空时，初始化状态应设为 Error
      */
     @Test
-    fun `init should set Error state when access token is empty`() = runTest(testDispatcher) {
-        // 准备数据：模拟 SettingsRepository 返回空 token
-        val token = ""
-        every { settingsRepository.accessTokenFlow } returns flowOf(token)
+    fun `init should set Error state when access token is empty`() =
+        runTest(testDispatcher) {
+            // 准备数据：模拟 SettingsRepository 返回空 token
+            val token = ""
+            every { settingsRepository.accessTokenFlow } returns flowOf(token)
 
-        // 执行操作：初始化 ViewModel
-        viewModel = ScannerViewModel(settingsRepository)
-        // 让协程调度器执行完所有挂起的任务
-        testDispatcher.scheduler.advanceUntilIdle()
+            // 执行操作：初始化 ViewModel
+            viewModel = ScannerViewModel(settingsRepository)
+            // 让协程调度器执行完所有挂起的任务
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        // 验证结果：状态应为 Error，且包含错误信息
-        val state = viewModel.initState.value
-        assertTrue(state is ScannerViewModel.InitState.Error)
-        assertEquals("Access token 为空", (state as ScannerViewModel.InitState.Error).error)
-    }
+            // 验证结果：状态应为 Error，且包含错误信息
+            val state = viewModel.initState.value
+            assertTrue(state is ScannerViewModel.InitState.Error)
+            assertEquals("Access token 为空", (state as ScannerViewModel.InitState.Error).error)
+        }
 }

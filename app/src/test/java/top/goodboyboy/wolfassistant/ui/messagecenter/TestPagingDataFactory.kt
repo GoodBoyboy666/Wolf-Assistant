@@ -9,4 +9,3 @@ import top.goodboyboy.wolfassistant.ui.messagecenter.model.MessageItem
 object TestPagingDataFactory {
     fun create(vararg items: MessageItem): PagingData<MessageItem> = PagingData.from(items.toList())
 }
-

@@ -32,7 +32,6 @@ import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.ServiceR
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ServiceCenterViewModelTest {
-
     private lateinit var viewModel: ServiceCenterViewModel
     private val serviceRepository: ServiceRepository = mockk(relaxed = true)
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
@@ -54,85 +53,89 @@ class ServiceCenterViewModelTest {
      * 预期：状态变为 Success，serviceList 更新为返回的数据
      */
     @Test
-    fun `loadService success should update serviceList and set Success state`() = runTest(testDispatcher) {
-        // Arrange
-        val token = "test-token"
-        val mockData = listOf(mockk<ServiceItem>())
-        
-        coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
-        coEvery { serviceRepository.getServiceList(token) } returns 
-            ServiceRepository.ServiceListData.Success(mockData)
+    fun `loadService success should update serviceList and set Success state`() =
+        runTest(testDispatcher) {
+            // Arrange
+            val token = "test-token"
+            val mockData = listOf(mockk<ServiceItem>())
 
-        viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository)
+            coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { serviceRepository.getServiceList(token) } returns
+                ServiceRepository.ServiceListData.Success(mockData)
 
-        // Act
-        viewModel.loadService()
-        testDispatcher.scheduler.advanceUntilIdle()
+            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository)
 
-        // Assert
-        assertTrue(viewModel.loadServiceState.value is ServiceCenterViewModel.LoadServiceState.Success)
-        assertEquals(mockData, viewModel.serviceList.value)
-        coVerify(exactly = 1) { serviceRepository.getServiceList(token) }
-    }
+            // Act
+            viewModel.loadService()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Assert
+            assertTrue(viewModel.loadServiceState.value is ServiceCenterViewModel.LoadServiceState.Success)
+            assertEquals(mockData, viewModel.serviceList.value)
+            coVerify(exactly = 1) { serviceRepository.getServiceList(token) }
+        }
 
     /**
      * 测试：加载服务列表失败
      * 预期：状态变为 Failed，且包含错误信息
      */
     @Test
-    fun `loadService failure should set Failed state with error message`() = runTest(testDispatcher) {
-        // Arrange
-        val token = "test-token"
-        val errorMsg = "Network Error"
-        
-        coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
-        coEvery { serviceRepository.getServiceList(token) } returns 
-            ServiceRepository.ServiceListData.Failed(Failure.IOError(errorMsg, null))
+    fun `loadService failure should set Failed state with error message`() =
+        runTest(testDispatcher) {
+            // Arrange
+            val token = "test-token"
+            val errorMsg = "Network Error"
 
-        viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository)
+            coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { serviceRepository.getServiceList(token) } returns
+                ServiceRepository.ServiceListData.Failed(Failure.IOError(errorMsg, null))
 
-        // Act
-        viewModel.loadService()
-        testDispatcher.scheduler.advanceUntilIdle()
+            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository)
 
-        // Assert
-        val state = viewModel.loadServiceState.value
-        assertTrue(state is ServiceCenterViewModel.LoadServiceState.Failed)
-        assertEquals(errorMsg, (state as ServiceCenterViewModel.LoadServiceState.Failed).message)
-    }
+            // Act
+            viewModel.loadService()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Assert
+            val state = viewModel.loadServiceState.value
+            assertTrue(state is ServiceCenterViewModel.LoadServiceState.Failed)
+            assertEquals(errorMsg, (state as ServiceCenterViewModel.LoadServiceState.Failed).message)
+        }
 
     /**
      * 测试：清理服务列表
      * 预期：serviceList 为空，且调用仓库的清理方法
      */
     @Test
-    fun `cleanServiceList should clear list and call repository clean`() = runTest(testDispatcher) {
-        // Arrange
-        viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository)
-        
-        // Act
-        viewModel.cleanServiceList()
-        testDispatcher.scheduler.advanceUntilIdle()
+    fun `cleanServiceList should clear list and call repository clean`() =
+        runTest(testDispatcher) {
+            // Arrange
+            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository)
 
-        // Assert
-        assertTrue(viewModel.serviceList.value.isEmpty())
-        coVerify(exactly = 1) { serviceRepository.cleanServiceList() }
-    }
+            // Act
+            viewModel.cleanServiceList()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Assert
+            assertTrue(viewModel.serviceList.value.isEmpty())
+            coVerify(exactly = 1) { serviceRepository.cleanServiceList() }
+        }
 
     /**
      * 测试：手动更改状态
      * 预期：loadServiceState 更新为指定状态
      */
     @Test
-    fun `changeLoadServiceState should update state`() = runTest(testDispatcher) {
-        // Arrange
-        viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository)
-        val newState = ServiceCenterViewModel.LoadServiceState.Loading
+    fun `changeLoadServiceState should update state`() =
+        runTest(testDispatcher) {
+            // Arrange
+            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository)
+            val newState = ServiceCenterViewModel.LoadServiceState.Loading
 
-        // Act
-        viewModel.changeLoadServiceState(newState)
-        
-        // Assert
-        assertEquals(newState, viewModel.loadServiceState.value)
-    }
+            // Act
+            viewModel.changeLoadServiceState(newState)
+
+            // Assert
+            assertEquals(newState, viewModel.loadServiceState.value)
+        }
 }

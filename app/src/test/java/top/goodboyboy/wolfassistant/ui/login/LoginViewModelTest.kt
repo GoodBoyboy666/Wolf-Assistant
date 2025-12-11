@@ -55,53 +55,56 @@ class LoginViewModelTest {
      * 测试：登录成功应写入 SettingsRepository（userID、organization、userName、accessToken）并将状态设为 Success
      */
     @Test
-    fun `login success should update settings and set Success state`() = runTest(testDispatcher) {
-        val userInfo = UserInfo(
-            userID = "user-123",
-            userOrganization = "Org",
-            userName = "TestUser",
-            accessToken = "token-abc",
-        )
+    fun `login success should update settings and set Success state`() =
+        runTest(testDispatcher) {
+            val userInfo =
+                UserInfo(
+                    userID = "user-123",
+                    userOrganization = "Org",
+                    userName = "TestUser",
+                    accessToken = "token-abc",
+                )
 
-        coEvery {
-            loginRepository.loginUser(any(), any(), any(), any(), any(), any())
-        } returns LoginRepository.UserData.Success(userInfo)
+            coEvery {
+                loginRepository.loginUser(any(), any(), any(), any(), any(), any())
+            } returns LoginRepository.UserData.Success(userInfo)
 
-        viewModel = LoginViewModel(settingsRepository, loginRepository)
+            viewModel = LoginViewModel(settingsRepository, loginRepository)
 
-        viewModel.login("id", "passwd")
-        testDispatcher.scheduler.advanceUntilIdle()
+            viewModel.login("id", "passwd")
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        assertTrue(viewModel.loginState.value is LoginViewModel.LoginState.Success)
+            assertTrue(viewModel.loginState.value is LoginViewModel.LoginState.Success)
 
-        coVerify(exactly = 1) { settingsRepository.setUserID("user-123") }
-        coVerify(exactly = 1) { settingsRepository.setUserOrganization("Org") }
-        coVerify(exactly = 1) { settingsRepository.setUserName("TestUser") }
-        coVerify(exactly = 1) { settingsRepository.setAccessToken("token-abc") }
-    }
+            coVerify(exactly = 1) { settingsRepository.setUserID("user-123") }
+            coVerify(exactly = 1) { settingsRepository.setUserOrganization("Org") }
+            coVerify(exactly = 1) { settingsRepository.setUserName("TestUser") }
+            coVerify(exactly = 1) { settingsRepository.setAccessToken("token-abc") }
+        }
 
     /**
      * 测试：登录失败应将状态设为 Failed，且不应写入 SettingsRepository
      */
     @Test
-    fun `login failure should set Failed state and not write settings`() = runTest(testDispatcher) {
-        val failure = Failure.IOError("登录失败", null)
-        coEvery {
-            loginRepository.loginUser(any(), any(), any(), any(), any(), any())
-        } returns LoginRepository.UserData.Failed(failure)
+    fun `login failure should set Failed state and not write settings`() =
+        runTest(testDispatcher) {
+            val failure = Failure.IOError("登录失败", null)
+            coEvery {
+                loginRepository.loginUser(any(), any(), any(), any(), any(), any())
+            } returns LoginRepository.UserData.Failed(failure)
 
-        viewModel = LoginViewModel(settingsRepository, loginRepository)
+            viewModel = LoginViewModel(settingsRepository, loginRepository)
 
-        viewModel.login("id", "passwd")
-        testDispatcher.scheduler.advanceUntilIdle()
+            viewModel.login("id", "passwd")
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        val state = viewModel.loginState.value
-        assertTrue(state is LoginViewModel.LoginState.Failed)
-        assertEquals("登录失败", (state as LoginViewModel.LoginState.Failed).message)
+            val state = viewModel.loginState.value
+            assertTrue(state is LoginViewModel.LoginState.Failed)
+            assertEquals("登录失败", (state as LoginViewModel.LoginState.Failed).message)
 
-        coVerify(exactly = 0) { settingsRepository.setUserID(any()) }
-        coVerify(exactly = 0) { settingsRepository.setUserOrganization(any()) }
-        coVerify(exactly = 0) { settingsRepository.setUserName(any()) }
-        coVerify(exactly = 0) { settingsRepository.setAccessToken(any()) }
-    }
+            coVerify(exactly = 0) { settingsRepository.setUserID(any()) }
+            coVerify(exactly = 0) { settingsRepository.setUserOrganization(any()) }
+            coVerify(exactly = 0) { settingsRepository.setUserName(any()) }
+            coVerify(exactly = 0) { settingsRepository.setAccessToken(any()) }
+        }
 }
