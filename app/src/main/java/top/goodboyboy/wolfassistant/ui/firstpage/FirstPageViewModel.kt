@@ -15,7 +15,8 @@ import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.appsetting.GlobalInitConfig
 import top.goodboyboy.wolfassistant.ui.home.portal.repository.PortalRepository
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.repository.PersonalInfoRepository
-import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepository
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.LabScheduleRepository
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.ServiceRepository
 import top.goodboyboy.wolfassistant.util.CacheUtil
 import javax.inject.Inject
@@ -26,7 +27,8 @@ class FirstPageViewModel
     constructor(
         private val portalRepository: PortalRepository,
         private val serviceRepository: ServiceRepository,
-        private val scheduleCenterRepository: ScheduleCenterRepository,
+        private val scheduleRepository: ScheduleRepository,
+        private val labScheduleRepository: LabScheduleRepository,
         private val personalInfoRepository: PersonalInfoRepository,
         private val settingsRepository: SettingsRepository,
         private val application: Application,
@@ -85,7 +87,8 @@ class FirstPageViewModel
         suspend fun logout() {
             portalRepository.cleanCache()
             serviceRepository.cleanServiceList()
-            scheduleCenterRepository.cleanScheduleCache()
+            scheduleRepository.cleanScheduleCache()
+            labScheduleRepository.cleanLabScheduleCache()
             personalInfoRepository.cleanPersonalInfoCache()
             settingsRepository.cleanUser()
             CacheUtil.clearAllCache(application)

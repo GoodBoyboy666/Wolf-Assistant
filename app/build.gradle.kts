@@ -16,8 +16,8 @@ android {
         applicationId = "top.goodboyboy.wolfassistant"
         minSdk = 28
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.2.1"
+        versionCode = 9
+        versionName = "1.3.0-beta.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         android.buildFeatures.buildConfig = true
@@ -147,5 +147,6 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.jwtdecode)
-    testImplementation("org.robolectric:robolectric:4.16")
+    testImplementation(libs.robolectric)
+    implementation(libs.jsoup)
 }

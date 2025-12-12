@@ -44,7 +44,7 @@
     <string name="id_passwd_note_empty">请确保账号密码不为空！</string>
     <string name="login">登录</string>
     <string name="login_failed">登录失败！</string>
-    <string name="login_warning">软件不会存储您的账户密码，仅存储登录时返回的令牌。</string>
+    <string name="login_warning">您的账户密码将会保存至本地</string>
     <string name="loading_failed">加载失败: %1$s</string>
     <string name="retry">重试</string>
     <string name="load_more_failed">加载更多失败：%1$s</string>

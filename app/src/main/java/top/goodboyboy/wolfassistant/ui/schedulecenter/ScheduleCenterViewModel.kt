@@ -1,6 +1,7 @@
 package top.goodboyboy.wolfassistant.ui.schedulecenter
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -9,14 +10,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.event.RollBackToCurrentDateEvent
+import top.goodboyboy.wolfassistant.ui.schedulecenter.model.LabScheduleItem
 import top.goodboyboy.wolfassistant.ui.schedulecenter.model.ScheduleItem
-import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepository
-import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepository.ScheduleData.Failed
-import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepository.ScheduleData.Success
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.LabScheduleRepository
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository.ScheduleData.Failed
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository.ScheduleData.Success
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -24,7 +28,8 @@ import javax.inject.Inject
 class ScheduleCenterViewModel
     @Inject
     constructor(
-        private val scheduleCenterRepository: ScheduleCenterRepository,
+        private val scheduleRepository: ScheduleRepository,
+        private val labScheduleRepository: LabScheduleRepository,
         private val settingsRepository: SettingsRepository,
         globalEventBus: GlobalEventBus,
     ) : ViewModel() {
@@ -32,11 +37,13 @@ class ScheduleCenterViewModel
             const val SCHEDULE_CENTER_TAG = "ScheduleCenter"
         }
 
-        private val _loadScheduleState = MutableStateFlow<LoadScheduleState>(LoadScheduleState.Idle)
-        val loadScheduleState: StateFlow<LoadScheduleState> = _loadScheduleState.asStateFlow()
-
         private val _errorMessage = MutableSharedFlow<String>()
         val errorMessage = _errorMessage.asSharedFlow()
+
+        // 普通课表
+
+        private val _loadScheduleState = MutableStateFlow<LoadScheduleState>(LoadScheduleState.Idle)
+        val loadScheduleState: StateFlow<LoadScheduleState> = _loadScheduleState.asStateFlow()
 
         private val _scheduleList = MutableStateFlow<List<ScheduleItem?>>(emptyList())
         val scheduleList: StateFlow<List<ScheduleItem?>> = _scheduleList.asStateFlow()
@@ -63,6 +70,17 @@ class ScheduleCenterViewModel
             object Failed : LoadScheduleState()
         }
 
+        // 实验课表
+
+        private val _loadLabScheduleState = MutableStateFlow<LoadScheduleState>(LoadScheduleState.Idle)
+        val loadLabScheduleState: StateFlow<LoadScheduleState> = _loadLabScheduleState.asStateFlow()
+
+        private val _labScheduleList = MutableStateFlow<List<LabScheduleItem?>>(emptyList())
+        val labScheduleList: StateFlow<List<LabScheduleItem?>> = _labScheduleList.asStateFlow()
+
+        private val _weekNumber = MutableStateFlow(1)
+        val weekNumber: StateFlow<Int> = _weekNumber.asStateFlow()
+
         suspend fun loadScheduleList() {
             val startDay = firstDay.value
             val endDay = lastDay.value
@@ -81,7 +99,7 @@ class ScheduleCenterViewModel
             _loadScheduleState.value = LoadScheduleState.Loading
             val accessToken = settingsRepository.accessTokenFlow.first()
             val data =
-                scheduleCenterRepository.getSchedule(
+                scheduleRepository.getSchedule(
                     accessToken,
                     startDate,
                     endDate,
@@ -102,12 +120,8 @@ class ScheduleCenterViewModel
 
         suspend fun cleanCache() {
             withContext(Dispatchers.IO) {
-                scheduleCenterRepository.cleanScheduleCache()
+                scheduleRepository.cleanScheduleCache()
             }
-        }
-
-        fun changeState(loadScheduleState: LoadScheduleState) {
-            _loadScheduleState.value = loadScheduleState
         }
 
         fun setFirstAndLastDay(
@@ -116,5 +130,35 @@ class ScheduleCenterViewModel
         ) {
             _firstDay.value = startDate
             _lastDay.value = endDate
+        }
+
+        suspend fun loadLabScheduleList() {
+            _loadLabScheduleState.value = LoadScheduleState.Loading
+
+            val data = labScheduleRepository.getLabSchedule(weekNumber.first())
+            when (data) {
+                is LabScheduleRepository.LabScheduleData.Failed -> {
+                    _loadLabScheduleState.value = LoadScheduleState.Failed
+                    _errorMessage.emit(data.error.message + data.error.cause?.message)
+                    data.error.cause?.printStackTrace()
+                }
+
+                is LabScheduleRepository.LabScheduleData.Success -> {
+                    _labScheduleList.value = data.data
+                    _loadLabScheduleState.value = LoadScheduleState.Success
+                }
+            }
+        }
+
+        suspend fun setSelectedWeek(week: Int) {
+            settingsRepository.setSelectWeekNum(week)
+            _weekNumber.value = week
+        }
+
+        init {
+            viewModelScope.launch {
+                val selectWeek = settingsRepository.selectWeekNum.first()
+                _weekNumber.value = selectWeek
+            }
         }
     }

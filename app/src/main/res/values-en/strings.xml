@@ -45,7 +45,7 @@
     <string name="id_passwd_note_empty">Make sure your account password is not empty</string>
     <string name="login">Login</string>
     <string name="login_failed">Login failed</string>
-    <string name="login_warning">The software does not store your account password, only the token returned when you log in.</string>
+    <string name="login_warning">Your account password will be saved locally</string>
     <string name="loading_failed">Loading failed: %1$s</string>
     <string name="retry">retry</string>
     <string name="load_more_failed">Load more failed: %1$s</string>

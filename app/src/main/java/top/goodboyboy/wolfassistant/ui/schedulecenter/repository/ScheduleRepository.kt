@@ -4,7 +4,7 @@ import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.ui.schedulecenter.model.ScheduleItem
 import java.time.LocalDate
 
-interface ScheduleCenterRepository {
+interface ScheduleRepository {
     /**
      * 获取课表
      *
