@@ -147,5 +147,6 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.jwtdecode)
-    testImplementation("org.robolectric:robolectric:4.16")
+    testImplementation(libs.robolectric)
+    implementation(libs.jsoup)
 }
