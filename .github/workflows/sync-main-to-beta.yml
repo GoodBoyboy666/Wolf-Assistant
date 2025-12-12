@@ -1,0 +1,30 @@
+name: Sync Main to Beta
+
+# 触发条件：当 main 分支有代码 push 时（包括合并 PR 进 main）
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync-branch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: beta
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge Main into Beta
+        run: |
+          git merge origin/main --no-edit
+          git push origin beta
