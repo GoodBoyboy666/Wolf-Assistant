@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.SnackbarHostState
@@ -11,11 +13,9 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
 import top.goodboyboy.wolfassistant.ui.components.TopBarConstants
 import top.goodboyboy.wolfassistant.ui.event.TopBarTitleEvent
@@ -35,31 +35,21 @@ fun ScheduleCenterView(
     }
 
     val tabs = listOf("普通课表", "实验课表")
-    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+    val pagerState = rememberPagerState(pageCount = { tabs.size })
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(selectedTab) {
-        val title =
-            when (selectedTab) {
-                0 -> "普通课表"
-                else -> "实验课表"
+    LaunchedEffect(pagerState.currentPage) {
+        when (pagerState.currentPage) {
+            0 -> "普通课表"
+            else -> {
+                globalEventBus.emit(
+                    TopBarTitleEvent(
+                        targetTag = TopBarConstants.TOP_BAR_TAG,
+                        title = "实验课表",
+                    ),
+                )
             }
-        globalEventBus.emit(
-            TopBarTitleEvent(
-                targetTag = TopBarConstants.TOP_BAR_TAG,
-                title = title,
-            ),
-        )
-
-//        scope.launch {
-//            when (selectedTab) {
-//                0 -> {
-//                    viewModel.loadScheduleList()
-//                }
-//                1 -> {
-//                    viewModel.loadScheduleList()
-//                }
-//            }
-//        }
+        }
     }
 
     Column(
@@ -68,25 +58,34 @@ fun ScheduleCenterView(
                 .padding(innerPadding)
                 .fillMaxSize(),
     ) {
-        PrimaryTabRow(selectedTabIndex = selectedTab) {
+        PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
             tabs.forEachIndexed { index, title ->
                 Tab(
-                    selected = selectedTab == index,
-                    onClick = { selectedTab = index },
+                    selected = pagerState.currentPage == index,
+                    onClick = {
+                        scope.launch {
+                            pagerState.animateScrollToPage(index)
+                        }
+                    },
                     text = { Text(title) },
                 )
             }
         }
 
-        when (selectedTab) {
-            0 -> {
-                // 普通课表
-                ScheduleView(viewModel = viewModel, globalEventBus = globalEventBus)
-            }
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+        ) { page ->
+            when (page) {
+                0 -> {
+                    // 普通课表
+                    ScheduleView(viewModel = viewModel, globalEventBus = globalEventBus)
+                }
 
-            1 -> {
-                // 实验课表
-                LabScheduleView(viewModel = viewModel, globalEventBus = globalEventBus)
+                1 -> {
+                    // 实验课表
+                    LabScheduleView(viewModel = viewModel, globalEventBus = globalEventBus)
+                }
             }
         }
     }

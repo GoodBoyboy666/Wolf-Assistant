@@ -14,7 +14,5 @@ class LocalCookieJar : CookieJar {
         cookieStore[url.host] = cookies
     }
 
-    override fun loadForRequest(url: HttpUrl): List<Cookie> {
-        return cookieStore[url.host] ?: ArrayList()
-    }
+    override fun loadForRequest(url: HttpUrl): List<Cookie> = cookieStore[url.host] ?: ArrayList()
 }
