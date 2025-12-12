@@ -18,9 +18,9 @@ import top.goodboyboy.wolfassistant.ui.schedulecenter.event.RollBackToCurrentDat
 import top.goodboyboy.wolfassistant.ui.schedulecenter.model.LabScheduleItem
 import top.goodboyboy.wolfassistant.ui.schedulecenter.model.ScheduleItem
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.LabScheduleRepository
-import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepository
-import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepository.ScheduleData.Failed
-import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepository.ScheduleData.Success
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository.ScheduleData.Failed
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository.ScheduleData.Success
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -28,7 +28,7 @@ import javax.inject.Inject
 class ScheduleCenterViewModel
     @Inject
     constructor(
-        private val scheduleCenterRepository: ScheduleCenterRepository,
+        private val scheduleRepository: ScheduleRepository,
         private val labScheduleRepository: LabScheduleRepository,
         private val settingsRepository: SettingsRepository,
         globalEventBus: GlobalEventBus,
@@ -99,7 +99,7 @@ class ScheduleCenterViewModel
             _loadScheduleState.value = LoadScheduleState.Loading
             val accessToken = settingsRepository.accessTokenFlow.first()
             val data =
-                scheduleCenterRepository.getSchedule(
+                scheduleRepository.getSchedule(
                     accessToken,
                     startDate,
                     endDate,
@@ -120,7 +120,7 @@ class ScheduleCenterViewModel
 
         suspend fun cleanCache() {
             withContext(Dispatchers.IO) {
-                scheduleCenterRepository.cleanScheduleCache()
+                scheduleRepository.cleanScheduleCache()
             }
         }
 

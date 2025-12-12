@@ -20,8 +20,8 @@ import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleRemoteD
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleRemoteDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.LabScheduleRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.LabScheduleRepositoryImpl
-import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepository
-import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepositoryImpl
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepositoryImpl
 import javax.inject.Singleton
 
 @Module
@@ -43,7 +43,7 @@ object ScheduleCenterModule {
     fun provideScheduleCenterRepository(
         scheduleCacheDataSource: ScheduleCacheDataSource,
         scheduleRemoteDataSource: ScheduleRemoteDataSource,
-    ): ScheduleCenterRepository = ScheduleCenterRepositoryImpl(scheduleCacheDataSource, scheduleRemoteDataSource)
+    ): ScheduleRepository = ScheduleRepositoryImpl(scheduleCacheDataSource, scheduleRemoteDataSource)
 
     @Provides
     @Singleton

@@ -3,13 +3,13 @@ package top.goodboyboy.wolfassistant.ui.schedulecenter.repository
 import android.util.Log
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleCacheDataSource
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleRemoteDataSource
-import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepository.ScheduleData
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository.ScheduleData
 import java.time.LocalDate
 
-class ScheduleCenterRepositoryImpl(
+class ScheduleRepositoryImpl(
     private val scheduleCacheDataSource: ScheduleCacheDataSource,
     private val scheduleRemoteDataSource: ScheduleRemoteDataSource,
-) : ScheduleCenterRepository {
+) : ScheduleRepository {
     override suspend fun getSchedule(
         accessToken: String,
         startDate: LocalDate,
