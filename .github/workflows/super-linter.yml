@@ -1,7 +1,7 @@
 name: Lint Code Base
 on:
   pull_request: # 对 PR 进行检查
-    branches: [ main ]
+    branches: [ main,beta ]
   workflow_dispatch:
     inputs:
       reason:
