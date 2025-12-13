@@ -18,6 +18,7 @@ jobs:
         with:
           ref: beta
           fetch-depth: 0
+          token: ${{ secrets.ACTION_TOKEN }}
 
       - name: Configure Git
         run: |
