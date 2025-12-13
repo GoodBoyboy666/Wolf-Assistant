@@ -35,7 +35,7 @@ jobs:
         id: decode_keystore
         uses: timheuer/base64-to-file@v1.2
         with:
-          fileName: 'release.keystore'
+          fileName: 'release.p12'
           encodedString: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
 
       # 设置执行权限
@@ -45,11 +45,39 @@ jobs:
       # 开始构建
       - name: Build with Gradle
         run: ./gradlew assembleGithubActionRelease
-        env:
-          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
-          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
-          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-          SIGNING_KEYSTORE_PATH: ${{ steps.decode_keystore.outputs.filePath }}
+
+      # 使用 apksigner 手动签名
+      - name: Sign APK with apksigner
+        id: sign_apk
+        run: |
+          # 找到构建工具中的 apksigner
+          ANDROID_BUILD_TOOLS_VERSION=$(ls $ANDROID_SDK_ROOT/build-tools/ | sort -V | tail -n 1)
+          APKSIGNER="$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS_VERSION/apksigner"
+
+          # 找到 Gradle 生成的未签名 APK
+          INPUT_APK=$(find app/build/outputs/apk/release -name "*-unsigned.apk" | head -n 1)
+
+          if [ -z "$INPUT_APK" ]; then
+             echo "::error::Input APK not found!"
+             exit 1
+          fi
+
+          OUTPUT_APK="app/build/outputs/apk/release/app-release-signed.apk"
+
+          echo "🔏 Signing $INPUT_APK with v3..."
+
+          "$APKSIGNER" sign \
+            --ks release.p12 \
+            --ks-key-alias "${{ secrets.SIGNING_KEY_ALIAS }}" \
+            --ks-pass "pass:${{ secrets.SIGNING_KEY_PASSWORD }}" \
+            --lineage rotation/rotation.lineage \
+            --v1-signing-enabled false \
+            --v2-signing-enabled false \
+            --v3-signing-enabled true \
+            --min-sdk-version 28 \
+            --rotation-min-sdk-version 28 \
+            --out "$OUTPUT_APK" \
+            "$INPUT_APK"
 
       # 获取项目名与版本
       - name: Get project and version names
@@ -62,8 +90,7 @@ jobs:
       - name: Find and Rename APK
         id: find_apk
         run: |
-          APK_DIR="app/build/outputs"
-          APK_PATH=$(find "$APK_DIR" -type f -name "*.apk" | head -n 1)
+          APK_PATH=$OUTPUT_APK
           if [ -z "$APK_PATH" ]; then
             echo "::error::Release APK not found!"
             exit 1
