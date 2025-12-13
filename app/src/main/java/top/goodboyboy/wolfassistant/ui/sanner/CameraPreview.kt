@@ -8,14 +8,13 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 
 @Composable
 fun CameraPreview(onResult: (String) -> Unit) {
-    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     AndroidView(
         factory = { ctx ->
             val previewView = PreviewView(ctx)
@@ -36,7 +35,7 @@ fun CameraPreview(onResult: (String) -> Unit) {
                 val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
-                    ctx as LifecycleOwner,
+                    lifecycleOwner,
                     cameraSelector,
                     preview,
                     analyzer,
