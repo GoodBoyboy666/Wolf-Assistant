@@ -55,14 +55,14 @@ jobs:
           APKSIGNER="$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS_VERSION/apksigner"
 
           # 找到 Gradle 生成的未签名 APK
-          INPUT_APK=$(find app/build/outputs/apk/release -name "*-unsigned.apk" | head -n 1)
+          INPUT_APK=$(find app/build/outputs/apk/GitHubActionRelease -name "*-unsigned.apk" | head -n 1)
 
           if [ -z "$INPUT_APK" ]; then
              echo "::error::Input APK not found!"
              exit 1
           fi
 
-          OUTPUT_APK="app/build/outputs/apk/release/app-release-signed.apk"
+          OUTPUT_APK="app/build/outputs/apk/GitHubActionRelease/app-release-signed.apk"
 
           echo "🔏 Signing $INPUT_APK with v3..."
 
