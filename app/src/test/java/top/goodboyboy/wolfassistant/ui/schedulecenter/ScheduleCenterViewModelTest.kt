@@ -285,4 +285,19 @@ class ScheduleCenterViewModelTest {
 
             coVerify(exactly = 1) { scheduleRepository.cleanScheduleCache() }
         }
+
+    /**
+     * 测试：清理实验课表缓存
+     */
+    @Test
+    fun `cleanLabCache should call repository cleanLabScheduleCache`() =
+        runTest(testDispatcher) {
+            viewModel =
+                ScheduleCenterViewModel(scheduleRepository, labScheduleRepository, settingsRepository, globalEventBus)
+
+            viewModel.cleanLabCache()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            coVerify(exactly = 1) { labScheduleRepository.cleanLabScheduleCache() }
+        }
 }

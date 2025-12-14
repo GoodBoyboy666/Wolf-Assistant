@@ -124,6 +124,12 @@ class ScheduleCenterViewModel
             }
         }
 
+        suspend fun cleanLabCache() {
+            withContext(Dispatchers.IO) {
+                labScheduleRepository.cleanLabScheduleCache()
+            }
+        }
+
         fun setFirstAndLastDay(
             startDate: LocalDate,
             endDate: LocalDate,

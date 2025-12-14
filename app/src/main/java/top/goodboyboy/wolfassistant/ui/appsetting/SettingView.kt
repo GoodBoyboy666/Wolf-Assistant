@@ -63,7 +63,6 @@ fun SettingView(
     var showLogoutAlert by remember { mutableStateOf(false) }
     var showAboutCard by remember { mutableStateOf(false) }
     val checkUpdateState by viewModel.updateState.collectAsStateWithLifecycle()
-    var showUpdateAlert by remember { mutableStateOf(false) }
     val disableSSLCertVerification by viewModel.disableSSLCertVerification.collectAsStateWithLifecycle(
         initialValue = false,
     )

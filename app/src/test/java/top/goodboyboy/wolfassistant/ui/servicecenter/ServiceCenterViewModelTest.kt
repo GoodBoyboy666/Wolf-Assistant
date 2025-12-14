@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import okhttp3.OkHttpClient
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -35,6 +36,7 @@ class ServiceCenterViewModelTest {
     private lateinit var viewModel: ServiceCenterViewModel
     private val serviceRepository: ServiceRepository = mockk(relaxed = true)
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
+    private val okHttpClient: OkHttpClient = mockk(relaxed = true)
     private val testDispatcher = StandardTestDispatcher()
 
     @BeforeEach
@@ -63,7 +65,7 @@ class ServiceCenterViewModelTest {
             coEvery { serviceRepository.getServiceList(token) } returns
                 ServiceRepository.ServiceListData.Success(mockData)
 
-            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository)
+            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, okHttpClient)
 
             // Act
             viewModel.loadService()
@@ -90,7 +92,7 @@ class ServiceCenterViewModelTest {
             coEvery { serviceRepository.getServiceList(token) } returns
                 ServiceRepository.ServiceListData.Failed(Failure.IOError(errorMsg, null))
 
-            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository)
+            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, okHttpClient)
 
             // Act
             viewModel.loadService()
@@ -110,7 +112,7 @@ class ServiceCenterViewModelTest {
     fun `cleanServiceList should clear list and call repository clean`() =
         runTest(testDispatcher) {
             // Arrange
-            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository)
+            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, okHttpClient)
 
             // Act
             viewModel.cleanServiceList()
@@ -129,7 +131,7 @@ class ServiceCenterViewModelTest {
     fun `changeLoadServiceState should update state`() =
         runTest(testDispatcher) {
             // Arrange
-            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository)
+            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, okHttpClient)
             val newState = ServiceCenterViewModel.LoadServiceState.Loading
 
             // Act

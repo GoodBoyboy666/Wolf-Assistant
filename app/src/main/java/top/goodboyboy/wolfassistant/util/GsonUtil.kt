@@ -26,7 +26,7 @@ object GsonUtil {
                 },
             ).registerTypeAdapter(
                 LocalDateTime::class.java,
-                JsonDeserializer<LocalDateTime> { json, _, _ ->
+                JsonDeserializer { json, _, _ ->
                     LocalDateTime.parse(json?.asString, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                 },
             ).registerTypeAdapter(
@@ -36,7 +36,7 @@ object GsonUtil {
                 },
             ).registerTypeAdapter(
                 LocalDate::class.java,
-                JsonDeserializer<LocalDate> { json, _, _ ->
+                JsonDeserializer { json, _, _ ->
                     LocalDate.parse(json?.asString, DateTimeFormatter.ISO_LOCAL_DATE)
                 },
             ).registerTypeAdapter(
@@ -46,7 +46,7 @@ object GsonUtil {
                 },
             ).registerTypeAdapter(
                 LocalTime::class.java,
-                JsonDeserializer<LocalTime> { json, _, _ ->
+                JsonDeserializer { json, _, _ ->
                     LocalTime.parse(json?.asString, DateTimeFormatter.ISO_LOCAL_TIME)
                 },
             ).registerTypeAdapter(
@@ -56,7 +56,7 @@ object GsonUtil {
                 },
             ).registerTypeAdapter(
                 OffsetDateTime::class.java,
-                JsonDeserializer<OffsetDateTime> { json, _, _ ->
+                JsonDeserializer { json, _, _ ->
                     OffsetDateTime.parse(json?.asString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
                 },
             ).create()

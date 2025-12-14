@@ -173,7 +173,6 @@ class MainActivity : ComponentActivity() {
                             HomeView(
                                 innerPadding,
                                 navController,
-                                snackbarHostState,
                                 viewModel,
                             )
                         }
@@ -231,7 +230,6 @@ class MainActivity : ComponentActivity() {
                             PersonalCenter(
                                 innerPadding,
                                 navController,
-                                snackbarHostState,
                                 viewModel,
                             )
                         }

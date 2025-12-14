@@ -25,7 +25,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -55,7 +54,7 @@ import java.net.URLEncoder
 @Preview
 @Composable
 private fun HomeViewPreview() {
-    HomeView(PaddingValues(), rememberNavController(), SnackbarHostState(), hiltViewModel())
+    HomeView(PaddingValues(), rememberNavController(), hiltViewModel())
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,7 +62,6 @@ private fun HomeViewPreview() {
 fun HomeView(
     innerPadding: PaddingValues,
     navController: NavController,
-    snackbarHostState: SnackbarHostState,
     viewModel: HomeViewModel,
 ) {
     val name by viewModel.userName.collectAsState(stringResource(R.string.friends))

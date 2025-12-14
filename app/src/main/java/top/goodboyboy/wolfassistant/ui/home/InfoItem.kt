@@ -28,8 +28,7 @@ private fun InfoItemPreview() {
             "2025.05.10",
             "https://www.bing.com",
         ),
-        { _ -> },
-    )
+    ) { _ -> }
 }
 
 @Composable

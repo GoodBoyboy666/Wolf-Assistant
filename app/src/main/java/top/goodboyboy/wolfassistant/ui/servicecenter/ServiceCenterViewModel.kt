@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import okhttp3.OkHttpClient
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.ServiceItem
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.ServiceRepository
@@ -17,6 +18,7 @@ class ServiceCenterViewModel
     constructor(
         private val serviceRepository: ServiceRepository,
         private val settingsRepository: SettingsRepository,
+        val okHttpClient: OkHttpClient,
     ) : ViewModel() {
         private val _loadServiceState = MutableStateFlow<LoadServiceState>(LoadServiceState.Idle)
         val loadServiceState: StateFlow<LoadServiceState> = _loadServiceState.asStateFlow()
@@ -33,13 +35,6 @@ class ServiceCenterViewModel
             data class Failed(
                 val message: String,
             ) : LoadServiceState()
-        }
-
-        init {
-//            viewModelScope.launch {
-//                _loadServiceState.value = LoadServiceState.Loading
-//                loadService()
-//            }
         }
 
         suspend fun loadService() {

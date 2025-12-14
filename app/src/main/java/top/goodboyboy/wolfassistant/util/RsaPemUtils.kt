@@ -7,9 +7,6 @@ import java.security.spec.X509EncodedKeySpec
 import javax.crypto.Cipher
 
 object RsaPemUtils {
-    // 算法标准：RSA
-    private const val ALGORITHM = "RSA"
-
     // 指定填充模式：配合服务端常见的 PKCS#1 v1.5
     private const val TRANSFORMATION = "RSA/ECB/PKCS1Padding"
 

@@ -84,7 +84,7 @@ fun ScheduleCenterView(
 
                 1 -> {
                     // 实验课表
-                    LabScheduleView(viewModel = viewModel, globalEventBus = globalEventBus)
+                    LabScheduleView(viewModel = viewModel)
                 }
             }
         }
