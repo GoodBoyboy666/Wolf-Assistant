@@ -39,13 +39,13 @@ class MessageRepositoryImpl
 
         override suspend fun getAppID(accessToken: String): AppIDData {
             val remote = messageDataSource.getAppID(accessToken)
-            when (remote) {
+            return when (remote) {
                 is MessageDataSource.DataResult.Error -> {
-                    return AppIDData.Failed(remote.error)
+                    AppIDData.Failed(remote.error)
                 }
 
                 is MessageDataSource.DataResult.Success -> {
-                    return AppIDData.Success(remote.data)
+                    AppIDData.Success(remote.data)
                 }
             }
         }

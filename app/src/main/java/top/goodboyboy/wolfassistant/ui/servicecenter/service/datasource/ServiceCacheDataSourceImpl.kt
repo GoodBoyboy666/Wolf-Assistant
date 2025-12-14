@@ -1,6 +1,5 @@
 package top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource
 
-import kotlinx.coroutines.sync.Mutex
 import okio.IOException
 import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.room.dao.ServiceItemDao
@@ -20,8 +19,6 @@ class ServiceCacheDataSourceImpl
         private val serviceItemDao: ServiceItemDao,
         private val tokenKeyNameDao: TokenKeyNameDao,
     ) : ServiceCacheDataSource {
-        private val insertMutex = Mutex()
-
         override suspend fun getServiceList(): DataResult {
             val list = mutableListOf<ServiceItem>()
             try {

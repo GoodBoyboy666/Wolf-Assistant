@@ -37,13 +37,6 @@ class ServiceCenterViewModel
             ) : LoadServiceState()
         }
 
-        init {
-//            viewModelScope.launch {
-//                _loadServiceState.value = LoadServiceState.Loading
-//                loadService()
-//            }
-        }
-
         suspend fun loadService() {
             _loadServiceState.value = LoadServiceState.Loading
             val accessToken = settingsRepository.accessTokenFlow.first()

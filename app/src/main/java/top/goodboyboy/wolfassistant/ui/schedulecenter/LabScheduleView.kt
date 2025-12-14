@@ -36,17 +36,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
-import top.goodboyboy.wolfassistant.common.GlobalEventBus
 import top.goodboyboy.wolfassistant.ui.components.LoadingCompose
 import top.goodboyboy.wolfassistant.ui.schedulecenter.ScheduleCenterViewModel.LoadScheduleState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LabScheduleView(
-    viewModel: ScheduleCenterViewModel,
-    @Suppress("UNUSED_PARAMETER")
-    globalEventBus: GlobalEventBus,
-) {
+fun LabScheduleView(viewModel: ScheduleCenterViewModel) {
     val loadScheduleState by viewModel.loadLabScheduleState.collectAsStateWithLifecycle()
     val labScheduleList by viewModel.labScheduleList.collectAsStateWithLifecycle()
     val selectWeekNum by viewModel.weekNumber.collectAsStateWithLifecycle()

@@ -25,10 +25,8 @@ fun LoadingCompose(text: String = "") {
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
         )
         Text(
-            if (text.isEmpty()) {
+            text.ifEmpty {
                 stringResource(R.string.loading_text)
-            } else {
-                text
             },
         )
     }

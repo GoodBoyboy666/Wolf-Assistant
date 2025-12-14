@@ -14,4 +14,5 @@ interface TargetedEvent : AppEvent {
     val targetTag: String // 接收者的标签
 }
 
+@Suppress("unused")
 interface BroadcastEvent : AppEvent

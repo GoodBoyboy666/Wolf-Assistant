@@ -78,7 +78,7 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version = "1.8.2" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version = "1.8.2" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.4.0" }
-junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version = "5.13.1" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
 jwtdecode = { module = "com.auth0.android:jwtdecode", version.ref = "jwtdecode" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
@@ -91,7 +91,6 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
-jupiter-junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
