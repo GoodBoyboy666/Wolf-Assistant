@@ -2,6 +2,7 @@ package top.goodboyboy.wolfassistant.ui.schedulecenter
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -144,12 +146,26 @@ fun LabScheduleView(
                     LoadingCompose("加载实验课表中...")
                 }
 
-                LoadScheduleState.Success -> {
-                    LabScheduleCompose(labScheduleList, Modifier.padding(10.dp))
-                }
-
-                LoadScheduleState.Failed -> {
-                    Text("实验课表加载失败！", modifier = Modifier.fillMaxSize())
+                else -> {
+                    var isRefreshing by remember { mutableStateOf(false) }
+                    PullToRefreshBox(
+                        isRefreshing = isRefreshing,
+                        onRefresh = {
+                            scope.launch {
+                                viewModel.cleanLabCache()
+                                viewModel.loadLabScheduleList()
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        if (loadScheduleState is LoadScheduleState.Success) {
+                            LabScheduleCompose(labScheduleList, Modifier.padding(10.dp))
+                        } else {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text("实验课表加载失败！")
+                            }
+                        }
+                    }
                 }
             }
         }
