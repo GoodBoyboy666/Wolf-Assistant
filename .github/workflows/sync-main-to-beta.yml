@@ -25,21 +25,54 @@ jobs:
         with:
           github-token: ${{ secrets.ACTION_TOKEN }}
           script: |
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const headBranch = 'main';
+            const baseBranch = 'beta';
+
             try {
-              const result = await github.rest.repos.merge({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                base: 'beta',
-                head: 'main',
+              // 获取 main 分支的最新 SHA
+              const { data: headRef } = await github.rest.git.getRef({
+                owner,
+                repo,
+                ref: `heads/${headBranch}`,
+              });
+              const headSha = headRef.object.sha;
+
+              console.log(`Target (Main) SHA: ${headSha}`);
+
+              // 尝试执行 Fast-Forward
+              try {
+                await github.rest.git.updateRef({
+                  owner,
+                  repo,
+                  ref: `heads/${baseBranch}`,
+                  sha: headSha,
+                  force: false
+                });
+                console.log('✅ Fast-forward successful! No new commit created.');
+                return; // 如果成功，直接结束
+              } catch (ffError) {
+                console.log('ℹ️ Fast-forward not possible (branches diverged). Falling back to Merge.');
+              }
+
+              // 执行标准合并
+              const mergeResult = await github.rest.repos.merge({
+                owner,
+                repo,
+                base: baseBranch,
+                head: headBranch,
                 commit_message: 'Sync main to beta (Automated merge)'
               });
-              console.log('✅ Merge successful:', result.data.commit.sha);
+              console.log('✅ Merge successful with commit:', mergeResult.data.commit.sha);
+
             } catch (error) {
               if (error.status === 409) {
-                console.log('⚠️ Merge Conflict Detected! Manual intervention required.');
-                process.exit(1);
+                 console.log('⚠️ Merge Conflict! Manual intervention required.');
+                 core.setFailed('Merge conflict detected.');
               } else {
-                console.log('❌ Unexpected error:', error.message);
-                throw error;
+                 console.log('❌ Error:', error.message);
+                 core.setFailed(error.message);
               }
             }
