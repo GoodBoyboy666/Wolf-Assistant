@@ -8,7 +8,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
 import top.goodboyboy.wolfassistant.BuildConfig
 import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.common.Failure
@@ -36,6 +38,7 @@ class SettingViewModel
         private val appSettingRepository: AppSettingRepository,
         private val labScheduleRepository: LabScheduleRepository,
         private val application: Application,
+        private val okHttpClient: OkHttpClient,
     ) : ViewModel() {
         private val _cacheSize = MutableStateFlow(application.getString(R.string.calculating))
         val cacheSize: StateFlow<String> = _cacheSize.asStateFlow()
@@ -96,10 +99,26 @@ class SettingViewModel
 
         suspend fun setSSLCertVerification(value: Boolean) {
             settingsRepository.setSSLCertVerification(value)
+            GlobalInitConfig.setConfig(
+                settingsRepository.disableSSLCertVerification.first(),
+                settingsRepository.onlyIPv4.first(),
+            )
+            withContext(Dispatchers.IO) {
+                okHttpClient.dispatcher.cancelAll()
+                okHttpClient.connectionPool.evictAll()
+            }
         }
 
         suspend fun setOnlyIPv4(value: Boolean) {
             settingsRepository.setOnlyIPv4(value)
+            GlobalInitConfig.setConfig(
+                settingsRepository.disableSSLCertVerification.first(),
+                settingsRepository.onlyIPv4.first(),
+            )
+            withContext(Dispatchers.IO) {
+                okHttpClient.dispatcher.cancelAll()
+                okHttpClient.connectionPool.evictAll()
+            }
         }
 
         sealed class CheckUpdateState {
