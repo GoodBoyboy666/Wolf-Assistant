@@ -7,6 +7,8 @@
 - [ ] 📝 文档更新 (Documentation)
 - [ ] ⚡️ 性能优化 (Performance)
 - [ ] 💄 代码格式调整(Style)
+- [ ] 🔖 修订版本号 (Revision Version)
+- [ ] 🔀 合并分支 (Merge Branch)
 - [ ] ⚙️ 其他 (Others)
 
 ## 🎯 变更目的 (Purpose of Change)
