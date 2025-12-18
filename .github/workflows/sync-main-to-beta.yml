@@ -25,6 +25,12 @@ jobs:
         with:
           github-token: ${{ secrets.ACTION_TOKEN }}
           script: |
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const headBranch = 'main';
+            const baseBranch = 'beta';
+
             try {
               // 获取 main 分支的最新 SHA
               const { data: headRef } = await github.rest.git.getRef({
