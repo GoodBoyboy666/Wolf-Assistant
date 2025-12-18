@@ -20,12 +20,26 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.ACTION_TOKEN }}
 
-      - name: Configure Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
       - name: Merge Main into Beta
-        run: |
-          git merge origin/main --no-edit
-          git push origin beta
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.ACTION_TOKEN }}
+          script: |
+            try {
+              const result = await github.rest.repos.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                base: 'beta',
+                head: 'main',
+                commit_message: 'Sync main to beta (Automated merge)'
+              });
+              console.log('✅ Merge successful:', result.data.commit.sha);
+            } catch (error) {
+              if (error.status === 409) {
+                console.log('⚠️ Merge Conflict Detected! Manual intervention required.');
+                process.exit(1);
+              } else {
+                console.log('❌ Unexpected error:', error.message);
+                throw error;
+              }
+            }
