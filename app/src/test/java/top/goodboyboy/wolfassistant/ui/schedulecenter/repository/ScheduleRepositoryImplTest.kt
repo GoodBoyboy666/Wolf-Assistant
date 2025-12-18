@@ -18,21 +18,21 @@ import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleCacheDataSource
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleRemoteDataSource
 import top.goodboyboy.wolfassistant.ui.schedulecenter.model.ScheduleItem
-import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepository.ScheduleData
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository.ScheduleData
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 /**
- * ScheduleCenterRepositoryImpl 的单元测试类
+ * ScheduleRepositoryImpl 的单元测试类
  * 验证课表仓库的缓存策略和数据获取逻辑
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-class ScheduleCenterRepositoryImplTest {
+class ScheduleRepositoryImplTest {
     private lateinit var cacheDataSource: ScheduleCacheDataSource
     private lateinit var remoteDataSource: ScheduleRemoteDataSource
-    private lateinit var repository: ScheduleCenterRepositoryImpl
+    private lateinit var repository: ScheduleRepositoryImpl
 
     private val testDate = LocalDate.of(2023, 10, 1)
     private val testScheduleItem =
@@ -52,7 +52,7 @@ class ScheduleCenterRepositoryImplTest {
     fun setup() {
         cacheDataSource = mockk()
         remoteDataSource = mockk()
-        repository = ScheduleCenterRepositoryImpl(cacheDataSource, remoteDataSource)
+        repository = ScheduleRepositoryImpl(cacheDataSource, remoteDataSource)
 
         // Mock android.util.Log 因为实现类中使用了它
         mockkStatic(Log::class)

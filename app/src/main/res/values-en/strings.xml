@@ -28,7 +28,7 @@
     <string name="back">back</string>
     <string name="go_back_to_the_current_week">Go back to the current week</string>
     <string name="browser_menu">Browser menu</string>
-    <string name="please_wait">Please wait...</string>
+    <string name="please_wait">Please wait…</string>
     <string name="friends">Friends</string>
     <string name="recharge">Recharge</string>
     <string name="campus_card">Campus card</string>
@@ -45,7 +45,7 @@
     <string name="id_passwd_note_empty">Make sure your account password is not empty</string>
     <string name="login">Login</string>
     <string name="login_failed">Login failed</string>
-    <string name="login_warning">The software does not store your account password, only the token returned when you log in.</string>
+    <string name="login_warning">Your account password will be saved locally</string>
     <string name="loading_failed">Loading failed: %1$s</string>
     <string name="retry">retry</string>
     <string name="load_more_failed">Load more failed: %1$s</string>

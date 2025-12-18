@@ -19,7 +19,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -46,7 +45,6 @@ import top.goodboyboy.wolfassistant.ui.personalcenter.personal.model.PersonalInf
 fun PersonalCenter(
     innerPadding: PaddingValues,
     navController: NavController,
-    snackbarHostState: SnackbarHostState,
     viewModel: PersonalCenterViewModel,
 ) {
     var showBottomSheet by remember { mutableStateOf(false) }

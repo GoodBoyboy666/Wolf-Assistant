@@ -31,7 +31,8 @@ import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionInfo
 import top.goodboyboy.wolfassistant.ui.appsetting.repository.AppSettingRepository
 import top.goodboyboy.wolfassistant.ui.home.portal.repository.PortalRepository
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.repository.PersonalInfoRepository
-import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepository
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.LabScheduleRepository
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.ServiceRepository
 import top.goodboyboy.wolfassistant.util.CacheUtil
 
@@ -49,7 +50,8 @@ class SettingViewModelTest {
     // 依赖项 Mock
     private lateinit var portalRepository: PortalRepository
     private lateinit var serviceRepository: ServiceRepository
-    private lateinit var scheduleCenterRepository: ScheduleCenterRepository
+    private lateinit var scheduleRepository: ScheduleRepository
+    private lateinit var labScheduleRepository: LabScheduleRepository
     private lateinit var personalInfoRepository: PersonalInfoRepository
     private lateinit var settingsRepository: SettingsRepository
     private lateinit var appSettingRepository: AppSettingRepository
@@ -75,7 +77,8 @@ class SettingViewModelTest {
 
         portalRepository = mockk(relaxed = true)
         serviceRepository = mockk(relaxed = true)
-        scheduleCenterRepository = mockk(relaxed = true)
+        scheduleRepository = mockk(relaxed = true)
+        labScheduleRepository = mockk(relaxed = true)
         personalInfoRepository = mockk(relaxed = true)
         settingsRepository = mockk(relaxed = true)
         appSettingRepository = mockk(relaxed = true)
@@ -98,10 +101,11 @@ class SettingViewModelTest {
             SettingViewModel(
                 portalRepository,
                 serviceRepository,
-                scheduleCenterRepository,
+                scheduleRepository,
                 personalInfoRepository,
                 settingsRepository,
                 appSettingRepository,
+                labScheduleRepository,
                 application,
             )
     }
@@ -167,7 +171,7 @@ class SettingViewModelTest {
             coVerify {
                 portalRepository.cleanCache()
                 serviceRepository.cleanServiceList()
-                scheduleCenterRepository.cleanScheduleCache()
+                scheduleRepository.cleanScheduleCache()
                 personalInfoRepository.cleanPersonalInfoCache()
                 settingsRepository.cleanUser()
             }

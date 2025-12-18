@@ -36,7 +36,7 @@ class MessageCenterViewModel
 
             val newFlow =
                 settingsRepository.accessTokenFlow.flatMapLatest { accessToken ->
-                    if (accessToken.isNullOrBlank()) {
+                    if (accessToken.isBlank()) {
                         messageRepository.createErrorFlow(Throwable("accessToken为空或null"))
                     } else {
                         val appidData =

@@ -28,4 +28,12 @@ sealed class Failure(
         message: String,
         cause: Throwable,
     ) : Failure(message, cause)
+
+    class HTMLParsingError(
+        message: String,
+    ) : Failure(message, null)
+
+    class CustomError(
+        message: String,
+    ) : Failure(message, null)
 }

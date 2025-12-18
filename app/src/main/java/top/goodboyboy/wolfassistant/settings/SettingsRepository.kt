@@ -45,6 +45,14 @@ class SettingsRepository
             }
 
         /**
+         * 用户密码流
+         */
+        val userPasswdFlow: Flow<String> =
+            dataStore.data.map {
+                it[stringPreferencesKey("user_passwd")] ?: ""
+            }
+
+        /**
          * 用户组织流
          */
         val userOrganization: Flow<String> =
@@ -74,6 +82,15 @@ class SettingsRepository
         val onlyIPv4: Flow<Boolean> =
             dataStore.data.map {
                 it[booleanPreferencesKey("only_IPv4")] ?: false
+            }
+
+        /**
+         * 选择的周次
+         */
+        val selectWeekNum: Flow<Int> =
+            dataStore.data.map {
+                val weekStr = it[stringPreferencesKey("select_week_num")] ?: "1"
+                weekStr.toIntOrNull() ?: 1
             }
 
         /**
@@ -107,6 +124,16 @@ class SettingsRepository
         }
 
         /**
+         * 设置用户密码
+         * @param value 用户密码
+         */
+        suspend fun setUserPasswd(value: String) {
+            dataStore.edit { prefs ->
+                prefs[stringPreferencesKey("user_passwd")] = value
+            }
+        }
+
+        /**
          * 设置访问令牌
          * @param value Access Token
          */
@@ -123,6 +150,16 @@ class SettingsRepository
         suspend fun setUserOrganization(value: String) {
             dataStore.edit { prefs ->
                 prefs[stringPreferencesKey("user_organization")] = value
+            }
+        }
+
+        /**
+         * 设置选择的周次
+         * @param value 周次数字
+         */
+        suspend fun setSelectWeekNum(value: Int) {
+            dataStore.edit { prefs ->
+                prefs[stringPreferencesKey("select_week_num")] = value.toString()
             }
         }
 

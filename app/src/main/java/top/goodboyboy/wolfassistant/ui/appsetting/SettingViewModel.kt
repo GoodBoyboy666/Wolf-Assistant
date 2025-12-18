@@ -8,7 +8,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
 import top.goodboyboy.wolfassistant.BuildConfig
 import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.common.Failure
@@ -18,7 +20,8 @@ import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionInfo
 import top.goodboyboy.wolfassistant.ui.appsetting.repository.AppSettingRepository
 import top.goodboyboy.wolfassistant.ui.home.portal.repository.PortalRepository
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.repository.PersonalInfoRepository
-import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleCenterRepository
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.LabScheduleRepository
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.ServiceRepository
 import top.goodboyboy.wolfassistant.util.CacheUtil
 import javax.inject.Inject
@@ -29,11 +32,13 @@ class SettingViewModel
     constructor(
         private val portalRepository: PortalRepository,
         private val serviceRepository: ServiceRepository,
-        private val scheduleCenterRepository: ScheduleCenterRepository,
+        private val scheduleRepository: ScheduleRepository,
         private val personalInfoRepository: PersonalInfoRepository,
         private val settingsRepository: SettingsRepository,
         private val appSettingRepository: AppSettingRepository,
+        private val labScheduleRepository: LabScheduleRepository,
         private val application: Application,
+        private val okHttpClient: OkHttpClient,
     ) : ViewModel() {
         private val _cacheSize = MutableStateFlow(application.getString(R.string.calculating))
         val cacheSize: StateFlow<String> = _cacheSize.asStateFlow()
@@ -63,7 +68,8 @@ class SettingViewModel
         suspend fun logout(context: Context) {
             portalRepository.cleanCache()
             serviceRepository.cleanServiceList()
-            scheduleCenterRepository.cleanScheduleCache()
+            scheduleRepository.cleanScheduleCache()
+            labScheduleRepository.cleanLabScheduleCache()
             personalInfoRepository.cleanPersonalInfoCache()
             settingsRepository.cleanUser()
             cleanAllCache(context)
@@ -93,10 +99,26 @@ class SettingViewModel
 
         suspend fun setSSLCertVerification(value: Boolean) {
             settingsRepository.setSSLCertVerification(value)
+            GlobalInitConfig.setConfig(
+                settingsRepository.disableSSLCertVerification.first(),
+                settingsRepository.onlyIPv4.first(),
+            )
+            withContext(Dispatchers.IO) {
+                okHttpClient.dispatcher.cancelAll()
+                okHttpClient.connectionPool.evictAll()
+            }
         }
 
         suspend fun setOnlyIPv4(value: Boolean) {
             settingsRepository.setOnlyIPv4(value)
+            GlobalInitConfig.setConfig(
+                settingsRepository.disableSSLCertVerification.first(),
+                settingsRepository.onlyIPv4.first(),
+            )
+            withContext(Dispatchers.IO) {
+                okHttpClient.dispatcher.cancelAll()
+                okHttpClient.connectionPool.evictAll()
+            }
         }
 
         sealed class CheckUpdateState {
