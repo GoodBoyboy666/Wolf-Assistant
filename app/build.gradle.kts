@@ -24,6 +24,19 @@ android {
         buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
     }
 
+    // 配置 APK 拆分（ABI Splits）
+    splits {
+        abi {
+            isEnable = true
+
+            reset()
+
+            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+
+            isUniversalApk = true
+        }
+    }
+
     signingConfigs {
         create("GitHubActionRelease") {
             val keystorePath = System.getenv("SIGNING_KEYSTORE_PATH")
