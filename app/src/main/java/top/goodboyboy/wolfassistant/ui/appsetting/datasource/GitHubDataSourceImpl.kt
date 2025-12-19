@@ -7,7 +7,6 @@ import top.goodboyboy.wolfassistant.api.github.update.UpdateAPIService
 import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.ui.appsetting.datasource.GitHubDataSource.VersionDataResult
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionInfo
-import top.goodboyboy.wolfassistant.ui.appsetting.util.VersionUtil
 import java.io.IOException
 import javax.inject.Inject
 
@@ -25,10 +24,9 @@ class GitHubDataSourceImpl
                     val htmlUrl = latestInfo.get("html_url").asString
                     val isPrerelease = latestInfo.get("prerelease").asBoolean
                     val body = latestInfo.get("body").asString
-                    val versionNameItem = VersionUtil.getVersionNameItem(versionString)
                     val versionInfo =
                         VersionInfo(
-                            versionNameItem = versionNameItem,
+                            version = versionString,
                             htmlUrl = htmlUrl,
                             isPrerelease = isPrerelease,
                             body = body,

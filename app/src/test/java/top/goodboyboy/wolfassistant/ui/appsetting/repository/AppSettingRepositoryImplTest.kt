@@ -33,12 +33,12 @@ class AppSettingRepositoryImplTest {
     }
 
     /**
-     * 验证 getUpdateInfo 方法是否正确委托给 versionUpdateChecker
+     * 验证 getUpdateInfo 方法是否正确委托给 updateRepository
      *
      * 测试场景：
      * 1. 调用 getUpdateInfo 方法传入旧版本号
-     * 2. 验证是否调用了 versionUpdateChecker.checkUpdate
-     * 3. 验证返回值是否与 versionUpdateChecker 返回的结果一致
+     * 2. 验证是否调用了 updateRepository.checkUpdate
+     * 3. 验证返回值是否与 updateRepository 返回的结果一致
      */
     @Test
     fun `getUpdateInfo delegates to versionUpdateChecker`() =
@@ -48,7 +48,7 @@ class AppSettingRepositoryImplTest {
             // 模拟 checkUpdate 返回的预期结果对象
             val expectedResult = mockk<VersionDomainData>()
 
-            // 当调用 versionUpdateChecker.checkUpdate 时返回预期结果
+            // 当调用 updateRepository.checkUpdate 时返回预期结果
             coEvery { versionUpdateChecker.checkUpdate(oldVersion) } returns expectedResult
 
             // Act (执行)
@@ -57,7 +57,7 @@ class AppSettingRepositoryImplTest {
             // Assert (断言)
             // 验证返回结果是否与预期一致
             assertEquals(expectedResult, result)
-            // 验证 versionUpdateChecker.checkUpdate 是否被正确调用了一次
+            // 验证 updateRepository.checkUpdate 是否被正确调用了一次
             coVerify(exactly = 1) { versionUpdateChecker.checkUpdate(oldVersion) }
         }
 }

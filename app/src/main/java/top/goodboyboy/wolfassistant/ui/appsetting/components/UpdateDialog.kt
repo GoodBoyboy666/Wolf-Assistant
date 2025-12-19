@@ -20,21 +20,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionInfo
-import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionNameItem
 
 @Preview
 @Composable
 fun UpdateDialogPreview() {
     UpdateDialog(
         VersionInfo(
-            versionNameItem =
-                VersionNameItem(
-                    majorVersionNumber = 1,
-                    secondaryVersionNumber = 0,
-                    revisionVersionNumber = 0,
-                    others = "",
-                    versionNameString = "v1.0.0",
-                ),
+            version = "v1.0.0",
             htmlUrl = "",
             isPrerelease = false,
             body = "",
@@ -64,7 +56,7 @@ fun UpdateDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = stringResource(R.string.version_number, versionInfo.versionNameItem.versionNameString),
+                    text = stringResource(R.string.version_number, versionInfo.version),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(5.dp),
                 )
