@@ -36,4 +36,8 @@ sealed class Failure(
     class CustomError(
         message: String,
     ) : Failure(message, null)
+
+    class DataError(
+        message: String,
+    ) : Failure(message, null)
 }

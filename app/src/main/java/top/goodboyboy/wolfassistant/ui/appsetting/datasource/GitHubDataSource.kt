@@ -6,6 +6,8 @@ import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionInfo
 interface GitHubDataSource {
     suspend fun checkUpdateInfo(): VersionDataResult
 
+    suspend fun checkUpdateInfoIncludePreRelease(): VersionDataResult
+
     sealed class VersionDataResult {
         data class Success(
             val data: VersionInfo,
