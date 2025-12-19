@@ -32,7 +32,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
 import top.goodboyboy.wolfassistant.ui.appsetting.SettingView
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionDomainData
-import top.goodboyboy.wolfassistant.ui.appsetting.util.VersionUpdateChecker
+import top.goodboyboy.wolfassistant.ui.appsetting.repository.UpdateRepository
 import top.goodboyboy.wolfassistant.ui.components.BottomBar
 import top.goodboyboy.wolfassistant.ui.components.TopBar
 import top.goodboyboy.wolfassistant.ui.components.TopBarConstants
@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
     lateinit var globalEventBus: GlobalEventBus
 
     @Inject
-    lateinit var versionUpdateChecker: VersionUpdateChecker
+    lateinit var updateRepository: UpdateRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -75,12 +75,12 @@ class MainActivity : ComponentActivity() {
 
                 LaunchedEffect(Unit) {
                     try {
-                        val result = versionUpdateChecker.checkUpdate(BuildConfig.VERSION_NAME)
+                        val result = updateRepository.checkUpdate(BuildConfig.VERSION_NAME)
                         when (result) {
                             is VersionDomainData.Success -> {
                                 val snackbarResult =
                                     snackbarHostState.showSnackbar(
-                                        message = "发现新版本: ${result.data.versionNameItem.versionNameString}",
+                                        message = "发现新版本: ${result.data.version}",
                                         actionLabel = "去更新",
                                         duration = androidx.compose.material3.SnackbarDuration.Long,
                                     )

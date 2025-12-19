@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import okhttp3.OkHttpClient
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -57,6 +58,7 @@ class SettingViewModelTest {
     private lateinit var appSettingRepository: AppSettingRepository
     private lateinit var application: Application
     private lateinit var context: Context
+    private lateinit var okHttpClient: OkHttpClient
 
     private lateinit var viewModel: SettingViewModel
 
@@ -84,6 +86,7 @@ class SettingViewModelTest {
         appSettingRepository = mockk(relaxed = true)
         application = mockk(relaxed = true)
         context = mockk(relaxed = true)
+        okHttpClient = mockk(relaxed = true)
 
         // Mock 静态类 CacheUtil
         mockkObject(CacheUtil)
@@ -107,6 +110,7 @@ class SettingViewModelTest {
                 appSettingRepository,
                 labScheduleRepository,
                 application,
+                okHttpClient,
             )
     }
 
