@@ -37,7 +37,7 @@ class UpdateRepositoryImplTest {
                 GitHubDataSource.VersionDataResult.Success(versionInfo)
 
             // 执行测试
-            val result = repository.checkUpdate(currentVersion)
+            val result = repository.checkUpdate(currentVersion, false)
 
             // 验证结果：应该是 Success 且包含最新版本信息
             assertTrue(result is VersionDomainData.Success)
@@ -62,7 +62,7 @@ class UpdateRepositoryImplTest {
                 GitHubDataSource.VersionDataResult.Success(versionInfo)
 
             // 执行测试
-            val result = repository.checkUpdate(currentVersion)
+            val result = repository.checkUpdate(currentVersion, false)
 
             // 验证结果：应该是 NOUpdate
             assertTrue(result is VersionDomainData.NOUpdate)
@@ -86,7 +86,7 @@ class UpdateRepositoryImplTest {
                 GitHubDataSource.VersionDataResult.Success(versionInfo)
 
             // 执行测试
-            val result = repository.checkUpdate(currentVersion)
+            val result = repository.checkUpdate(currentVersion, false)
 
             // 验证结果：应该是 NOUpdate
             assertTrue(result is VersionDomainData.NOUpdate)
@@ -107,7 +107,7 @@ class UpdateRepositoryImplTest {
             coEvery { gitHubDataSource.checkUpdateInfo() } returns GitHubDataSource.VersionDataResult.Error(error)
 
             // 执行测试
-            val result = repository.checkUpdate(currentVersion)
+            val result = repository.checkUpdate(currentVersion, false)
 
             // 验证结果：应该是 Error 且包含错误信息
             assertTrue(result is VersionDomainData.Error)
@@ -130,7 +130,7 @@ class UpdateRepositoryImplTest {
                 VersionInfo(version = latestVersion, htmlUrl = "url", isPrerelease = true, body = "update")
             coEvery { gitHubDataSource.checkUpdateInfo() } returns
                 GitHubDataSource.VersionDataResult.Success(versionInfo)
-            var result = repository.checkUpdate(currentVersion)
+            var result = repository.checkUpdate(currentVersion, false)
             assertTrue(result is VersionDomainData.Success, "1.0.0-beta should update to 1.0.0-rc")
 
             // Case 2: rc < stable (Update available)
@@ -139,7 +139,7 @@ class UpdateRepositoryImplTest {
             versionInfo = VersionInfo(version = latestVersion, htmlUrl = "url", isPrerelease = false, body = "update")
             coEvery { gitHubDataSource.checkUpdateInfo() } returns
                 GitHubDataSource.VersionDataResult.Success(versionInfo)
-            result = repository.checkUpdate(currentVersion)
+            result = repository.checkUpdate(currentVersion, false)
             assertTrue(result is VersionDomainData.Success, "1.0.0-rc should update to 1.0.0")
 
             // Case 3: stable > rc (No update)
@@ -148,7 +148,7 @@ class UpdateRepositoryImplTest {
             versionInfo = VersionInfo(version = latestVersion, htmlUrl = "url", isPrerelease = true, body = "update")
             coEvery { gitHubDataSource.checkUpdateInfo() } returns
                 GitHubDataSource.VersionDataResult.Success(versionInfo)
-            result = repository.checkUpdate(currentVersion)
+            result = repository.checkUpdate(currentVersion, false)
             assertTrue(result is VersionDomainData.NOUpdate, "1.0.0 should not update to 1.0.0-rc")
         }
 
@@ -167,7 +167,7 @@ class UpdateRepositoryImplTest {
                 VersionInfo(version = latestVersion, htmlUrl = "url", isPrerelease = true, body = "update")
             coEvery { gitHubDataSource.checkUpdateInfo() } returns
                 GitHubDataSource.VersionDataResult.Success(versionInfo)
-            var result = repository.checkUpdate(currentVersion)
+            var result = repository.checkUpdate(currentVersion, false)
             assertTrue(result is VersionDomainData.Success, "1.0.0-beta.1 should update to 1.0.0-beta.2")
 
             // Case 2: beta.2 > beta.1 (No update)
@@ -176,7 +176,7 @@ class UpdateRepositoryImplTest {
             versionInfo = VersionInfo(version = latestVersion, htmlUrl = "url", isPrerelease = true, body = "update")
             coEvery { gitHubDataSource.checkUpdateInfo() } returns
                 GitHubDataSource.VersionDataResult.Success(versionInfo)
-            result = repository.checkUpdate(currentVersion)
+            result = repository.checkUpdate(currentVersion, false)
             assertTrue(result is VersionDomainData.NOUpdate, "1.0.0-beta.2 should not update to 1.0.0-beta.1")
         }
 
@@ -194,7 +194,32 @@ class UpdateRepositoryImplTest {
                 VersionInfo(version = latestVersion, htmlUrl = "url", isPrerelease = true, body = "update")
             coEvery { gitHubDataSource.checkUpdateInfo() } returns
                 GitHubDataSource.VersionDataResult.Success(versionInfo)
-            val result = repository.checkUpdate(currentVersion)
+            val result = repository.checkUpdate(currentVersion, false)
             assertTrue(result is VersionDomainData.Success, "1.0.0 should update to 1.1.0-alpha")
+        }
+
+    /**
+     * 测试场景：当启用预发布版本时，checkUpdate 应调用 checkUpdateInfoIncludePreRelease
+     * 预期结果：调用 checkUpdateInfoIncludePreRelease 并返回正确结果
+     */
+    @Test
+    fun `checkUpdate calls checkUpdateInfoIncludePreRelease when enablePreRelease is true`() =
+        runTest {
+            // 准备数据
+            val currentVersion = "1.0.0"
+            val latestVersion = "1.1.0-beta"
+            val versionInfo =
+                VersionInfo(version = latestVersion, htmlUrl = "url", isPrerelease = true, body = "update")
+
+            // 模拟 GitHubDataSource 返回成功结果
+            coEvery { gitHubDataSource.checkUpdateInfoIncludePreRelease() } returns
+                GitHubDataSource.VersionDataResult.Success(versionInfo)
+
+            // 执行测试
+            val result = repository.checkUpdate(currentVersion, true)
+
+            // 验证结果
+            assertTrue(result is VersionDomainData.Success)
+            assertEquals(versionInfo, (result as VersionDomainData.Success).data)
         }
 }
