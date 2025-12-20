@@ -15,6 +15,7 @@ import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Science
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
@@ -67,6 +68,9 @@ fun SettingView(
         initialValue = false,
     )
     val onlyIPv4 by viewModel.onlyIPv4.collectAsStateWithLifecycle(
+        initialValue = false,
+    )
+    val enablePreReleaseCheck by viewModel.enablePreRelease.collectAsStateWithLifecycle(
         initialValue = false,
     )
     val scrollState = rememberScrollState()
@@ -143,6 +147,16 @@ fun SettingView(
         ) {
             scope.launch {
                 viewModel.getUpdateInfo()
+            }
+        }
+        SwitchSettingItem(
+            title = "启用预发布版本更新",
+            subtitle = "开启将检查预发布版本更新",
+            icon = Icons.Rounded.Science,
+            checked = enablePreReleaseCheck,
+        ) {
+            scope.launch {
+                viewModel.setEnablePreRelease(!enablePreReleaseCheck)
             }
         }
         SettingItem(

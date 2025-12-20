@@ -8,6 +8,8 @@ class AppSettingRepositoryImpl
     constructor(
         private val updateRepository: UpdateRepository,
     ) : AppSettingRepository {
-        override suspend fun getUpdateInfo(oldVersionName: String): VersionDomainData =
-            updateRepository.checkUpdate(oldVersionName)
+        override suspend fun getUpdateInfo(
+            oldVersionName: String,
+            enablePreRelease: Boolean,
+        ): VersionDomainData = updateRepository.checkUpdate(oldVersionName, enablePreRelease)
     }

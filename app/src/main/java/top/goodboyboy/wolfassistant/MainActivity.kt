@@ -29,7 +29,9 @@ import androidx.navigation.navArgument
 import com.mikepenz.aboutlibraries.ui.compose.android.produceLibraries
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
+import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.appsetting.SettingView
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionDomainData
 import top.goodboyboy.wolfassistant.ui.appsetting.repository.UpdateRepository
@@ -64,6 +66,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var updateRepository: UpdateRepository
 
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -75,7 +80,11 @@ class MainActivity : ComponentActivity() {
 
                 LaunchedEffect(Unit) {
                     try {
-                        val result = updateRepository.checkUpdate(BuildConfig.VERSION_NAME)
+                        val result =
+                            updateRepository.checkUpdate(
+                                BuildConfig.VERSION_NAME,
+                                settingsRepository.enablePreRelease.first(),
+                            )
                         when (result) {
                             is VersionDomainData.Success -> {
                                 val snackbarResult =

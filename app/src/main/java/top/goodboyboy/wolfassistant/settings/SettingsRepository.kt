@@ -94,6 +94,14 @@ class SettingsRepository
             }
 
         /**
+         * 启用预发布版本
+         */
+        val enablePreRelease: Flow<Boolean> =
+            dataStore.data.map {
+                it[booleanPreferencesKey("enable_pre_release")] ?: false
+            }
+
+        /**
          * 设置深色模式
          * @param value true 开启，false 关闭
          */
@@ -160,6 +168,16 @@ class SettingsRepository
         suspend fun setSelectWeekNum(value: Int) {
             dataStore.edit { prefs ->
                 prefs[stringPreferencesKey("select_week_num")] = value.toString()
+            }
+        }
+
+        /**
+         * 设置是否启用预发布版本更新
+         * @param value true 启用，false 禁用
+         */
+        suspend fun setEnablePreRelease(value: Boolean) {
+            dataStore.edit { prefs ->
+                prefs[booleanPreferencesKey("enable_pre_release")] = value
             }
         }
 

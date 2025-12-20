@@ -44,19 +44,20 @@ class AppSettingRepositoryImplTest {
         runTest {
             // Arrange (准备)
             val oldVersion = "v1.0.0"
+            val enablePreRelease = false
             // 模拟 checkUpdate 返回的预期结果对象
             val expectedResult = mockk<VersionDomainData>()
 
             // 当调用 updateRepository.checkUpdate 时返回预期结果
-            coEvery { updateRepository.checkUpdate(oldVersion) } returns expectedResult
+            coEvery { updateRepository.checkUpdate(oldVersion, enablePreRelease) } returns expectedResult
 
             // Act (执行)
-            val result = repository.getUpdateInfo(oldVersion)
+            val result = repository.getUpdateInfo(oldVersion, enablePreRelease)
 
             // Assert (断言)
             // 验证返回结果是否与预期一致
             assertEquals(expectedResult, result)
             // 验证 updateRepository.checkUpdate 是否被正确调用了一次
-            coVerify(exactly = 1) { updateRepository.checkUpdate(oldVersion) }
+            coVerify(exactly = 1) { updateRepository.checkUpdate(oldVersion, enablePreRelease) }
         }
 }

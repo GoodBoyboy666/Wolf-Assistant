@@ -10,21 +10,46 @@ class UpdateRepositoryImpl
     constructor(
         private val gitHubDataSource: GitHubDataSource,
     ) : UpdateRepository {
-        override suspend fun checkUpdate(currentVersion: String): VersionDomainData {
-            when (val latestVersionResult = gitHubDataSource.checkUpdateInfo()) {
-                is GitHubDataSource.VersionDataResult.Error -> {
-                    return VersionDomainData.Error(latestVersionResult.error)
+        override suspend fun checkUpdate(
+            currentVersion: String,
+            enablePreRelease: Boolean,
+        ): VersionDomainData {
+            if (!enablePreRelease) {
+                when (val latestVersionResult = gitHubDataSource.checkUpdateInfo()) {
+                    is GitHubDataSource.VersionDataResult.Error -> {
+                        return VersionDomainData.Error(latestVersionResult.error)
+                    }
+
+                    is GitHubDataSource.VersionDataResult.Success -> {
+                        val latestVerString = latestVersionResult.data.version
+
+                        val oldVersion = VersionUtil.parse(currentVersion)
+                        val newVersion = VersionUtil.parse(latestVerString)
+
+                        return if (newVersion > oldVersion) {
+                            VersionDomainData.Success(latestVersionResult.data)
+                        } else {
+                            VersionDomainData.NOUpdate
+                        }
+                    }
                 }
-                is GitHubDataSource.VersionDataResult.Success -> {
-                    val latestVerString = latestVersionResult.data.version
+            } else {
+                when (val latestVersionResult = gitHubDataSource.checkUpdateInfoIncludePreRelease()) {
+                    is GitHubDataSource.VersionDataResult.Error -> {
+                        return VersionDomainData.Error(latestVersionResult.error)
+                    }
 
-                    val oldVersion = VersionUtil.parse(currentVersion)
-                    val newVersion = VersionUtil.parse(latestVerString)
+                    is GitHubDataSource.VersionDataResult.Success -> {
+                        val latestVerString = latestVersionResult.data.version
 
-                    return if (newVersion > oldVersion) {
-                        VersionDomainData.Success(latestVersionResult.data)
-                    } else {
-                        VersionDomainData.NOUpdate
+                        val oldVersion = VersionUtil.parse(currentVersion)
+                        val newVersion = VersionUtil.parse(latestVerString)
+
+                        return if (newVersion > oldVersion) {
+                            VersionDomainData.Success(latestVersionResult.data)
+                        } else {
+                            VersionDomainData.NOUpdate
+                        }
                     }
                 }
             }
