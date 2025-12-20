@@ -2,6 +2,7 @@ package top.goodboyboy.wolfassistant.ui.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,7 +14,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CreditCard
 import androidx.compose.material.icons.rounded.CurrencyYen
@@ -39,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -207,64 +211,92 @@ fun HomeView(
                     .padding(start = 20.dp, top = 10.dp, bottom = 10.dp, end = 20.dp)
                     .fillMaxSize(),
         ) {
-            Column(
+            var isRefreshing by remember { mutableStateOf(false) }
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    viewModel.changePortalState(HomeViewModel.PortalState.Loading)
+                    scope.launch {
+                        viewModel.cleanPortal()
+                        withContext(Dispatchers.IO) {
+                            viewModel.loadPortalCategories()
+                            viewModel.loadPortalInfo()
+                        }
+                    }
+                    isRefreshing = false
+                },
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 when (portalState) {
                     is HomeViewModel.PortalState.Failed -> {
-                        Text(stringResource(R.string.load_fail))
-                        Text(
-                            stringResource(R.string.reason) + (portalState as HomeViewModel.PortalState.Failed).message,
-                        )
-                    }
-
-                    HomeViewModel.PortalState.Idle -> {
-                        Text(stringResource(R.string.watting_for_loading))
-                    }
-
-                    HomeViewModel.PortalState.Success -> {
-                        PrimaryTabRow(
-                            modifier = Modifier.padding(10.dp),
-                            selectedTabIndex = pagerState.currentPage,
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(rememberScrollState()),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            portalCategories.value.forEachIndexed { index, portalCategory ->
-                                Tab(
-                                    selected = pagerState.currentPage == index,
-                                    onClick = {
-                                        scope.launch {
-                                            pagerState.animateScrollToPage(index)
-                                        }
-                                    },
-                                    text = { Text(text = portalCategory.portalName) },
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(stringResource(R.string.load_fail))
+                                Text(
+                                    stringResource(R.string.reason) +
+                                        (portalState as HomeViewModel.PortalState.Failed).message,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(16.dp),
                                 )
                             }
                         }
-                        var isRefreshing by remember { mutableStateOf(false) }
-                        HorizontalPager(
-                            modifier =
-                                Modifier
-                                    .padding(10.dp)
-                                    .fillMaxSize(),
-                            state = pagerState,
-                            verticalAlignment = Alignment.Top,
-                        ) { index ->
-                            val infos = portalInfoList.value[index]
-                            PullToRefreshBox(
-                                isRefreshing = isRefreshing,
-                                onRefresh = {
-                                    viewModel.changePortalState(HomeViewModel.PortalState.Loading)
-                                    scope.launch {
-                                        viewModel.cleanPortal()
-                                        withContext(Dispatchers.IO) {
-                                            viewModel.loadPortalCategories()
-                                            viewModel.loadPortalInfo()
-                                        }
-                                    }
-                                    isRefreshing = false
-                                },
+                    }
+
+                    HomeViewModel.PortalState.Idle, HomeViewModel.PortalState.Loading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.padding(bottom = 10.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                                Text(
+                                    if (portalState is HomeViewModel.PortalState.Idle) {
+                                        stringResource(R.string.watting_for_loading)
+                                    } else {
+                                        stringResource(R.string.on_the_way)
+                                    },
+                                )
+                            }
+                        }
+                    }
+
+                    HomeViewModel.PortalState.Success -> {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            PrimaryTabRow(
+                                modifier = Modifier.padding(10.dp),
+                                selectedTabIndex = pagerState.currentPage,
                             ) {
+                                portalCategories.value.forEachIndexed { index, portalCategory ->
+                                    Tab(
+                                        selected = pagerState.currentPage == index,
+                                        onClick = {
+                                            scope.launch {
+                                                pagerState.animateScrollToPage(index)
+                                            }
+                                        },
+                                        text = { Text(text = portalCategory.portalName) },
+                                    )
+                                }
+                            }
+                            HorizontalPager(
+                                modifier =
+                                    Modifier
+                                        .padding(10.dp)
+                                        .fillMaxSize(),
+                                state = pagerState,
+                                verticalAlignment = Alignment.Top,
+                            ) { index ->
+                                val infos = portalInfoList.value[index]
                                 LazyColumn(
                                     modifier = Modifier.padding(start = 5.dp, end = 5.dp),
                                 ) {
@@ -277,15 +309,6 @@ fun HomeView(
                                 }
                             }
                         }
-                    }
-
-                    HomeViewModel.PortalState.Loading -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.padding(bottom = 10.dp),
-                            color = MaterialTheme.colorScheme.secondary,
-                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                        )
-                        Text(stringResource(R.string.on_the_way))
                     }
                 }
             }

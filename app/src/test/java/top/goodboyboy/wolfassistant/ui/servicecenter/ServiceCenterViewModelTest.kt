@@ -1,5 +1,6 @@
 package top.goodboyboy.wolfassistant.ui.servicecenter
 
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -66,6 +67,8 @@ class ServiceCenterViewModelTest {
                 ServiceRepository.ServiceListData.Success(mockData)
 
             viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, okHttpClient)
+            testDispatcher.scheduler.advanceUntilIdle()
+            clearMocks(serviceRepository, answers = false)
 
             // Act
             viewModel.loadService()
@@ -93,6 +96,8 @@ class ServiceCenterViewModelTest {
                 ServiceRepository.ServiceListData.Failed(Failure.IOError(errorMsg, null))
 
             viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, okHttpClient)
+            testDispatcher.scheduler.advanceUntilIdle()
+            clearMocks(serviceRepository, answers = false)
 
             // Act
             viewModel.loadService()
@@ -112,6 +117,11 @@ class ServiceCenterViewModelTest {
     fun `cleanServiceList should clear list and call repository clean`() =
         runTest(testDispatcher) {
             // Arrange
+            val token = "test-token"
+            coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { serviceRepository.getServiceList(token) } returns
+                ServiceRepository.ServiceListData.Success(emptyList())
+
             viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, okHttpClient)
 
             // Act
@@ -121,23 +131,5 @@ class ServiceCenterViewModelTest {
             // Assert
             assertTrue(viewModel.serviceList.value.isEmpty())
             coVerify(exactly = 1) { serviceRepository.cleanServiceList() }
-        }
-
-    /**
-     * 测试：手动更改状态
-     * 预期：loadServiceState 更新为指定状态
-     */
-    @Test
-    fun `changeLoadServiceState should update state`() =
-        runTest(testDispatcher) {
-            // Arrange
-            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, okHttpClient)
-            val newState = ServiceCenterViewModel.LoadServiceState.Loading
-
-            // Act
-            viewModel.changeLoadServiceState(newState)
-
-            // Assert
-            assertEquals(newState, viewModel.loadServiceState.value)
         }
 }

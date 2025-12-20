@@ -2,6 +2,7 @@ package top.goodboyboy.wolfassistant.ui.servicecenter
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -12,15 +13,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,7 +53,6 @@ import java.net.URLEncoder
 fun ServiceCenterView(
     innerPadding: PaddingValues,
     navController: NavController,
-    snackbarHostState: SnackbarHostState,
     viewModel: ServiceCenterViewModel,
 ) {
     val loadServiceState by viewModel.loadServiceState.collectAsStateWithLifecycle()
@@ -60,11 +60,6 @@ fun ServiceCenterView(
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    LaunchedEffect(Unit) {
-        if (loadServiceState is LoadServiceState.Idle) {
-            viewModel.loadService()
-        }
-    }
     Column(
         modifier =
             Modifier
@@ -79,45 +74,54 @@ fun ServiceCenterView(
                     .fillMaxSize()
                     .padding(start = 20.dp, top = 10.dp, bottom = 10.dp, end = 20.dp),
         ) {
-            when (loadServiceState) {
-                is LoadServiceState.Idle -> {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        Text(stringResource(R.string.please_wait))
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    scope.launch {
+                        viewModel.cleanServiceList()
+                        viewModel.loadService()
                     }
-                }
-
-                is LoadServiceState.Loading -> {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        LoadingCompose()
+                    isRefreshing = false
+                },
+            ) {
+                when (loadServiceState) {
+                    is LoadServiceState.Idle -> {
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            Text(stringResource(R.string.please_wait))
+                        }
                     }
-                }
 
-                is LoadServiceState.Failed -> {
-                    LaunchedEffect(loadServiceState) {
-                        snackbarHostState.showSnackbar((loadServiceState as LoadServiceState.Failed).message)
+                    is LoadServiceState.Loading -> {
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            LoadingCompose()
+                        }
                     }
-                }
 
-                is LoadServiceState.Success -> {
-                    PullToRefreshBox(
-                        isRefreshing = isRefreshing,
-                        onRefresh = {
-                            scope.launch {
-                                viewModel.cleanServiceList()
-                                viewModel.changeLoadServiceState(LoadServiceState.Loading)
-                                viewModel.loadService()
-                            }
-                            isRefreshing = false
-                        },
-                    ) {
+                    is LoadServiceState.Failed -> {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(rememberScrollState()),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = (loadServiceState as LoadServiceState.Failed).message,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(16.dp),
+                            )
+                        }
+                    }
+
+                    is LoadServiceState.Success -> {
                         LazyVerticalGrid(
                             columns = GridCells.Adaptive(48.dp),
                             contentPadding = PaddingValues(8.dp),
