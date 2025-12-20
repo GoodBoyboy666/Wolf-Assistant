@@ -9,10 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -94,20 +91,12 @@ class ScheduleCenterViewModelTest {
             viewModel =
                 ScheduleCenterViewModel(scheduleRepository, labScheduleRepository, settingsRepository, globalEventBus)
 
-            // 收集错误信息
-            val errorMessages = mutableListOf<String>()
-            val job =
-                launch(UnconfinedTestDispatcher(testScheduler)) {
-                    viewModel.errorMessage.toList(errorMessages)
-                }
-
             viewModel.loadScheduleList()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            assertTrue(viewModel.loadScheduleState.value is ScheduleCenterViewModel.LoadScheduleState.Failed)
-            assertTrue(errorMessages.any { it == "日期不可为Null" })
-
-            job.cancel()
+            val state = viewModel.loadScheduleState.value
+            assertTrue(state is ScheduleCenterViewModel.LoadScheduleState.Failed)
+            assertEquals("日期不可为Null", (state as ScheduleCenterViewModel.LoadScheduleState.Failed).message)
         }
 
     /**
@@ -161,20 +150,12 @@ class ScheduleCenterViewModelTest {
             coEvery { scheduleRepository.getSchedule(token, start, end) } returns
                 ScheduleRepository.ScheduleData.Failed(Failure.IOError(errorMsg, null))
 
-            // 收集错误信息
-            val errorMessages = mutableListOf<String>()
-            val job =
-                launch(UnconfinedTestDispatcher(testScheduler)) {
-                    viewModel.errorMessage.toList(errorMessages)
-                }
-
             viewModel.loadScheduleList()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            assertTrue(viewModel.loadScheduleState.value is ScheduleCenterViewModel.LoadScheduleState.Failed)
-            assertTrue(errorMessages.any { it == errorMsg })
-
-            job.cancel()
+            val state = viewModel.loadScheduleState.value
+            assertTrue(state is ScheduleCenterViewModel.LoadScheduleState.Failed)
+            assertEquals(errorMsg, (state as ScheduleCenterViewModel.LoadScheduleState.Failed).message)
         }
 
     /**
@@ -219,21 +200,13 @@ class ScheduleCenterViewModelTest {
             coEvery { labScheduleRepository.getLabSchedule(week) } returns
                 LabScheduleRepository.LabScheduleData.Failed(Failure.IOError(errorMsg, null))
 
-            // 收集错误信息
-            val errorMessages = mutableListOf<String>()
-            val job =
-                launch(UnconfinedTestDispatcher(testScheduler)) {
-                    viewModel.errorMessage.toList(errorMessages)
-                }
-
             viewModel.loadLabScheduleList()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            assertTrue(viewModel.loadLabScheduleState.value is ScheduleCenterViewModel.LoadScheduleState.Failed)
+            val state = viewModel.loadLabScheduleState.value
+            assertTrue(state is ScheduleCenterViewModel.LoadScheduleState.Failed)
             // 错误信息拼接了 cause?.message，这里 cause 为 null，所以只包含 errorMsg + "null"
-            assertTrue(errorMessages.any { it.contains(errorMsg) })
-
-            job.cancel()
+            assertEquals(errorMsg + "null", (state as ScheduleCenterViewModel.LoadScheduleState.Failed).message)
         }
 
     /**

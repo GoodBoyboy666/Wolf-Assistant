@@ -67,7 +67,9 @@ class ScheduleCenterViewModel
 
             object Success : LoadScheduleState()
 
-            object Failed : LoadScheduleState()
+            data class Failed(
+                val message: String,
+            ) : LoadScheduleState()
         }
 
         // 实验课表
@@ -85,8 +87,7 @@ class ScheduleCenterViewModel
             val startDay = firstDay.value
             val endDay = lastDay.value
             if (startDay == null || endDay == null) {
-                _loadScheduleState.value = LoadScheduleState.Failed
-                _errorMessage.emit("日期不可为Null")
+                _loadScheduleState.value = LoadScheduleState.Failed("日期不可为Null")
             } else {
                 loadSchedule(startDay, endDay)
             }
@@ -106,8 +107,7 @@ class ScheduleCenterViewModel
                 )
             when (data) {
                 is Failed -> {
-                    _loadScheduleState.value = LoadScheduleState.Failed
-                    _errorMessage.emit(data.error.message)
+                    _loadScheduleState.value = LoadScheduleState.Failed(data.error.message)
                     data.error.cause?.printStackTrace()
                 }
 
@@ -144,9 +144,8 @@ class ScheduleCenterViewModel
             val data = labScheduleRepository.getLabSchedule(weekNumber.first())
             when (data) {
                 is LabScheduleRepository.LabScheduleData.Failed -> {
-                    _loadLabScheduleState.value = LoadScheduleState.Failed
-                    _errorMessage.emit(data.error.message + data.error.cause?.message)
-                    data.error.cause?.printStackTrace()
+                    _loadLabScheduleState.value =
+                        LoadScheduleState.Failed(data.error.message + data.error.cause?.message)
                 }
 
                 is LabScheduleRepository.LabScheduleData.Success -> {

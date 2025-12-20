@@ -198,7 +198,6 @@ class MainActivity : ComponentActivity() {
                             ServiceCenterView(
                                 innerPadding,
                                 navController,
-                                snackbarHostState,
                                 viewModel,
                             )
                         }
