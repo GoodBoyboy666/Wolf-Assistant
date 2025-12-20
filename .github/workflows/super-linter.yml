@@ -65,3 +65,9 @@ jobs:
       - name: Run Android Lint
         if: steps.changed-files.outputs.any_changed == 'true'
         run: ./gradlew lintDebug
+
+      # 单元测试检查
+      - name: Run Android Unit Testing
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: ./gradlew app:testDebugUnitTest
+
