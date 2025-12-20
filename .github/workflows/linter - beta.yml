@@ -1,7 +1,7 @@
-name: Lint Code Base
+name: Lint Code Base - Beta
 on:
   pull_request: # 对 PR 进行检查
-    branches: [ main,beta ]
+    branches: [ beta ]
   workflow_dispatch:
     inputs:
       reason:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   lint-and-check:
-    name: Run Style and Correctness Checks
+    name: Run Style and Correctness Checks - Beta
     runs-on: ubuntu-latest
     permissions:
       contents: read
