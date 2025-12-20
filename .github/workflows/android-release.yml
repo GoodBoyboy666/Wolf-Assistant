@@ -41,45 +41,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # 开始构建
-      - name: Build with Gradle
-        run: ./gradlew assembleGithubActionRelease
-
-      # 使用 apksigner 手动签名
-      - name: Sign APK with apksigner
-        id: sign_apk
-        run: |
-          # 找到构建工具中的 apksigner
-          ANDROID_BUILD_TOOLS_VERSION=$(ls $ANDROID_SDK_ROOT/build-tools/ | sort -V | tail -n 1)
-          APKSIGNER="$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS_VERSION/apksigner"
-
-          # 找到 Gradle 生成的未签名 APK
-          INPUT_APK=$(find app/build/outputs/apk/GitHubActionRelease -name "*-unsigned.apk" | head -n 1)
-
-          if [ -z "$INPUT_APK" ]; then
-             echo "::error::Input APK not found!"
-             exit 1
-          fi
-
-          OUTPUT_APK="app/build/outputs/apk/GitHubActionRelease/app-release-signed.apk"
-
-          echo "🔏 Signing $INPUT_APK with v3..."
-
-          "$APKSIGNER" sign \
-            --ks release.p12 \
-            --ks-key-alias "${{ secrets.SIGNING_KEY_ALIAS }}" \
-            --ks-pass "pass:${{ secrets.SIGNING_KEY_PASSWORD }}" \
-            --lineage rotation/rotation.lineage \
-            --v1-signing-enabled false \
-            --v2-signing-enabled false \
-            --v3-signing-enabled true \
-            --min-sdk-version 28 \
-            --rotation-min-sdk-version 28 \
-            --out "$OUTPUT_APK" \
-            "$INPUT_APK"
-
-          echo "signed_apk_path=$OUTPUT_APK" >> $GITHUB_OUTPUT
-
       # 获取项目名与版本
       - name: Get project and version names
         id: get_names
@@ -87,20 +48,73 @@ jobs:
           echo "project_name=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
           echo "version_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
 
-      # 查找构建的 APK 文件
-      - name: Find and Rename APK
-        id: find_apk
+      # 开始构建
+      - name: Build with Gradle
+        run: ./gradlew assembleGithubActionRelease
+
+      # 批量签名并重命名
+      - name: Sign and Rename APKs
+        id: sign_apks
         run: |
-          APK_PATH="${{ steps.sign_apk.outputs.signed_apk_path }}"
-          if [ -z "$APK_PATH" ]; then
-            echo "::error::Release APK not found!"
-            exit 1
+          # 找到构建工具中的 apksigner
+          ANDROID_BUILD_TOOLS_VERSION=$(ls $ANDROID_SDK_ROOT/build-tools/ | sort -V | tail -n 1)
+          APKSIGNER="$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS_VERSION/apksigner"
+
+          # 最终产物目录
+          mkdir -p release_artifacts
+
+          # Gradle 生成的所有未签名 APK 目录
+          APK_DIR="app/build/outputs/apk/GitHubActionRelease"
+
+          # 遍历所有 unsigned apk
+          find "$APK_DIR" -name "*-unsigned.apk" | while read INPUT_APK; do
+            echo "----------------------------------------"
+            echo "Processing: $INPUT_APK"
+
+            # 解析 ABI (架构名称)
+            if [[ "$INPUT_APK" == *"arm64-v8a"* ]]; then
+              ABI="arm64-v8a"
+            elif [[ "$INPUT_APK" == *"armeabi-v7a"* ]]; then
+              ABI="armeabi-v7a"
+            elif [[ "$INPUT_APK" == *"x86_64"* ]]; then
+              ABI="x86_64"
+            elif [[ "$INPUT_APK" == *"x86"* ]]; then
+              ABI="x86"
+            elif [[ "$INPUT_APK" == *"universal"* ]]; then
+              ABI="universal"
+            else
+              ABI="unknown"
+            fi
+
+            echo "Detected ABI: $ABI"
+
+            # 构建最终文件名: ProjectName-Version-ABI.apk
+            NEW_FILENAME="${{ steps.get_names.outputs.project_name }}-${{ steps.get_names.outputs.version_name }}-$ABI.apk"
+            OUTPUT_APK="release_artifacts/$NEW_FILENAME"
+
+            echo "🔏 Signing $INPUT_APK with v3..."
+
+            "$APKSIGNER" sign \
+              --ks release.p12 \
+              --ks-key-alias "${{ secrets.SIGNING_KEY_ALIAS }}" \
+              --ks-pass "pass:${{ secrets.SIGNING_KEY_PASSWORD }}" \
+              --lineage rotation/rotation.lineage \
+              --v1-signing-enabled false \
+              --v2-signing-enabled false \
+              --v3-signing-enabled true \
+              --min-sdk-version 28 \
+              --rotation-min-sdk-version 28 \
+              --out "$OUTPUT_APK" \
+              "$INPUT_APK"
+          done
+
+          # 验证是否有文件生成
+          if [ -z "$(ls -A release_artifacts)" ]; then
+             echo "::error::No signed APKs were generated!"
+             exit 1
           fi
-          NEW_APK_NAME="${{ steps.get_names.outputs.project_name }}-${{ steps.get_names.outputs.version_name }}.apk"
-          echo "✅ Found APK at $APK_PATH"
-          mv "$APK_PATH" "$NEW_APK_NAME"
-          echo "🎉 Renamed to $NEW_APK_NAME"
-          echo "apk_path=$NEW_APK_NAME" >> $GITHUB_OUTPUT
+
+          echo "✅ Batch processing complete."
 
       # 查找 Mapping 文件
       - name: Find Mapping File
@@ -150,5 +164,5 @@ jobs:
           draft: ${{ steps.determine_release_type.outputs.is_draft }}
           prerelease: ${{ steps.determine_release_type.outputs.is_prerelease }}
           files: |
-            ${{ steps.find_apk.outputs.apk_path }}
+            release_artifacts/*.apk
             ${{ steps.find_mapping.outputs.mapping_path }}

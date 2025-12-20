@@ -9,7 +9,8 @@ import top.goodboyboy.wolfassistant.ui.appsetting.datasource.GitHubDataSource
 import top.goodboyboy.wolfassistant.ui.appsetting.datasource.GitHubDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.appsetting.repository.AppSettingRepository
 import top.goodboyboy.wolfassistant.ui.appsetting.repository.AppSettingRepositoryImpl
-import top.goodboyboy.wolfassistant.ui.appsetting.util.VersionUpdateChecker
+import top.goodboyboy.wolfassistant.ui.appsetting.repository.UpdateRepository
+import top.goodboyboy.wolfassistant.ui.appsetting.repository.UpdateRepositoryImpl
 import javax.inject.Singleton
 
 @Module
@@ -21,10 +22,11 @@ object AppSettingModule {
 
     @Provides
     @Singleton
-    fun provideAppSettingRepository(versionUpdateChecker: VersionUpdateChecker): AppSettingRepository =
-        AppSettingRepositoryImpl(versionUpdateChecker)
+    fun provideUpdateRepository(gitHubDataSource: GitHubDataSource): UpdateRepository =
+        UpdateRepositoryImpl(gitHubDataSource)
 
     @Provides
     @Singleton
-    fun provideVersionUpdateChecker(gitHubDataSource: GitHubDataSource) = VersionUpdateChecker(gitHubDataSource)
+    fun provideAppSettingRepository(updateRepository: UpdateRepository): AppSettingRepository =
+        AppSettingRepositoryImpl(updateRepository)
 }

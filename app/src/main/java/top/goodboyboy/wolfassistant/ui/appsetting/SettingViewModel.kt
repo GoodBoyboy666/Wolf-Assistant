@@ -49,6 +49,8 @@ class SettingViewModel
         val disableSSLCertVerification = settingsRepository.disableSSLCertVerification
         val onlyIPv4 = settingsRepository.onlyIPv4
 
+        val enablePreRelease = settingsRepository.enablePreRelease
+
         suspend fun getTotalCacheSize(context: Context) {
             withContext(Dispatchers.IO) {
                 val size = CacheUtil.getTotalCacheSize(context)
@@ -77,7 +79,11 @@ class SettingViewModel
 
         suspend fun getUpdateInfo() {
             _updateState.value = CheckUpdateState.Loading
-            val result = appSettingRepository.getUpdateInfo(BuildConfig.VERSION_NAME)
+            val result =
+                appSettingRepository.getUpdateInfo(
+                    BuildConfig.VERSION_NAME,
+                    settingsRepository.enablePreRelease.first(),
+                )
             when (result) {
                 is VersionDomainData.Error -> {
                     _updateState.value = CheckUpdateState.Error(result.error)
@@ -119,6 +125,10 @@ class SettingViewModel
                 okHttpClient.dispatcher.cancelAll()
                 okHttpClient.connectionPool.evictAll()
             }
+        }
+
+        suspend fun setEnablePreRelease(value: Boolean) {
+            settingsRepository.setEnablePreRelease(value)
         }
 
         sealed class CheckUpdateState {

@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import okhttp3.OkHttpClient
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -57,6 +58,7 @@ class SettingViewModelTest {
     private lateinit var appSettingRepository: AppSettingRepository
     private lateinit var application: Application
     private lateinit var context: Context
+    private lateinit var okHttpClient: OkHttpClient
 
     private lateinit var viewModel: SettingViewModel
 
@@ -84,6 +86,7 @@ class SettingViewModelTest {
         appSettingRepository = mockk(relaxed = true)
         application = mockk(relaxed = true)
         context = mockk(relaxed = true)
+        okHttpClient = mockk(relaxed = true)
 
         // Mock 静态类 CacheUtil
         mockkObject(CacheUtil)
@@ -96,6 +99,7 @@ class SettingViewModelTest {
         // Mock 初始化时收集的 SettingsRepository flow
         every { settingsRepository.disableSSLCertVerification } returns flowOf(false)
         every { settingsRepository.onlyIPv4 } returns flowOf(false)
+        every { settingsRepository.enablePreRelease } returns flowOf(false)
 
         viewModel =
             SettingViewModel(
@@ -107,6 +111,7 @@ class SettingViewModelTest {
                 appSettingRepository,
                 labScheduleRepository,
                 application,
+                okHttpClient,
             )
     }
 
@@ -188,7 +193,7 @@ class SettingViewModelTest {
     fun `getUpdateInfo success updates state`() =
         runTest {
             val versionInfo = mockk<VersionInfo>()
-            coEvery { appSettingRepository.getUpdateInfo(BuildConfig.VERSION_NAME) } returns
+            coEvery { appSettingRepository.getUpdateInfo(BuildConfig.VERSION_NAME, false) } returns
                 VersionDomainData.Success(versionInfo)
 
             viewModel.getUpdateInfo()
@@ -208,7 +213,8 @@ class SettingViewModelTest {
     @Test
     fun `getUpdateInfo no update updates state`() =
         runTest {
-            coEvery { appSettingRepository.getUpdateInfo(BuildConfig.VERSION_NAME) } returns VersionDomainData.NOUpdate
+            coEvery { appSettingRepository.getUpdateInfo(BuildConfig.VERSION_NAME, false) } returns
+                VersionDomainData.NOUpdate
 
             viewModel.getUpdateInfo()
             testDispatcher.scheduler.advanceUntilIdle()
@@ -228,7 +234,7 @@ class SettingViewModelTest {
     fun `getUpdateInfo error updates state`() =
         runTest {
             val failure = mockk<Failure>()
-            coEvery { appSettingRepository.getUpdateInfo(BuildConfig.VERSION_NAME) } returns
+            coEvery { appSettingRepository.getUpdateInfo(BuildConfig.VERSION_NAME, false) } returns
                 VersionDomainData.Error(failure)
 
             viewModel.getUpdateInfo()
