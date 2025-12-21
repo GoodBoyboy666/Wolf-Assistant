@@ -49,46 +49,19 @@ class HomeViewModel
         val portalState: StateFlow<PortalState> = _portalState.asStateFlow()
 
         fun loadTimeTalk() {
-            val currentTime = LocalTime.now()
-            val time1 = LocalTime.of(7, 0)
-            val time2 = LocalTime.of(11, 0)
-            val time3 = LocalTime.of(14, 0)
-            val time4 = LocalTime.of(17, 0)
-            val time5 = LocalTime.of(19, 0)
-            val time6 = LocalTime.of(22, 0)
-            val time7 = LocalTime.of(23, 59)
-            val time8 = LocalTime.of(2, 0)
-            val time9 = LocalTime.of(5, 0)
-
-            val range1 = currentTime.isAfter(time1) && currentTime.isBefore(time2)
-            val range2 = currentTime.isAfter(time2) && currentTime.isBefore(time3)
-            val range3 = currentTime.isAfter(time3) && currentTime.isBefore(time4)
-            val range4 = currentTime.isAfter(time4) && currentTime.isBefore(time5)
-            val range5 = currentTime.isAfter(time5) && currentTime.isBefore(time6)
-            val range6 = currentTime.isAfter(time6) && currentTime.isBefore(time7)
-            val range7 = currentTime.isAfter(time7) && currentTime.isBefore(time8)
-            val range8 = currentTime.isAfter(time8) && currentTime.isBefore(time9)
-            val range9 = currentTime.isAfter(time9) && currentTime.isBefore(time1)
-
-            if (range1) {
-                _timeTalk.value = "新的一天又开始了，祝你过得快乐!"
-            } else if (range2) {
-                _timeTalk.value = "该吃午饭啦！有什么好吃的？您有中午休息的好习惯吗？"
-            } else if (range3) {
-                _timeTalk.value = "下午好！外面的天气好吗？记得朵朵白云曾捎来朋友殷殷的祝福。"
-            } else if (range4) {
-                _timeTalk.value = "太阳落山了！快看看夕阳吧！如果外面下雨，就不必了 ^_^"
-            } else if (range5) {
-                _timeTalk.value = "晚上好，小伙伴今天的心情怎么样？"
-            } else if (range6) {
-                _timeTalk.value = "这么晚了，小伙伴还在上网？早点洗洗睡吧，睡前记得洗洗脸喔！"
-            } else if (range7) {
-                _timeTalk.value = "现在已经过凌晨了，身体是无价的资本喔，早点休息吧！"
-            } else if (range8) {
-                _timeTalk.value = "该休息了，身体可是革命的本钱啊！"
-            } else if (range9) {
-                _timeTalk.value = "快要熬穿啦，赶紧去补补觉吧！"
-            }
+            _timeTalk.value =
+                when (LocalTime.now().hour) {
+                    in 5..6 -> "快要熬穿啦，赶紧去补补觉吧！"
+                    in 7..10 -> "新的一天又开始了，祝你过得快乐!"
+                    in 11..13 -> "该吃午饭啦！有什么好吃的？您有中午休息的好习惯吗？"
+                    in 14..16 -> "下午好！外面的天气好吗？记得朵朵白云曾捎来朋友殷殷的祝福。"
+                    in 17..18 -> "太阳落山了！快看看夕阳吧！如果外面下雨，就不必了 ^_^"
+                    in 19..21 -> "晚上好，小伙伴今天的心情怎么样？"
+                    in 22..23 -> "这么晚了，小伙伴还在上网？早点洗洗睡吧，睡前记得洗洗脸喔！"
+                    in 0..1 -> "现在已经过凌晨了，身体是无价的资本喔，早点休息吧！"
+                    in 2..4 -> "该休息了，身体可是革命的本钱啊！"
+                    else -> "今天过得怎么样？"
+                }
         }
 
         /**

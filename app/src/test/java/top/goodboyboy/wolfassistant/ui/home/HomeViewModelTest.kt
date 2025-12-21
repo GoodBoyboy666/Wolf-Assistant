@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.home.portal.model.PortalCategoryItem
@@ -62,18 +64,46 @@ class HomeViewModelTest {
     }
 
     /**
-     * 测试：在早晨时段调用 loadTimeTalk 会设置为早安问候语
+     * 测试：loadTimeTalk 根据小时返回正确的问候语（边界测试）
      */
-    @Test
-    fun `loadTimeTalk sets morning greeting`() =
-        runTest(testDispatcher) {
-            mockkStatic(LocalTime::class)
-            every { LocalTime.now() } returns LocalTime.of(8, 0)
+    @ParameterizedTest
+    @CsvSource(
+        "0, 现在已经过凌晨了，身体是无价的资本喔，早点休息吧！",
+        "1, 现在已经过凌晨了，身体是无价的资本喔，早点休息吧！",
+        "2, 该休息了，身体可是革命的本钱啊！",
+        "3, 该休息了，身体可是革命的本钱啊！",
+        "4, 该休息了，身体可是革命的本钱啊！",
+        "5, 快要熬穿啦，赶紧去补补觉吧！",
+        "6, 快要熬穿啦，赶紧去补补觉吧！",
+        "7, 新的一天又开始了，祝你过得快乐!",
+        "8, 新的一天又开始了，祝你过得快乐!",
+        "9, 新的一天又开始了，祝你过得快乐!",
+        "10, 新的一天又开始了，祝你过得快乐!",
+        "11, 该吃午饭啦！有什么好吃的？您有中午休息的好习惯吗？",
+        "12, 该吃午饭啦！有什么好吃的？您有中午休息的好习惯吗？",
+        "13, 该吃午饭啦！有什么好吃的？您有中午休息的好习惯吗？",
+        "14, 下午好！外面的天气好吗？记得朵朵白云曾捎来朋友殷殷的祝福。",
+        "15, 下午好！外面的天气好吗？记得朵朵白云曾捎来朋友殷殷的祝福。",
+        "16, 下午好！外面的天气好吗？记得朵朵白云曾捎来朋友殷殷的祝福。",
+        "17, 太阳落山了！快看看夕阳吧！如果外面下雨，就不必了 ^_^",
+        "18, 太阳落山了！快看看夕阳吧！如果外面下雨，就不必了 ^_^",
+        "19, 晚上好，小伙伴今天的心情怎么样？",
+        "20, 晚上好，小伙伴今天的心情怎么样？",
+        "21, 晚上好，小伙伴今天的心情怎么样？",
+        "22, 这么晚了，小伙伴还在上网？早点洗洗睡吧，睡前记得洗洗脸喔！",
+        "23, 这么晚了，小伙伴还在上网？早点洗洗睡吧，睡前记得洗洗脸喔！",
+    )
+    fun `loadTimeTalk returns correct message for hour`(
+        hour: Int,
+        expectedMessage: String,
+    ) = runTest(testDispatcher) {
+        mockkStatic(LocalTime::class)
+        every { LocalTime.now() } returns LocalTime.of(hour, 0)
 
-            viewModel = HomeViewModel(portalRepository, settingsRepository)
+        viewModel = HomeViewModel(portalRepository, settingsRepository)
 
-            assertEquals("新的一天又开始了，祝你过得快乐!", viewModel.timeTalk.value)
-        }
+        assertEquals(expectedMessage, viewModel.timeTalk.value)
+    }
 
     /**
      * 测试：初始化时成功加载门户分类与信息，并将 portalState 置为 Success
@@ -153,5 +183,55 @@ class HomeViewModelTest {
             assertEquals(emptyList<PortalCategoryItem>(), viewModel.portalCategoryList.value)
             assertEquals(emptyList<List<PortalInfoItem>>(), viewModel.portalInfoList.value)
             coVerify(exactly = 1) { portalRepository.cleanCache() }
+        }
+
+    /**
+     * 测试：初始化时加载多个分类，其中部分分类详情加载失败
+     */
+    @Test
+    fun `init loads portal infos with partial failure`() =
+        runTest(testDispatcher) {
+            val categories =
+                listOf(
+                    PortalCategoryItem("1", "Category 1"),
+                    PortalCategoryItem("2", "Category 2"),
+                )
+            val infos1 = listOf(PortalInfoItem("Title1", "Author1", "2025-01-01", "url1"))
+            val failure = Failure.IOError("Error fetching infos", null)
+
+            coEvery { portalRepository.getPortalCategory("TestToken") } returns
+                PortalRepository.PortalData.Success(categories)
+            coEvery { portalRepository.getPortalInfoList("1") } returns PortalRepository.PortalData.Success(infos1)
+            coEvery { portalRepository.getPortalInfoList("2") } returns PortalRepository.PortalData.Failed(failure)
+
+            mockkStatic(LocalTime::class)
+            every { LocalTime.now() } returns LocalTime.of(10, 0)
+
+            viewModel = HomeViewModel(portalRepository, settingsRepository)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertEquals(categories, viewModel.portalCategoryList.value)
+            // portalInfoList should contain valid list for successful call and empty list for failed one
+            val expectedInfos = listOf(infos1, emptyList())
+            assertEquals(expectedInfos, viewModel.portalInfoList.value)
+            assertTrue(viewModel.portalState.value is HomeViewModel.PortalState.Success)
+        }
+
+    /**
+     * 测试：changePortalState 能够正确更新状态
+     */
+    @Test
+    fun `changePortalState updates state correctly`() =
+        runTest(testDispatcher) {
+            mockkStatic(LocalTime::class)
+            every { LocalTime.now() } returns LocalTime.of(10, 0)
+
+            viewModel = HomeViewModel(portalRepository, settingsRepository)
+
+            viewModel.changePortalState(HomeViewModel.PortalState.Loading)
+            assertEquals(HomeViewModel.PortalState.Loading, viewModel.portalState.value)
+
+            viewModel.changePortalState(HomeViewModel.PortalState.Idle)
+            assertEquals(HomeViewModel.PortalState.Idle, viewModel.portalState.value)
         }
 }
