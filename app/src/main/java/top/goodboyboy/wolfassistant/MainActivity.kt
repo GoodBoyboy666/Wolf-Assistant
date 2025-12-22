@@ -1,6 +1,9 @@
 package top.goodboyboy.wolfassistant
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -55,8 +58,13 @@ import top.goodboyboy.wolfassistant.ui.servicecenter.ServiceCenterViewModel
 import top.goodboyboy.wolfassistant.ui.theme.WolfAssistantTheme
 import top.goodboyboy.wolfassistant.ui.webview.BrowserView
 import top.goodboyboy.wolfassistant.ui.webview.BrowserViewModel
+import top.goodboyboy.wolfassistant.util.CrashInfoUtil
+import java.io.File
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.net.URLDecoder
 import javax.inject.Inject
+import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -73,6 +81,10 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            handleUncaughtException(thread, throwable)
+        }
         setContent {
             WolfAssistantTheme {
                 val navController = rememberNavController()
@@ -329,6 +341,51 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun handleUncaughtException(
+        thread: Thread,
+        throwable: Throwable,
+    ) {
+        Log.e("AppCrash", "检测到未捕获异常，线程: ${thread.name}", throwable)
+        Toast.makeText(this, "程序发生崩溃，正在收集日志...", Toast.LENGTH_LONG).show()
+        val deviceInfo = CrashInfoUtil.getDeviceAndAppInfo(this)
+        val sw = StringWriter()
+        val pw = PrintWriter(sw)
+        throwable.printStackTrace(pw)
+        val stackTraceString = sw.toString()
+        try {
+            val fileName = "crash_log_${System.currentTimeMillis()}.txt"
+            val crashFile = File(cacheDir, fileName)
+            val fullCrashReport =
+                """
+        |========================================
+        |              DEVICE INFO
+        |========================================
+        |$deviceInfo
+        |
+        |========================================
+        |              STACK TRACE
+        |========================================
+        |$stackTraceString
+        |
+        |========================================
+        |              END REPORT
+        |========================================
+                """.trimMargin()
+            crashFile.writeText(fullCrashReport)
+            val intent =
+                Intent(this, UncaughtExceptionActivity::class.java).apply {
+                    putExtra("crash_file_path", crashFile.absolutePath)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                }
+            startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            android.os.Process.killProcess(android.os.Process.myPid())
+            exitProcess(1)
         }
     }
 }
