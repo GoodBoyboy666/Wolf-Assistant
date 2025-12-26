@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
@@ -33,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
@@ -136,29 +139,45 @@ fun LabScheduleView(viewModel: ScheduleCenterViewModel) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            when (loadScheduleState) {
-                LoadScheduleState.Idle, LoadScheduleState.Loading -> {
-                    LoadingCompose("加载实验课表中...")
-                }
+            var isRefreshing by remember { mutableStateOf(false) }
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    scope.launch {
+                        viewModel.cleanLabCache()
+                        viewModel.loadLabScheduleList()
+                    }
+                    isRefreshing = false
+                },
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                when (loadScheduleState) {
+                    LoadScheduleState.Idle, LoadScheduleState.Loading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            LoadingCompose("加载实验课表中...")
+                        }
+                    }
 
-                else -> {
-                    var isRefreshing by remember { mutableStateOf(false) }
-                    PullToRefreshBox(
-                        isRefreshing = isRefreshing,
-                        onRefresh = {
-                            scope.launch {
-                                viewModel.cleanLabCache()
-                                viewModel.loadLabScheduleList()
-                            }
-                        },
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        if (loadScheduleState is LoadScheduleState.Success) {
-                            LabScheduleCompose(labScheduleList, Modifier.padding(10.dp))
-                        } else {
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text("实验课表加载失败！")
-                            }
+                    is LoadScheduleState.Success -> {
+                        LabScheduleCompose(labScheduleList, Modifier.padding(10.dp))
+                    }
+
+                    is LoadScheduleState.Failed -> {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(rememberScrollState()),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = (loadScheduleState as LoadScheduleState.Failed).message,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(16.dp),
+                            )
                         }
                     }
                 }

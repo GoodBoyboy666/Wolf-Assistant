@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -25,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,7 +69,6 @@ fun ScheduleView(
             firstDayOfWeek = firstDayOfWeek,
         )
     val scope = rememberCoroutineScope()
-    var showSchedule by remember { mutableStateOf(false) }
     val loadScheduleState by viewModel.loadScheduleState.collectAsStateWithLifecycle()
     val scheduleList by viewModel.scheduleList.collectAsStateWithLifecycle()
     var isRefreshing by remember { mutableStateOf(false) }
@@ -121,49 +123,50 @@ fun ScheduleView(
             )
         }
 
-        when (loadScheduleState) {
-            is LoadScheduleState.Failed -> {
-                showSchedule = true
-            }
-
-            LoadScheduleState.Idle -> {
-            }
-
-            LoadScheduleState.Loading -> {
-                showSchedule = false
-            }
-
-            LoadScheduleState.Success -> {
-                showSchedule = true
-            }
-        }
-
-        // 课表内容
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                scope.launch {
+                    viewModel.cleanCache()
+                    viewModel.loadScheduleList()
+                }
+                isRefreshing = false
+            },
+            modifier = Modifier.fillMaxSize(),
         ) {
-            if (showSchedule) {
-                PullToRefreshBox(
-                    isRefreshing = isRefreshing,
-                    onRefresh = {
-                        scope.launch {
-                            viewModel.cleanCache()
-                            viewModel.loadScheduleList()
-                        }
-                    },
-                    modifier = Modifier.fillMaxSize(),
-                ) {
+            when (loadScheduleState) {
+                is LoadScheduleState.Idle, is LoadScheduleState.Loading -> {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        LoadingCompose()
+                    }
+                }
+
+                is LoadScheduleState.Failed -> {
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState()),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = (loadScheduleState as LoadScheduleState.Failed).message,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(16.dp),
+                        )
+                    }
+                }
+
+                is LoadScheduleState.Success -> {
                     ScheduleCompose(
                         scheduleList,
                         Modifier.padding(10.dp),
                     )
                 }
-            } else {
-                LoadingCompose()
             }
         }
     }
@@ -199,6 +202,7 @@ private fun Day(
                 fontSize = 14.sp,
                 color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Black,
                 fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
             )
         }
         if (isSelected) {
