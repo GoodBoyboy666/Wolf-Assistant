@@ -73,4 +73,5 @@
     <string name="refresh">Refresh</string>
     <string name="payment_code">Payment code</string>
     <string name="scan">Scan</string>
+    <string name="schedule">Schedule</string>
 </resources>
