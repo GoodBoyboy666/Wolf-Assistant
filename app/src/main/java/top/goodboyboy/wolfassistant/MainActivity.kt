@@ -10,8 +10,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -20,13 +26,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.mikepenz.aboutlibraries.ui.compose.android.produceLibraries
@@ -118,22 +124,13 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                val currentRoute =
-                    navController
-                        .currentBackStackEntryAsState()
-                        .value
-                        ?.destination
-                        ?.route
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     snackbarHost = {
                         SnackbarHost(hostState = snackbarHostState)
                     },
                     bottomBar = {
-                        // 仅在Route中显示底部导航栏
-                        if (currentRoute in ScreenRoute.items.map { it.route }) {
-                            BottomBar(navController)
-                        }
+                        BottomBar(navController)
                     },
                     topBar = {
                         TopBar(navController, globalEventBus)
@@ -330,12 +327,21 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("oss") {
                             val libraries by produceLibraries(R.raw.aboutlibraries)
+                            val layoutDirection = LocalLayoutDirection.current
                             LibrariesContainer(
                                 libraries = libraries,
                                 modifier =
                                     Modifier
                                         .fillMaxSize()
-                                        .padding(innerPadding),
+                                        .padding(
+                                            start = innerPadding.calculateStartPadding(layoutDirection),
+                                            top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
+                                            end = innerPadding.calculateEndPadding(layoutDirection),
+                                            bottom =
+                                                WindowInsets.navigationBars
+                                                    .asPaddingValues()
+                                                    .calculateBottomPadding(),
+                                        ),
                             )
                         }
                     }

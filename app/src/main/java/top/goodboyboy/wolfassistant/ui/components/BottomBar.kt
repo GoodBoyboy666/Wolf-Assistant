@@ -1,5 +1,8 @@
 package top.goodboyboy.wolfassistant.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
@@ -18,27 +21,34 @@ fun BottomBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val haptic = LocalHapticFeedback.current
-    NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
-        ScreenRoute.items.forEach { screen ->
-            NavigationBarItem(
-                selected = currentRoute == screen.route,
-                onClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    if (currentRoute != screen.route) {
-                        navController.navigate(screen.route) {
-                            launchSingleTop = true
-                            popUpTo(0)
+    // 仅在Route中显示底部导航栏
+    AnimatedVisibility(
+        visible = currentRoute in ScreenRoute.items.map { it.route },
+        enter = slideInVertically(initialOffsetY = { it }),
+        exit = slideOutVertically(targetOffsetY = { it }),
+    ) {
+        NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
+            ScreenRoute.items.forEach { screen ->
+                NavigationBarItem(
+                    selected = currentRoute == screen.route,
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        if (currentRoute != screen.route) {
+                            navController.navigate(screen.route) {
+                                launchSingleTop = true
+                                popUpTo(0)
+                            }
                         }
-                    }
-                },
-                icon = {
-                    Icon(
-                        screen.icon,
-                        contentDescription = screen.title,
-                    )
-                },
-                label = { Text(screen.title) },
-            )
+                    },
+                    icon = {
+                        Icon(
+                            screen.icon,
+                            contentDescription = screen.title,
+                        )
+                    },
+                    label = { Text(screen.title) },
+                )
+            }
         }
     }
 }
