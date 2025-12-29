@@ -83,95 +83,97 @@ fun TopBar(
                     currentRoute in listOf("setting")
             )
 
-    if (!shouldShowTopBar) {
-        return
-    }
-
-    CenterAlignedTopAppBar(
-        title = {
-            AnimatedContent(
-                // title优先级最高，然后是Route的名称
-                targetState =
-                    title.ifEmpty {
-                        ScreenRoute.items.firstOrNull { it.route == currentRoute }?.title
-                            ?: ""
+    AnimatedVisibility(
+        visible = shouldShowTopBar,
+        enter = slideInVertically(initialOffsetY = { -it }),
+        exit = slideOutVertically(targetOffsetY = { -it }),
+    ) {
+        CenterAlignedTopAppBar(
+            title = {
+                AnimatedContent(
+                    // title优先级最高，然后是Route的名称
+                    targetState =
+                        title.ifEmpty {
+                            ScreenRoute.items.firstOrNull { it.route == currentRoute }?.title
+                                ?: ""
+                        },
+                    label = "CoverAnimation",
+                    transitionSpec = {
+                        val enter =
+                            slideInVertically(
+                                animationSpec = tween(500),
+                                initialOffsetY = { fullHeight -> -fullHeight },
+                            ) + fadeIn()
+                        val exit = ExitTransition.None
+                        enter togetherWith exit
                     },
-                label = "CoverAnimation",
-                transitionSpec = {
-                    val enter =
-                        slideInVertically(
-                            animationSpec = tween(500),
-                            initialOffsetY = { fullHeight -> -fullHeight },
-                        ) + fadeIn()
-                    val exit = ExitTransition.None
-                    enter togetherWith exit
-                },
-            ) { text ->
-                Text(
-                    text = text,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        },
-        navigationIcon = {
-            AnimatedVisibility(
-                visible = showNavigationIcon,
-                enter = slideInVertically { -it } + fadeIn(),
-                exit = slideOutVertically { -it } + fadeOut(),
-            ) {
-                IconButton(onClick = {
-                    navController.popBackStack()
-                }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                        contentDescription = stringResource(R.string.back),
+                ) { text ->
+                    Text(
+                        text = text,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
-            }
-        },
-        actions = {
-            AnimatedVisibility(
-                visible = showActions,
-                enter = slideInVertically { -it } + fadeIn(),
-                exit = slideOutVertically { -it } + fadeOut(),
-            ) {
-                // 课表页面为返回当前周按钮
-                if (currentRoute == ScreenRoute.Schedule.route) {
-                    IconButton(
-                        onClick = {
-                            scope.launch {
-                                globalEventBus.emit(
-                                    RollBackToCurrentDateEvent(
-                                        targetTag = ScheduleCenterViewModel.SCHEDULE_CENTER_TAG,
-                                    ),
-                                )
-                            }
-                        },
-                    ) {
-                        Icon(Icons.Rounded.History, stringResource(R.string.go_back_to_the_current_week))
-                    }
-                } else if (currentRoute.startsWith(
-                        "browser",
-                    )
+            },
+            navigationIcon = {
+                AnimatedVisibility(
+                    visible = showNavigationIcon,
+                    enter = slideInVertically { -it } + fadeIn(),
+                    exit = slideOutVertically { -it } + fadeOut(),
                 ) {
                     IconButton(onClick = {
-                        scope.launch {
-                            globalEventBus.emit(
-                                BrowserMenuClickEvent(
-                                    targetTag = "BrowserView",
-                                ),
-                            )
-                        }
+                        navController.popBackStack()
                     }) {
                         Icon(
-                            imageVector = Icons.Rounded.Menu,
-                            contentDescription = stringResource(R.string.browser_menu),
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
                         )
                     }
                 }
-            }
-        },
-        scrollBehavior = scrollBehavior,
-    )
+            },
+            actions = {
+                AnimatedVisibility(
+                    visible = showActions,
+                    enter = slideInVertically { -it } + fadeIn(),
+                    exit = slideOutVertically { -it } + fadeOut(),
+                ) {
+                    // 课表页面为返回当前周按钮
+                    if (currentRoute == ScreenRoute.Schedule.route) {
+                        IconButton(
+                            onClick = {
+                                scope.launch {
+                                    globalEventBus.emit(
+                                        RollBackToCurrentDateEvent(
+                                            targetTag = ScheduleCenterViewModel.SCHEDULE_CENTER_TAG,
+                                        ),
+                                    )
+                                }
+                            },
+                        ) {
+                            Icon(Icons.Rounded.History, stringResource(R.string.go_back_to_the_current_week))
+                        }
+                    } else if (currentRoute?.startsWith(
+                            "browser",
+                        ) == true
+                    ) {
+                        IconButton(onClick = {
+                            scope.launch {
+                                globalEventBus.emit(
+                                    BrowserMenuClickEvent(
+                                        targetTag = "BrowserView",
+                                    ),
+                                )
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Rounded.Menu,
+                                contentDescription = stringResource(R.string.browser_menu),
+                            )
+                        }
+                    }
+                }
+            },
+            scrollBehavior = scrollBehavior,
+        )
+    }
 }

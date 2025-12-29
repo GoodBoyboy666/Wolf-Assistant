@@ -3,8 +3,13 @@ package top.goodboyboy.wolfassistant.ui.webview
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.SnackbarHostState
@@ -19,6 +24,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -49,6 +55,7 @@ fun BrowserView(
     val refreshEvent by viewModel.refreshEvent.collectAsStateWithLifecycle()
     // Precompute the localized message at composition time so we don't call a @Composable from a coroutine
     val cantPullUpMessage = stringResource(R.string.cant_pull_up_app)
+    val layoutDirection = LocalLayoutDirection.current
 
     LaunchedEffect(Unit) {
         globalEventBus.subscribeToTarget<BrowserMenuClickEvent>("BrowserView").collect {
@@ -73,7 +80,12 @@ fun BrowserView(
         modifier =
             Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(
+                    start = innerPadding.calculateStartPadding(layoutDirection),
+                    top = innerPadding.calculateTopPadding(),
+                    end = innerPadding.calculateEndPadding(layoutDirection),
+                    bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
+                ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
