@@ -1,6 +1,8 @@
 package top.goodboyboy.wolfassistant.ui.firstpage
 
 import android.app.Application
+import android.content.Intent
+import android.net.Uri
 import android.util.Base64
 import app.cash.turbine.test
 import io.mockk.Runs
@@ -23,6 +25,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import top.goodboyboy.wolfassistant.ScreenRoute
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.home.portal.repository.PortalRepository
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.repository.PersonalInfoRepository
@@ -154,7 +157,7 @@ class FirstPageViewModelTest {
                 assertFalse(awaitItem())
             }
             viewModel.hasTokenExpired.test {
-                assertFalse(awaitItem())
+                assertTrue(awaitItem())
             }
             viewModel.loadState.test {
                 assertTrue(awaitItem() is FirstPageViewModel.LoadState.Success)
@@ -339,5 +342,162 @@ class FirstPageViewModelTest {
             coVerify(exactly = 1) { personalInfoRepository.cleanPersonalInfoCache() }
             coVerify(exactly = 1) { settingsRepository.cleanUser() }
             verify(exactly = 1) { CacheUtil.clearAllCache(application) }
+        }
+
+    /**
+     * 测试：handleNav 当没有 Token 时应导航到登录页
+     */
+    @Test
+    fun `handleNav should navigate to login when no access token`() =
+        runTest(testDispatcher) {
+            // 准备: 空 token
+            every { settingsRepository.accessTokenFlow } returns flowOf("")
+            every { settingsRepository.disableSSLCertVerification } returns flowOf(false)
+            every { settingsRepository.onlyIPv4 } returns flowOf(false)
+
+            viewModel =
+                FirstPageViewModel(
+                    portalRepository,
+                    serviceRepository,
+                    scheduleRepository,
+                    labScheduleRepository,
+                    personalInfoRepository,
+                    settingsRepository,
+                    application,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // 执行
+            viewModel.handleNav(null)
+
+            // 验证
+            viewModel.navEvent.test {
+                assertTrue(awaitItem() is FirstPageViewModel.FirstPageEvent.NavigateToLogin)
+            }
+        }
+
+    /**
+     * 测试：handleNav 当 Token 过期时应显示过期对话框
+     */
+    @Test
+    fun `handleNav should show token expired dialog when token expired`() =
+        runTest(testDispatcher) {
+            // 准备: 过期 token
+            val oneYearAgoInSeconds = System.currentTimeMillis() / 1000 - 31536000
+            val expiredToken = generateTestJWT(oneYearAgoInSeconds)
+            every { settingsRepository.accessTokenFlow } returns flowOf(expiredToken)
+            every { settingsRepository.disableSSLCertVerification } returns flowOf(false)
+            every { settingsRepository.onlyIPv4 } returns flowOf(false)
+
+            viewModel =
+                FirstPageViewModel(
+                    portalRepository,
+                    serviceRepository,
+                    scheduleRepository,
+                    labScheduleRepository,
+                    personalInfoRepository,
+                    settingsRepository,
+                    application,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // 执行
+            viewModel.handleNav(null)
+
+            // 验证
+            viewModel.navEvent.test {
+                assertTrue(awaitItem() is FirstPageViewModel.FirstPageEvent.ShowTokenExpiredDialog)
+            }
+        }
+
+    /**
+     * 测试：handleNav 当 Intent Data 为空时应导航到主页
+     */
+    @Test
+    fun `handleNav should navigate to home when intent data is null`() =
+        runTest(testDispatcher) {
+            // 准备: 有效 token
+            val validToken = generateTestJWT()
+            every { settingsRepository.accessTokenFlow } returns flowOf(validToken)
+            every { settingsRepository.disableSSLCertVerification } returns flowOf(false)
+            every { settingsRepository.onlyIPv4 } returns flowOf(false)
+
+            viewModel =
+                FirstPageViewModel(
+                    portalRepository,
+                    serviceRepository,
+                    scheduleRepository,
+                    labScheduleRepository,
+                    personalInfoRepository,
+                    settingsRepository,
+                    application,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // 执行
+            viewModel.handleNav(null)
+
+            // 验证
+            viewModel.navEvent.test {
+                assertTrue(awaitItem() is FirstPageViewModel.FirstPageEvent.NavigateToHome)
+            }
+        }
+
+    /**
+     * 测试：handleNav 处理 DeepLink
+     */
+    @Test
+    fun `handleNav should handle deep links correctly`() =
+        runTest(testDispatcher) {
+            // 准备: 有效 token
+            val validToken = generateTestJWT()
+            every { settingsRepository.accessTokenFlow } returns flowOf(validToken)
+            every { settingsRepository.disableSSLCertVerification } returns flowOf(false)
+            every { settingsRepository.onlyIPv4 } returns flowOf(false)
+
+            viewModel =
+                FirstPageViewModel(
+                    portalRepository,
+                    serviceRepository,
+                    scheduleRepository,
+                    labScheduleRepository,
+                    personalInfoRepository,
+                    settingsRepository,
+                    application,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Mock Intent and Uri
+            val intent = mockk<Intent>(relaxed = true)
+            val uri = mockk<Uri>(relaxed = true)
+            every { intent.data } returns uri
+            every { uri.scheme } returns "wolfassistant"
+
+            // Case 1: Scan
+            every { uri.host } returns "scan"
+            viewModel.handleNav(intent)
+            viewModel.navEvent.test {
+                val event = awaitItem()
+                assertTrue(event is FirstPageViewModel.FirstPageEvent.NavigateToDeepLink)
+                val routes = (event as FirstPageViewModel.FirstPageEvent.NavigateToDeepLink).routes
+                assertTrue(routes.contains("scanner"))
+            }
+
+            // Case 2: Schedule
+            every { uri.host } returns "schedule"
+            viewModel.handleNav(intent)
+            viewModel.navEvent.test {
+                val event = awaitItem()
+                assertTrue(event is FirstPageViewModel.FirstPageEvent.NavigateToDeepLink)
+                val routes = (event as FirstPageViewModel.FirstPageEvent.NavigateToDeepLink).routes
+                assertTrue(routes.contains(ScreenRoute.Schedule.route))
+            }
+
+            // Case 3: Unknown host
+            every { uri.host } returns "unknown"
+            viewModel.handleNav(intent)
+            viewModel.navEvent.test {
+                assertTrue(awaitItem() is FirstPageViewModel.FirstPageEvent.NavigateToHome)
+            }
         }
 }
