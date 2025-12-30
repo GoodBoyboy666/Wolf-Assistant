@@ -2,6 +2,10 @@
 
 ## 开始
 
+> \[!TIP]
+>
+> 请选择对应设备的CPU架构的安装包进行安装，若不清楚请选择带有 `universal` 字段的安装包进行安装。
+
 从 [Release](https://github.com/GoodBoyboy666/Wolf-Assistant/releases) 中下载Release版APK。
 
 > \[!TIP]
@@ -28,7 +32,7 @@ cd Wolf-Assistant
 
 > \[!TIP]
 >
-> 为保证代码风格一致性，请在PR前运行ktlintCheck，ktlintFormat两个Gradle任务
+> 为保证代码风格一致性，请在PR前运行ktlintCheck，ktlintFormat两个Gradle任务，并补齐对应的单元测试
 
 ## LICENSE
 
