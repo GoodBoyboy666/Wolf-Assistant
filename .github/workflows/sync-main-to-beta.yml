@@ -21,58 +21,31 @@ jobs:
           token: ${{ secrets.ACTION_TOKEN }}
 
       - name: Merge Main into Beta
-        uses: actions/github-script@v7
+        shell: bash
         with:
           github-token: ${{ secrets.ACTION_TOKEN }}
-          script: |
+          run: |
 
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const headBranch = 'main';
-            const baseBranch = 'beta';
+            # --- 配置身份 ---
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
 
-            try {
-              // 获取 main 分支的最新 SHA
-              const { data: headRef } = await github.rest.git.getRef({
-                owner,
-                repo,
-                ref: `heads/${headBranch}`,
-              });
-              const headSha = headRef.object.sha;
+            # --- 同步代码 ---
+            echo "Fetching latest main..."
+            git fetch origin main
 
-              console.log(`Target (Main) SHA: ${headSha}`);
+            # --- 执行合并 ---
+            echo "Merging origin/main into beta..."
 
-              // 尝试执行 Fast-Forward
-              try {
-                await github.rest.git.updateRef({
-                  owner,
-                  repo,
-                  ref: `heads/${baseBranch}`,
-                  sha: headSha,
-                  force: false
-                });
-                console.log('✅ Fast-forward successful! No new commit created.');
-                return; // 如果成功，直接结束
-              } catch (ffError) {
-                console.log('ℹ️ Fast-forward not possible (branches diverged). Falling back to Merge.');
-              }
+            if git merge origin/main -m "Sync main to beta (Automated merge)"; then
+              echo "✅ Merge successful."
+            else
+              echo "❌ Merge failed (likely due to conflicts)."
+            exit 1
+            fi
 
-              // 执行标准合并
-              const mergeResult = await github.rest.repos.merge({
-                owner,
-                repo,
-                base: baseBranch,
-                head: headBranch,
-                commit_message: 'Sync main to beta (Automated merge)'
-              });
-              console.log('✅ Merge successful with commit:', mergeResult.data.commit.sha);
+            # --- 推送更改 ---
+            echo "Pushing to beta..."
+            git push origin beta
+            echo "✅ Pushed successfully."
 
-            } catch (error) {
-              if (error.status === 409) {
-                 console.log('⚠️ Merge Conflict! Manual intervention required.');
-                 core.setFailed('Merge conflict detected.');
-              } else {
-                 console.log('❌ Error:', error.message);
-                 core.setFailed(error.message);
-              }
-            }
