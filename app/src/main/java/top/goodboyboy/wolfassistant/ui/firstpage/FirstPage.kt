@@ -1,5 +1,8 @@
 package top.goodboyboy.wolfassistant.ui.firstpage
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,9 +19,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,14 +44,12 @@ fun FirstPage(
     snackbarHostState: SnackbarHostState,
     viewModel: FirstPageViewModel = hiltViewModel(),
 ) {
-    // 此页面用于应用判断是否登录
-    val accessToken by viewModel.hasAccessToken.collectAsStateWithLifecycle()
+    // 此页面用于应用初始化以及判断是否登录
     val loadState by viewModel.loadState.collectAsStateWithLifecycle()
-    val hasTokenExpired by viewModel.hasTokenExpired.collectAsStateWithLifecycle()
-//    LaunchedEffect(Unit) {
-//        viewModel.checkLoginStatue()
-//    }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val activity = context.findActivity()
+    var showTokenExpiredDialog by remember { mutableStateOf(false) }
     when (val state = loadState) {
         is FirstPageViewModel.LoadState.Failed -> {
             LoadPage(innerPadding)
@@ -60,34 +65,68 @@ fun FirstPage(
         }
 
         FirstPageViewModel.LoadState.Success -> {
-            if (accessToken && !hasTokenExpired) {
-                navController.navigate(ScreenRoute.Home.route) {
-                    popUpTo(0)
-                }
-            } else if (hasTokenExpired) {
-                TokenExpiredDialog(
-                    {
-                        navController.navigate(ScreenRoute.Home.route) {
-                            popUpTo(0)
-                        }
-                    },
-                    {
-                        scope.launch {
-                            viewModel.logout()
-                            navController.navigate("login") {
-                                popUpTo(0)
+            LoadPage(innerPadding)
+            LaunchedEffect(Unit) {
+                viewModel.handleNav(activity?.intent)
+            }
+        }
+    }
+    LaunchedEffect(Unit) {
+        viewModel.navEvent.collect { event ->
+            when (event) {
+                is FirstPageViewModel.FirstPageEvent.NavigateToDeepLink -> {
+                    event.routes.forEachIndexed { index, route ->
+                        if (index == 0) {
+                            navController.navigate(route) {
+                                popUpTo("first_page") { inclusive = true }
                             }
+                        } else {
+                            navController.navigate(route)
                         }
-                    },
-                )
-            } else {
-                navController.navigate("login") {
-                    popUpTo(0)
+                    }
+                }
+                FirstPageViewModel.FirstPageEvent.NavigateToHome -> {
+                    navController.navigate(ScreenRoute.Home.route) {
+                        popUpTo(0)
+                    }
+                }
+                FirstPageViewModel.FirstPageEvent.NavigateToLogin -> {
+                    navController.navigate("login") {
+                        popUpTo(0)
+                    }
+                }
+                FirstPageViewModel.FirstPageEvent.ShowTokenExpiredDialog -> {
+                    showTokenExpiredDialog = true
                 }
             }
         }
     }
+
+    if (showTokenExpiredDialog) {
+        TokenExpiredDialog(
+            {
+                navController.navigate(ScreenRoute.Home.route) {
+                    popUpTo(0)
+                }
+            },
+            {
+                scope.launch {
+                    viewModel.logout()
+                    navController.navigate("login") {
+                        popUpTo(0)
+                    }
+                }
+            },
+        )
+    }
 }
+
+fun Context.findActivity(): Activity? =
+    when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
+    }
 
 @Preview
 @Composable

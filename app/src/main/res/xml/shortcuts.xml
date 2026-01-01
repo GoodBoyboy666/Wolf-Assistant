@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="scan"
+        android:enabled="true"
+        android:icon="@drawable/round_qr_code_scanner_24"
+        android:shortcutShortLabel="@string/scan"
+        android:shortcutLongLabel="@string/scan">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="top.goodboyboy.wolfassistant"
+            android:targetClass="top.goodboyboy.wolfassistant.MainActivity"
+            android:data="wolfassistant://scan"/>
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="payment_code"
+        android:enabled="true"
+        android:icon="@drawable/round_qr_code_24"
+        android:shortcutShortLabel="@string/payment_code"
+        android:shortcutLongLabel="@string/payment_code">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="top.goodboyboy.wolfassistant"
+            android:targetClass="top.goodboyboy.wolfassistant.MainActivity"
+            android:data="wolfassistant://payment-code"/>
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="recharge"
+        android:enabled="true"
+        android:icon="@drawable/round_currency_yen_24"
+        android:shortcutShortLabel="@string/recharge"
+        android:shortcutLongLabel="@string/recharge">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="top.goodboyboy.wolfassistant"
+            android:targetClass="top.goodboyboy.wolfassistant.MainActivity"
+            android:data="wolfassistant://recharge"/>
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="campus_card"
+        android:enabled="true"
+        android:icon="@drawable/round_credit_card_24"
+        android:shortcutShortLabel="@string/campus_card"
+        android:shortcutLongLabel="@string/campus_card">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="top.goodboyboy.wolfassistant"
+            android:targetClass="top.goodboyboy.wolfassistant.MainActivity"
+            android:data="wolfassistant://campus-card"/>
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="schedule"
+        android:enabled="true"
+        android:icon="@drawable/round_calendar_month_24"
+        android:shortcutShortLabel="@string/schedule"
+        android:shortcutLongLabel="@string/schedule">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="top.goodboyboy.wolfassistant"
+            android:targetClass="top.goodboyboy.wolfassistant.MainActivity"
+            android:data="wolfassistant://schedule"/>
+    </shortcut>
+</shortcuts>
