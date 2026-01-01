@@ -20,14 +20,27 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.ACTION_TOKEN }}
 
-      - name: Merge Main into Beta
+      - name: Configure Git and Signing
         shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.COMMIT_SIGNING_KEY }}
         run: |
-
           # --- 配置身份 ---
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          # --- 配置 SSH 签名 ---
+          mkdir -p ~/.ssh
+
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/signing_key
+          chmod 600 ~/.ssh/signing_key
+
+          git config gpg.format ssh
+          git config user.signingkey ~/.ssh/signing_key
+
+      - name: Merge Main into Beta
+        shell: bash
+        run: |
           # --- 同步代码 ---
           echo "Fetching latest main..."
           git fetch origin main
@@ -35,8 +48,8 @@ jobs:
           # --- 执行合并 ---
           echo "Merging origin/main into beta..."
 
-          if git merge origin/main -m "Sync main to beta (Automated merge)"; then
-            echo "✅ Merge successful."
+          if git merge origin/main -S -m "Sync main to beta (Automated merge)"; then
+            echo "✅ Signed Merge successful."
           else
             echo "❌ Merge failed (likely due to conflicts)."
           exit 1
