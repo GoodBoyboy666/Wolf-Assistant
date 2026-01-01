@@ -26,8 +26,8 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.COMMIT_SIGNING_KEY }}
         run: |
           # --- 配置身份 ---
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "GoodBoyboy666-AutoSync"
+          git config user.email "52073881+GoodBoyboy666@users.noreply.github.com"
 
           # --- 配置 SSH 签名 ---
           mkdir -p ~/.ssh
