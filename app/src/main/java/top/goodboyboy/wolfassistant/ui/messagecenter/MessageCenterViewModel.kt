@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.messagecenter.model.MessageItem
@@ -35,7 +36,7 @@ class MessageCenterViewModel
             }
 
             val newFlow =
-                settingsRepository.accessTokenFlow.flatMapLatest { accessToken ->
+                flow { emit(settingsRepository.getAccessTokenDecrypted()) }.flatMapLatest { accessToken ->
                     if (accessToken.isBlank()) {
                         messageRepository.createErrorFlow(Throwable("accessToken为空或null"))
                     } else {

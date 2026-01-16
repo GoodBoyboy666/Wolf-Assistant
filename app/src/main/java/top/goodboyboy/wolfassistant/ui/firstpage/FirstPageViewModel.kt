@@ -41,6 +41,9 @@ class FirstPageViewModel
         private val _hasAccessToken = MutableStateFlow(false)
         val hasAccessToken: StateFlow<Boolean> = _hasAccessToken.asStateFlow()
 
+        private val _hasPassword = MutableStateFlow(false)
+        val hasPassword: StateFlow<Boolean> = _hasPassword.asStateFlow()
+
         private val _hasTokenExpired = MutableStateFlow(true)
         val hasTokenExpired: StateFlow<Boolean> = _hasTokenExpired.asStateFlow()
 
@@ -76,8 +79,10 @@ class FirstPageViewModel
 
         @VisibleForTesting
         internal suspend fun checkLoginStatue() {
-            val accessToken = settingsRepository.accessTokenFlow.first()
+            val accessToken = settingsRepository.getAccessTokenDecrypted()
             _hasAccessToken.value = accessToken.isNotEmpty()
+            val password = settingsRepository.getUserPasswordDecrypted()
+            _hasPassword.value = password.isNotEmpty()
             if (accessToken.isNotEmpty()) {
                 val isExpired = JWT(accessToken).isExpired(0)
                 _hasTokenExpired.value = isExpired
@@ -118,7 +123,13 @@ class FirstPageViewModel
             val data = intent?.data
             val isExpired = hasTokenExpired.value
             val hasToken = hasAccessToken.value
+            val hasPassword = hasPassword.value
 
+            if (!hasPassword) {
+                intent?.data = null
+                sendEvent(FirstPageEvent.NavigateToLogin)
+                return
+            }
             if (!hasToken) {
                 intent?.data = null
                 sendEvent(FirstPageEvent.NavigateToLogin)

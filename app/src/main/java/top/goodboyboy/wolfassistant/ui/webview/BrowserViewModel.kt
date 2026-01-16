@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.common.Event
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
@@ -43,7 +42,7 @@ class BrowserViewModel
         init {
             viewModelScope.launch {
                 _loadState.value = LoadState.Loading
-                val accessToken = settingsRepository.accessTokenFlow.first()
+                val accessToken = settingsRepository.getAccessTokenDecrypted()
                 if (accessToken.isNotEmpty()) {
                     _loadState.value = LoadState.Success(accessToken)
                 } else {
