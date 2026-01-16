@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import top.goodboyboy.wolfassistant.util.CryptoManager
 
 /**
  * SettingsRepository 的单元测试类
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsRepositoryTest {
     private lateinit var dataStore: DataStore<Preferences>
+    private lateinit var cryptoManager: CryptoManager
     private lateinit var settingsRepository: SettingsRepository
 
     // 使用 MutableStateFlow 模拟 DataStore 的数据流
@@ -36,6 +38,7 @@ class SettingsRepositoryTest {
     fun setup() {
         preferencesFlow.value = emptyPreferences()
         dataStore = mockk()
+        cryptoManager = mockk()
 
         // 模拟 dataStore.data 返回 flow
         every { dataStore.data } returns preferencesFlow
@@ -49,7 +52,17 @@ class SettingsRepositoryTest {
             new
         }
 
-        settingsRepository = SettingsRepository(dataStore)
+        every { cryptoManager.encrypt(any()) } answers { "encrypted_" + firstArg<String>() }
+        every { cryptoManager.decrypt(any()) } answers {
+            val input = firstArg<String>()
+            if (input.startsWith("encrypted_")) {
+                input.removePrefix("encrypted_")
+            } else {
+                input
+            }
+        }
+
+        settingsRepository = SettingsRepository(dataStore, cryptoManager)
     }
 
     /**
@@ -63,7 +76,9 @@ class SettingsRepositoryTest {
             assertEquals("", settingsRepository.userNameFlow.first())
             assertEquals("", settingsRepository.userIDFlow.first())
             assertEquals("", settingsRepository.userOrganization.first())
-            assertEquals("", settingsRepository.accessTokenFlow.first())
+            // assertEquals("", settingsRepository.accessTokenFlow.first()) // Removed
+            assertEquals("", settingsRepository.getAccessTokenDecrypted())
+            assertEquals("", settingsRepository.getUserPasswordDecrypted())
             assertFalse(settingsRepository.disableSSLCertVerification.first())
             assertFalse(settingsRepository.onlyIPv4.first())
         }
@@ -101,14 +116,25 @@ class SettingsRepositoryTest {
         }
 
     /**
-     * 验证访问令牌设置能否正确更新 Flow
+     * 验证加密的用户密码能否正确存储和解密
      */
     @Test
-    fun `setAccessToken updates flow`() =
+    fun `setUserPasswordEncrypted stores encrypted and decrypts correctly`() =
+        runTest {
+            val password = "MySecretPassword"
+            settingsRepository.setUserPasswordEncrypted(password)
+            assertEquals(password, settingsRepository.getUserPasswordDecrypted())
+        }
+
+    /**
+     * 验证加密的访问令牌能否正确存储和解密
+     */
+    @Test
+    fun `setAccessTokenEncrypted stores encrypted and decrypts correctly`() =
         runTest {
             val token = "token_abc"
-            settingsRepository.setAccessToken(token)
-            assertEquals(token, settingsRepository.accessTokenFlow.first())
+            settingsRepository.setAccessTokenEncrypted(token)
+            assertEquals(token, settingsRepository.getAccessTokenDecrypted())
         }
 
     /**
@@ -151,13 +177,13 @@ class SettingsRepositoryTest {
         runTest {
             settingsRepository.setDarkMode(true)
             settingsRepository.setUserName("User")
-            settingsRepository.setAccessToken("Token")
+            settingsRepository.setAccessTokenEncrypted("Token")
 
             settingsRepository.cleanAllData()
 
             assertFalse(settingsRepository.darkModeFlow.first())
             assertEquals("", settingsRepository.userNameFlow.first())
-            assertEquals("", settingsRepository.accessTokenFlow.first())
+            assertEquals("", settingsRepository.getAccessTokenDecrypted())
         }
 
     /**
@@ -170,7 +196,7 @@ class SettingsRepositoryTest {
             // 设置用户数据
             settingsRepository.setUserName("User")
             settingsRepository.setUserID("123")
-            settingsRepository.setAccessToken("Token")
+            // settingsRepository.setAccessToken("Token") // Removed
             settingsRepository.setUserOrganization("Org")
 
             // 设置其他数据
@@ -182,7 +208,7 @@ class SettingsRepositoryTest {
             // 用户数据应该被清除（变回默认值）
             assertEquals("", settingsRepository.userNameFlow.first())
             assertEquals("", settingsRepository.userIDFlow.first())
-            assertEquals("", settingsRepository.accessTokenFlow.first())
+            // assertEquals("", settingsRepository.accessTokenFlow.first()) // Removed
             assertEquals("", settingsRepository.userOrganization.first())
 
             // 其他数据应该保留

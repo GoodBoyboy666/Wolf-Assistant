@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Base64
 import app.cash.turbine.test
 import io.mockk.Runs
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
@@ -135,7 +136,7 @@ class FirstPageViewModelTest {
     fun `init should set hasAccessToken to false and loadState to Success when token is empty`() =
         runTest(testDispatcher) {
             // 准备: 空 token
-            every { settingsRepository.accessTokenFlow } returns flowOf("")
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns ""
             every { settingsRepository.disableSSLCertVerification } returns flowOf(false)
             every { settingsRepository.onlyIPv4 } returns flowOf(false)
 
@@ -172,7 +173,7 @@ class FirstPageViewModelTest {
         runTest(testDispatcher) {
             // 准备: 动态生成一个未过期的 JWT token
             val validToken = generateTestJWT()
-            every { settingsRepository.accessTokenFlow } returns flowOf(validToken)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns validToken
             every { settingsRepository.disableSSLCertVerification } returns flowOf(false)
             every { settingsRepository.onlyIPv4 } returns flowOf(false)
 
@@ -210,7 +211,7 @@ class FirstPageViewModelTest {
             // 准备: 动态生成一个已过期的 JWT token（设置过期时间为 1 年前）
             val oneYearAgoInSeconds = System.currentTimeMillis() / 1000 - 31536000
             val expiredToken = generateTestJWT(oneYearAgoInSeconds)
-            every { settingsRepository.accessTokenFlow } returns flowOf(expiredToken)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns expiredToken
             every { settingsRepository.disableSSLCertVerification } returns flowOf(false)
             every { settingsRepository.onlyIPv4 } returns flowOf(false)
 
@@ -247,7 +248,7 @@ class FirstPageViewModelTest {
         runTest(testDispatcher) {
             // 准备: settingsRepository 抛出异常
             val errorMessage = "Network error"
-            every { settingsRepository.accessTokenFlow } throws RuntimeException(errorMessage)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } throws RuntimeException(errorMessage)
             every { settingsRepository.disableSSLCertVerification } returns flowOf(false)
             every { settingsRepository.onlyIPv4 } returns flowOf(false)
 
@@ -281,7 +282,7 @@ class FirstPageViewModelTest {
             // 准备: 配置 SSL 和 IPv4 设置
             val disableSSL = true
             val onlyIPv4 = true
-            every { settingsRepository.accessTokenFlow } returns flowOf("")
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns ""
             every { settingsRepository.disableSSLCertVerification } returns flowOf(disableSSL)
             every { settingsRepository.onlyIPv4 } returns flowOf(onlyIPv4)
 
@@ -314,7 +315,7 @@ class FirstPageViewModelTest {
             io.mockk.mockkObject(CacheUtil)
             every { CacheUtil.clearAllCache(any()) } just Runs
 
-            every { settingsRepository.accessTokenFlow } returns flowOf("")
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns ""
             every { settingsRepository.disableSSLCertVerification } returns flowOf(false)
             every { settingsRepository.onlyIPv4 } returns flowOf(false)
 
@@ -351,7 +352,7 @@ class FirstPageViewModelTest {
     fun `handleNav should navigate to login when no access token`() =
         runTest(testDispatcher) {
             // 准备: 空 token
-            every { settingsRepository.accessTokenFlow } returns flowOf("")
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns ""
             every { settingsRepository.disableSSLCertVerification } returns flowOf(false)
             every { settingsRepository.onlyIPv4 } returns flowOf(false)
 
@@ -385,7 +386,8 @@ class FirstPageViewModelTest {
             // 准备: 过期 token
             val oneYearAgoInSeconds = System.currentTimeMillis() / 1000 - 31536000
             val expiredToken = generateTestJWT(oneYearAgoInSeconds)
-            every { settingsRepository.accessTokenFlow } returns flowOf(expiredToken)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns expiredToken
+            coEvery { settingsRepository.getUserPasswordDecrypted() } returns "password"
             every { settingsRepository.disableSSLCertVerification } returns flowOf(false)
             every { settingsRepository.onlyIPv4 } returns flowOf(false)
 
@@ -418,7 +420,8 @@ class FirstPageViewModelTest {
         runTest(testDispatcher) {
             // 准备: 有效 token
             val validToken = generateTestJWT()
-            every { settingsRepository.accessTokenFlow } returns flowOf(validToken)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns validToken
+            coEvery { settingsRepository.getUserPasswordDecrypted() } returns "password"
             every { settingsRepository.disableSSLCertVerification } returns flowOf(false)
             every { settingsRepository.onlyIPv4 } returns flowOf(false)
 
@@ -451,7 +454,8 @@ class FirstPageViewModelTest {
         runTest(testDispatcher) {
             // 准备: 有效 token
             val validToken = generateTestJWT()
-            every { settingsRepository.accessTokenFlow } returns flowOf(validToken)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns validToken
+            coEvery { settingsRepository.getUserPasswordDecrypted() } returns "password"
             every { settingsRepository.disableSSLCertVerification } returns flowOf(false)
             every { settingsRepository.onlyIPv4 } returns flowOf(false)
 
