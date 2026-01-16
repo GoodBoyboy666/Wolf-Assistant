@@ -8,8 +8,10 @@ import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.shareIn
 import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.messagecenter.model.MessageItem
@@ -36,9 +38,10 @@ class MessageCenterViewModel
             }
 
             val newFlow =
-                flow { emit(settingsRepository.getAccessTokenDecrypted()) }.flatMapLatest { accessToken ->
+                flow {
+                    val accessToken = settingsRepository.getAccessTokenDecrypted()
                     if (accessToken.isBlank()) {
-                        messageRepository.createErrorFlow(Throwable("accessToken为空或null"))
+                        emit(messageRepository.createErrorFlow(Throwable("accessToken为空或null")))
                     } else {
                         val appidData =
                             messageRepository.getAppID(
@@ -46,7 +49,7 @@ class MessageCenterViewModel
                             )
                         when (appidData) {
                             is MessageRepository.AppIDData.Failed -> {
-                                messageRepository.createErrorFlow(Throwable("获取APPID失败"))
+                                emit(messageRepository.createErrorFlow(Throwable("获取APPID失败")))
                             }
 
                             is MessageRepository.AppIDData.Success -> {
@@ -56,14 +59,16 @@ class MessageCenterViewModel
                                         1 -> appidData.data[category]
                                         else -> ""
                                     }
-                                messageRepository.getMessages(
-                                    accessToken = accessToken,
-                                    appID = appID,
+                                emit(
+                                    messageRepository.getMessages(
+                                        accessToken = accessToken,
+                                        appID = appID,
+                                    ),
                                 )
                             }
                         }
-                    }.cachedIn(viewModelScope)
-                }
+                    }
+                }.shareIn(viewModelScope, SharingStarted.Lazily, 1).flatMapLatest { it }.cachedIn(viewModelScope)
             messageFlows[category] = newFlow
             return newFlow
         }
