@@ -1,11 +1,10 @@
 package top.goodboyboy.wolfassistant.ui.webview
 
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -52,7 +51,7 @@ class BrowserViewModelTest {
         runTest(testDispatcher) {
             // Arrange
             val token = "valid-token"
-            every { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
 
             // Act
             viewModel = BrowserViewModel(settingsRepository)
@@ -73,7 +72,7 @@ class BrowserViewModelTest {
         runTest(testDispatcher) {
             // Arrange
             val token = ""
-            every { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
 
             // Act
             viewModel = BrowserViewModel(settingsRepository)
@@ -93,7 +92,7 @@ class BrowserViewModelTest {
     fun `onRefresh should trigger refresh event`() =
         runTest(testDispatcher) {
             // Arrange
-            every { settingsRepository.accessTokenFlow } returns flowOf("token")
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns "token"
             viewModel = BrowserViewModel(settingsRepository)
 
             // Act

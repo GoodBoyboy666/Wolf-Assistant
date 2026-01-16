@@ -79,7 +79,7 @@ class LoginViewModelTest {
             coVerify(exactly = 1) { settingsRepository.setUserID("user-123") }
             coVerify(exactly = 1) { settingsRepository.setUserOrganization("Org") }
             coVerify(exactly = 1) { settingsRepository.setUserName("TestUser") }
-            coVerify(exactly = 1) { settingsRepository.setAccessToken("token-abc") }
+            coVerify(exactly = 1) { settingsRepository.setAccessTokenEncrypted("token-abc") }
         }
 
     /**
@@ -105,6 +105,6 @@ class LoginViewModelTest {
             coVerify(exactly = 0) { settingsRepository.setUserID(any()) }
             coVerify(exactly = 0) { settingsRepository.setUserOrganization(any()) }
             coVerify(exactly = 0) { settingsRepository.setUserName(any()) }
-            coVerify(exactly = 0) { settingsRepository.setAccessToken(any()) }
+            coVerify(exactly = 0) { settingsRepository.setAccessTokenEncrypted(any()) }
         }
 }

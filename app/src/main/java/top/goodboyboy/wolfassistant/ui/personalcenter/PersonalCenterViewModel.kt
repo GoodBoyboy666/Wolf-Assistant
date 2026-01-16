@@ -7,7 +7,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
@@ -48,7 +47,7 @@ class PersonalCenterViewModel
         }
 
         suspend fun loadPersonalInfo() {
-            val accessToken = settingsRepository.accessTokenFlow.first()
+            val accessToken = settingsRepository.getAccessTokenDecrypted()
             val info =
                 personalInfoRepository.getPersonalInfo(
                     accessToken,

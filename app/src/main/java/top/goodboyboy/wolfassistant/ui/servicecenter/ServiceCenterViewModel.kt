@@ -6,7 +6,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
@@ -41,7 +40,7 @@ class ServiceCenterViewModel
 
         suspend fun loadService() {
             _loadServiceState.value = LoadServiceState.Loading
-            val accessToken = settingsRepository.accessTokenFlow.first()
+            val accessToken = settingsRepository.getAccessTokenDecrypted()
             val data =
                 serviceRepository.getServiceList(
                     accessToken,

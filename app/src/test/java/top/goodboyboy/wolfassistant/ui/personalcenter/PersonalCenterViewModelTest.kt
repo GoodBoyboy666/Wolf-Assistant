@@ -6,7 +6,6 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -83,7 +82,7 @@ class PersonalCenterViewModelTest {
                     imageUrl = "",
                 )
             // 模拟 settingsRepository 返回 token
-            coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
             // 模拟 personalInfoRepository 返回成功数据
             coEvery { personalInfoRepository.getPersonalInfo(token) } returns
                 PersonalInfoRepository.PersonalInfoData.Success(expected)
@@ -115,7 +114,7 @@ class PersonalCenterViewModelTest {
             // 准备数据：模拟有效的 token 和失败的返回结果（如网络错误）
             val token = "token"
             val errMsg = "network error"
-            coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
             // 模拟 personalInfoRepository 返回失败数据
             coEvery { personalInfoRepository.getPersonalInfo(token) } returns
                 PersonalInfoRepository.PersonalInfoData.Failed(Failure.IOError(errMsg, null))

@@ -6,7 +6,9 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import top.goodboyboy.wolfassistant.util.CryptoManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,6 +21,7 @@ class SettingsRepository
     @Inject
     constructor(
         private val dataStore: DataStore<Preferences>,
+        private val cryptoManager: CryptoManager,
     ) {
         /**
          * 深色模式状态流
@@ -44,13 +47,13 @@ class SettingsRepository
                 it[stringPreferencesKey("user_id")] ?: ""
             }
 
-        /**
-         * 用户密码流
-         */
-        val userPasswdFlow: Flow<String> =
-            dataStore.data.map {
-                it[stringPreferencesKey("user_passwd")] ?: ""
-            }
+//        /**
+//         * 用户密码流
+//         */
+//        val userPasswdFlow: Flow<String> =
+//            dataStore.data.map {
+//                it[stringPreferencesKey("user_passwd")] ?: ""
+//            }
 
         /**
          * 用户组织流
@@ -60,13 +63,13 @@ class SettingsRepository
                 it[stringPreferencesKey("user_organization")] ?: ""
             }
 
-        /**
-         * 访问令牌流
-         */
-        val accessTokenFlow: Flow<String> =
-            dataStore.data.map {
-                it[stringPreferencesKey("access_token")] ?: ""
-            }
+//        /**
+//         * 访问令牌流
+//         */
+//        val accessTokenFlow: Flow<String> =
+//            dataStore.data.map {
+//                it[stringPreferencesKey("access_token")] ?: ""
+//            }
 
         /**
          * 禁用 SSL 证书验证状态流
@@ -131,25 +134,25 @@ class SettingsRepository
             }
         }
 
-        /**
-         * 设置用户密码
-         * @param value 用户密码
-         */
-        suspend fun setUserPasswd(value: String) {
-            dataStore.edit { prefs ->
-                prefs[stringPreferencesKey("user_passwd")] = value
-            }
-        }
+//        /**
+//         * 设置用户密码
+//         * @param value 用户密码
+//         */
+//        suspend fun setUserPasswd(value: String) {
+//            dataStore.edit { prefs ->
+//                prefs[stringPreferencesKey("user_passwd")] = value
+//            }
+//        }
 
-        /**
-         * 设置访问令牌
-         * @param value Access Token
-         */
-        suspend fun setAccessToken(value: String) {
-            dataStore.edit { prefs ->
-                prefs[stringPreferencesKey("access_token")] = value
-            }
-        }
+//        /**
+//         * 设置访问令牌
+//         * @param value Access Token
+//         */
+//        suspend fun setAccessToken(value: String) {
+//            dataStore.edit { prefs ->
+//                prefs[stringPreferencesKey("access_token")] = value
+//            }
+//        }
 
         /**
          * 设置用户组织
@@ -220,5 +223,49 @@ class SettingsRepository
             dataStore.edit { prefs ->
                 prefs[booleanPreferencesKey("only_IPv4")] = value
             }
+        }
+
+        suspend fun setUserPasswordEncrypted(password: String) {
+            require(password.isNotEmpty()) {
+                "Password cannot be empty"
+            }
+            val encryptedPassword = cryptoManager.encrypt(password)
+            dataStore.edit { prefs ->
+                prefs[stringPreferencesKey("encrypted_user_passwd")] = encryptedPassword
+            }
+        }
+
+        suspend fun setAccessTokenEncrypted(accessToken: String) {
+            require(accessToken.isNotEmpty()) {
+                "Access token cannot be empty"
+            }
+            val encryptedToken = cryptoManager.encrypt(accessToken)
+            dataStore.edit { prefs ->
+                prefs[stringPreferencesKey("encrypted_access_token")] = encryptedToken
+            }
+        }
+
+        suspend fun getUserPasswordDecrypted(): String {
+            val encryptedPassword =
+                dataStore.data
+                    .map {
+                        it[stringPreferencesKey("encrypted_user_passwd")] ?: ""
+                    }.first()
+            if (encryptedPassword.isEmpty()) {
+                return ""
+            }
+            return cryptoManager.decrypt(encryptedPassword)
+        }
+
+        suspend fun getAccessTokenDecrypted(): String {
+            val encryptedToken =
+                dataStore.data
+                    .map {
+                        it[stringPreferencesKey("encrypted_access_token")] ?: ""
+                    }.first()
+            if (encryptedToken.isEmpty()) {
+                return ""
+            }
+            return cryptoManager.decrypt(encryptedToken)
         }
     }

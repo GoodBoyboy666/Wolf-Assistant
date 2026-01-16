@@ -98,7 +98,7 @@ class ScheduleCenterViewModel
             endDate: LocalDate,
         ) {
             _loadScheduleState.value = LoadScheduleState.Loading
-            val accessToken = settingsRepository.accessTokenFlow.first()
+            val accessToken = settingsRepository.getAccessTokenDecrypted()
             val data =
                 scheduleRepository.getSchedule(
                     accessToken,

@@ -7,7 +7,6 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -62,7 +61,7 @@ class ServiceCenterViewModelTest {
             val token = "test-token"
             val mockData = listOf(mockk<ServiceItem>())
 
-            coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
             coEvery { serviceRepository.getServiceList(token) } returns
                 ServiceRepository.ServiceListData.Success(mockData)
 
@@ -91,7 +90,7 @@ class ServiceCenterViewModelTest {
             val token = "test-token"
             val errorMsg = "Network Error"
 
-            coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
             coEvery { serviceRepository.getServiceList(token) } returns
                 ServiceRepository.ServiceListData.Failed(Failure.IOError(errorMsg, null))
 
@@ -118,7 +117,7 @@ class ServiceCenterViewModelTest {
         runTest(testDispatcher) {
             // Arrange
             val token = "test-token"
-            coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
             coEvery { serviceRepository.getServiceList(token) } returns
                 ServiceRepository.ServiceListData.Success(emptyList())
 

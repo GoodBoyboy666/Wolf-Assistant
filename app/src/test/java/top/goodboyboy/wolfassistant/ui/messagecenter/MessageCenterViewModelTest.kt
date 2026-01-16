@@ -9,9 +9,7 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -76,7 +74,7 @@ class MessageCenterViewModelTest {
     fun `accessToken empty should use createErrorFlow`() =
         runTest(testDispatcher) {
             // Given
-            every { settingsRepository.accessTokenFlow } returns flowOf("")
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns ""
             val errorFlow = flowOf(TestPagingDataFactory.create(MessageItem("title", "author", "time", "content")))
             coEvery { messageRepository.createErrorFlow(any()) } returns errorFlow
 
@@ -104,7 +102,7 @@ class MessageCenterViewModelTest {
     fun `getAppID failed should use createErrorFlow`() =
         runTest(testDispatcher) {
             // Given
-            every { settingsRepository.accessTokenFlow } returns flowOf("token")
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns "token"
             coEvery { messageRepository.getAppID("token") } returns
                 MessageRepository.AppIDData.Failed(
                     top.goodboyboy.wolfassistant.common.Failure
@@ -136,7 +134,7 @@ class MessageCenterViewModelTest {
     fun `category 0 should use online appid and call getMessages`() =
         runTest(testDispatcher) {
             // Given
-            every { settingsRepository.accessTokenFlow } returns flowOf("token")
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns "token"
             val pd = TestPagingDataFactory.create(MessageItem("title", "author", "time", "content"))
             coEvery { messageRepository.getAppID("token") } returns
                 MessageRepository.AppIDData.Success(listOf("a0", "a1"))
@@ -166,7 +164,7 @@ class MessageCenterViewModelTest {
     fun `category 1 should use data index 1 appid and call getMessages`() =
         runTest(testDispatcher) {
             // Given
-            every { settingsRepository.accessTokenFlow } returns flowOf("token")
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns "token"
             val pd = TestPagingDataFactory.create()
             coEvery { messageRepository.getAppID("token") } returns
                 MessageRepository.AppIDData.Success(listOf("a0", "a1", "a2"))
@@ -196,7 +194,7 @@ class MessageCenterViewModelTest {
     fun `unknown category should pass empty appid to getMessages`() =
         runTest(testDispatcher) {
             // Given
-            every { settingsRepository.accessTokenFlow } returns flowOf("token")
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns "token"
             val pd = TestPagingDataFactory.create()
             coEvery { messageRepository.getAppID("token") } returns MessageRepository.AppIDData.Success(listOf("a0"))
             coEvery { messageRepository.getMessages("token", "") } returns flowOf(pd)
@@ -225,7 +223,7 @@ class MessageCenterViewModelTest {
     fun `getMessagePagingFlow should cache flow per category`() =
         runTest(testDispatcher) {
             // Given
-            every { settingsRepository.accessTokenFlow } returns flowOf("token")
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns "token"
             coEvery { messageRepository.getAppID("token") } returns
                 MessageRepository.AppIDData.Success(listOf("a0", "a1"))
             coEvery { messageRepository.getMessages(any(), any()) } returns flowOf(TestPagingDataFactory.create())
@@ -237,41 +235,5 @@ class MessageCenterViewModelTest {
 
             // Then
             assertSame(f1, f2)
-        }
-
-    /**
-     * 测试：当 accessToken 改变时，应触发 flatMapLatest，从而对新的 token 再次调用 getAppID/getMessages
-     * Given: settingsRepository.accessTokenFlow 为 MutableStateFlow，可变；初始值为 t1
-     * When: 订阅 getMessagePagingFlow(0) 并将 token 改为 t2
-     * Then: messageRepository.getAppID 会至少被调用两次（对 t1 和 t2）
-     */
-    @Test
-    fun `accessToken change should trigger flatMapLatest`() =
-        runTest(testDispatcher) {
-            // Given accessToken 是 MutableStateFlow，便于在测试中修改它
-            val tokenFlow = MutableStateFlow("t1")
-            every { settingsRepository.accessTokenFlow } returns tokenFlow
-            coEvery { messageRepository.getAppID(any()) } returns
-                MessageRepository.AppIDData.Success(listOf("a0", "a1"))
-            coEvery { messageRepository.getMessages(any(), any()) } returns flowOf(TestPagingDataFactory.create())
-
-            // When
-            val vm = MessageCenterViewModel(messageRepository, settingsRepository, application)
-            val flow = vm.getMessagePagingFlow(0)
-
-            // 长期收集以确保能接收到 token 变化后产生的新内层 Flow 的调用
-            val job =
-                launch {
-                    flow.collect { /* 消费以保持订阅 */ }
-                }
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            // change token
-            tokenFlow.value = "t2"
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            // Then: getAppID 对不同 token 至少被调用两次
-            coVerify(atLeast = 2) { messageRepository.getAppID(any()) }
-            job.cancel()
         }
 }
