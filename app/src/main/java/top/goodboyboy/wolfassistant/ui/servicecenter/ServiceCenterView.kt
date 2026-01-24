@@ -123,7 +123,7 @@ fun ServiceCenterView(
 
                     is LoadServiceState.Success -> {
                         LazyVerticalGrid(
-                            columns = GridCells.Adaptive(48.dp),
+                            columns = GridCells.Fixed(5),
                             contentPadding = PaddingValues(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -132,8 +132,8 @@ fun ServiceCenterView(
                                 Column(
                                     modifier =
                                         Modifier
-                                            .clip(RoundedCornerShape(12.dp))
                                             .padding(4.dp)
+                                            .clip(RoundedCornerShape(12.dp))
                                             .clickable {
                                                 val encodeUrl =
                                                     URLEncoder.encode(
@@ -184,6 +184,7 @@ fun ServiceCenterView(
                                         textAlign = TextAlign.Center,
                                         modifier = Modifier.fillMaxWidth(),
                                     )
+                                    Spacer(modifier = Modifier.padding(5.dp))
                                 }
                             }
                         }
