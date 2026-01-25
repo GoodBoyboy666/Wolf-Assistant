@@ -3,13 +3,8 @@ package top.goodboyboy.wolfassistant.ui.appsetting
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -38,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -84,17 +78,12 @@ fun SettingView(
     LaunchedEffect(Unit) {
         viewModel.getTotalCacheSize(context)
     }
-    val layoutDirection = LocalLayoutDirection.current
     Column(
         modifier =
             Modifier
                 .fillMaxSize()
-                .padding(
-                    start = innerPadding.calculateStartPadding(layoutDirection),
-                    top = innerPadding.calculateTopPadding(),
-                    end = innerPadding.calculateEndPadding(layoutDirection),
-                    bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
-                ).verticalScroll(scrollState),
+                .padding(innerPadding)
+                .verticalScroll(scrollState),
     ) {
         SettingDivider(
             stringResource(R.string.account_settings),
