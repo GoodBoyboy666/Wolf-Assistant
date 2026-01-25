@@ -16,8 +16,8 @@ android {
         applicationId = "top.goodboyboy.wolfassistant"
         minSdk = 28
         targetSdk = 36
-        versionCode = 18
-        versionName = "1.4.2-beta.1"
+        versionCode = 19
+        versionName = "1.4.2-beta.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         android.buildFeatures.buildConfig = true
