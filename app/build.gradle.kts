@@ -116,6 +116,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.material)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.material3.window.size.class1)
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter)
     androidTestImplementation(libs.androidx.junit)
