@@ -156,28 +156,30 @@ class MainActivity : ComponentActivity() {
                         if (!isMobile) {
                             PadNavigationRail(navController)
                         }
-                        val inTransition = if (isMobile){
-                            slideInHorizontally(
-                                initialOffsetX = { it },
-                                animationSpec = tween(300),
-                            )
-                        }else{
-                            slideInVertically(
-                                initialOffsetY = {it},
-                                animationSpec = tween(300),
-                            )
-                        }
-                        val outTransition = if(isMobile){
-                            slideOutHorizontally(
-                                targetOffsetX = { -it },
-                                animationSpec = tween(300),
-                            )
-                        }else{
-                            slideOutVertically(
-                                targetOffsetY = { -it },
-                                animationSpec = tween(300),
-                            )
-                        }
+                        val inTransition =
+                            if (isMobile) {
+                                slideInHorizontally(
+                                    initialOffsetX = { it },
+                                    animationSpec = tween(300),
+                                )
+                            } else {
+                                slideInVertically(
+                                    initialOffsetY = { it },
+                                    animationSpec = tween(300),
+                                )
+                            }
+                        val outTransition =
+                            if (isMobile) {
+                                slideOutHorizontally(
+                                    targetOffsetX = { -it },
+                                    animationSpec = tween(300),
+                                )
+                            } else {
+                                slideOutVertically(
+                                    targetOffsetY = { -it },
+                                    animationSpec = tween(300),
+                                )
+                            }
                         NavHost(
                             modifier = Modifier.weight(1f),
                             navController = navController,
