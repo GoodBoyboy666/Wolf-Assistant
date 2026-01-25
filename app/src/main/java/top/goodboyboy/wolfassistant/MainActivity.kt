@@ -154,7 +154,13 @@ class MainActivity : ComponentActivity() {
                         }
                     Row(modifier = Modifier.fillMaxSize()) {
                         if (!isMobile) {
-                            PadNavigationRail(navController)
+                            PadNavigationRail(
+                                navController,
+                                Modifier.padding(
+                                    top = innerPadding.calculateTopPadding(),
+                                    bottom = innerPadding.calculateBottomPadding(),
+                                ),
+                            )
                         }
                         val inTransition =
                             if (isMobile) {

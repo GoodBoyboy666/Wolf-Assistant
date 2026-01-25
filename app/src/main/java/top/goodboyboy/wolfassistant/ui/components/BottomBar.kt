@@ -6,6 +6,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
@@ -47,6 +48,7 @@ fun BottomBar(navController: NavController) {
                         Icon(
                             screen.icon,
                             contentDescription = screen.title,
+                            tint = MaterialTheme.colorScheme.primary,
                         )
                     },
                     label = { Text(screen.title) },
