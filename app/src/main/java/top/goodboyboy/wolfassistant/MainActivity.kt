@@ -9,7 +9,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -22,6 +25,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -45,6 +51,7 @@ import top.goodboyboy.wolfassistant.ui.appsetting.SettingView
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionDomainData
 import top.goodboyboy.wolfassistant.ui.appsetting.repository.UpdateRepository
 import top.goodboyboy.wolfassistant.ui.components.BottomBar
+import top.goodboyboy.wolfassistant.ui.components.PadNavigationRail
 import top.goodboyboy.wolfassistant.ui.components.TopBar
 import top.goodboyboy.wolfassistant.ui.components.TopBarConstants
 import top.goodboyboy.wolfassistant.ui.event.TopBarTitleEvent
@@ -83,6 +90,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var settingsRepository: SettingsRepository
 
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -95,6 +103,8 @@ class MainActivity : ComponentActivity() {
             WolfAssistantTheme {
                 val navController = rememberNavController()
                 val snackbarHostState = remember { SnackbarHostState() }
+                val windowSizeClass = calculateWindowSizeClass(this)
+                val isMobile = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
 
                 LaunchedEffect(Unit) {
                     try {
@@ -130,7 +140,9 @@ class MainActivity : ComponentActivity() {
                         SnackbarHost(hostState = snackbarHostState)
                     },
                     bottomBar = {
-                        BottomBar(navController)
+                        if (isMobile) {
+                            BottomBar(navController)
+                        }
                     },
                     topBar = {
                         TopBar(navController, globalEventBus)
@@ -140,209 +152,225 @@ class MainActivity : ComponentActivity() {
                         checkNotNull(LocalViewModelStoreOwner.current) {
                             "No ViewModelStoreOwner provided"
                         }
-                    NavHost(
-                        navController = navController,
-                        startDestination = "first_page",
-                        enterTransition = {
+                    Row(modifier = Modifier.fillMaxSize()) {
+                        if (!isMobile) {
+                            PadNavigationRail(navController)
+                        }
+                        val inTransition = if (isMobile){
                             slideInHorizontally(
                                 initialOffsetX = { it },
                                 animationSpec = tween(300),
                             )
-                        },
-                        exitTransition = {
+                        }else{
+                            slideInVertically(
+                                initialOffsetY = {it},
+                                animationSpec = tween(300),
+                            )
+                        }
+                        val outTransition = if(isMobile){
                             slideOutHorizontally(
                                 targetOffsetX = { -it },
                                 animationSpec = tween(300),
                             )
-                        },
-                        popEnterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { -it },
+                        }else{
+                            slideOutVertically(
+                                targetOffsetY = { -it },
                                 animationSpec = tween(300),
-                            )
-                        },
-                        popExitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { it },
-                                animationSpec = tween(300),
-                            )
-                        },
-                    ) {
-                        composable("login") {
-                            LoginView(
-                                innerPadding,
-                                navController,
-                                snackbarHostState,
                             )
                         }
-                        composable(ScreenRoute.Home.route) {
+                        NavHost(
+                            modifier = Modifier.weight(1f),
+                            navController = navController,
+                            startDestination = "first_page",
+                            enterTransition = {
+                                inTransition
+                            },
+                            exitTransition = {
+                                outTransition
+                            },
+                            popEnterTransition = {
+                                inTransition
+                            },
+                            popExitTransition = {
+                                outTransition
+                            },
+                        ) {
+                            composable("login") {
+                                LoginView(
+                                    innerPadding,
+                                    navController,
+                                    snackbarHostState,
+                                )
+                            }
+                            composable(ScreenRoute.Home.route) {
 //                            val context = LocalContext.current
 //                            BackHandler(enabled = true) {
 //                                (context as? Activity)?.finish()
-                            LaunchedEffect(Unit) {
-                                globalEventBus.emit(
-                                    TopBarTitleEvent(
-                                        targetTag = TopBarConstants.TOP_BAR_TAG,
-                                        title = ScreenRoute.Home.title,
-                                    ),
-                                )
-                            }
-                            val viewModel = hiltViewModel<HomeViewModel>(owner)
-                            HomeView(
-                                innerPadding,
-                                navController,
-                                viewModel,
-                            )
-                        }
-                        composable(ScreenRoute.ServiceCenter.route) {
-                            LaunchedEffect(Unit) {
-                                globalEventBus.emit(
-                                    TopBarTitleEvent(
-                                        targetTag = TopBarConstants.TOP_BAR_TAG,
-                                        title = ScreenRoute.ServiceCenter.title,
-                                    ),
-                                )
-                            }
-                            val viewModel = hiltViewModel<ServiceCenterViewModel>(owner)
-                            ServiceCenterView(
-                                innerPadding,
-                                navController,
-                                viewModel,
-                            )
-                        }
-                        composable(ScreenRoute.MessageCenter.route) {
-                            LaunchedEffect(Unit) {
-                                globalEventBus.emit(
-                                    TopBarTitleEvent(
-                                        targetTag = TopBarConstants.TOP_BAR_TAG,
-                                        title = ScreenRoute.MessageCenter.title,
-                                    ),
-                                )
-                            }
-                            val viewModel = hiltViewModel<MessageCenterViewModel>(owner)
-                            MessageCenterView(
-                                innerPadding,
-                                viewModel,
-                            )
-                        }
-                        composable(ScreenRoute.Schedule.route) {
-                            val viewModel = hiltViewModel<ScheduleCenterViewModel>(owner)
-                            ScheduleCenterView(
-                                innerPadding,
-                                snackbarHostState,
-                                viewModel,
-                                globalEventBus,
-                            )
-                        }
-                        composable(ScreenRoute.PersonalCenter.route) {
-                            LaunchedEffect(Unit) {
-                                globalEventBus.emit(
-                                    TopBarTitleEvent(
-                                        targetTag = TopBarConstants.TOP_BAR_TAG,
-                                        title = ScreenRoute.PersonalCenter.title,
-                                    ),
-                                )
-                            }
-                            val viewModel = hiltViewModel<PersonalCenterViewModel>(owner)
-                            PersonalCenter(
-                                innerPadding,
-                                navController,
-                                viewModel,
-                            )
-                        }
-                        composable("first_page") {
-                            FirstPage(
-                                innerPadding,
-                                navController,
-                                snackbarHostState,
-                            )
-                        }
-                        composable(
-                            "browser/{url}?headerTokenKeyName={headerTokenKeyName}&urlTokenKeyName={urlTokenKeyName}",
-                            arguments =
-                                listOf(
-                                    navArgument("url") {
-                                        type = NavType.StringType
-                                        defaultValue = ""
-                                    },
-                                    navArgument("headerTokenKeyName") {
-                                        type = NavType.StringType
-                                        defaultValue = ""
-                                    },
-                                    navArgument("urlTokenKeyName") {
-                                        type = NavType.StringType
-                                        defaultValue = ""
-                                    },
-                                ),
-                        ) { backStackEntry ->
-                            val viewModel = hiltViewModel<BrowserViewModel>(owner)
-                            LaunchedEffect(Unit) {
-                                globalEventBus.emit(
-                                    TopBarTitleEvent(
-                                        targetTag = TopBarConstants.TOP_BAR_TAG,
-                                        title = "",
-                                    ),
-                                )
-                            }
-                            val url = backStackEntry.arguments?.getString("url") ?: ""
-                            val originalUrl =
-                                URLDecoder.decode(
-                                    url,
-                                    "UTF-8",
-                                )
-                            val headerTokenKeyName =
-                                backStackEntry.arguments?.getString("headerTokenKeyName") ?: ""
-                            val urlTokenKeyName =
-                                backStackEntry.arguments?.getString("urlTokenKeyName") ?: ""
-                            BrowserView(
-                                originalUrl,
-                                headerTokenKeyName,
-                                urlTokenKeyName,
-                                navController,
-                                snackbarHostState,
-                                innerPadding,
-                                viewModel,
-                                globalEventBus,
-                            )
-                        }
-                        composable("scanner") {
-                            ScannerView(
-                                navController,
-                            )
-                        }
-                        composable("setting") {
-                            LaunchedEffect(Unit) {
-                                globalEventBus.emit(
-                                    TopBarTitleEvent(
-                                        targetTag = TopBarConstants.TOP_BAR_TAG,
-                                        title = "设置",
-                                    ),
-                                )
-                            }
-                            SettingView(
-                                navController,
-                                innerPadding,
-                                snackbarHostState,
-                            )
-                        }
-                        composable("oss") {
-                            val libraries by produceLibraries(R.raw.aboutlibraries)
-                            val layoutDirection = LocalLayoutDirection.current
-                            LibrariesContainer(
-                                libraries = libraries,
-                                modifier =
-                                    Modifier
-                                        .fillMaxSize()
-                                        .padding(
-                                            start = innerPadding.calculateStartPadding(layoutDirection),
-                                            top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
-                                            end = innerPadding.calculateEndPadding(layoutDirection),
-                                            bottom =
-                                                WindowInsets.navigationBars
-                                                    .asPaddingValues()
-                                                    .calculateBottomPadding(),
+                                LaunchedEffect(Unit) {
+                                    globalEventBus.emit(
+                                        TopBarTitleEvent(
+                                            targetTag = TopBarConstants.TOP_BAR_TAG,
+                                            title = ScreenRoute.Home.title,
                                         ),
-                            )
+                                    )
+                                }
+                                val viewModel = hiltViewModel<HomeViewModel>(owner)
+                                HomeView(
+                                    innerPadding,
+                                    navController,
+                                    viewModel,
+                                )
+                            }
+                            composable(ScreenRoute.ServiceCenter.route) {
+                                LaunchedEffect(Unit) {
+                                    globalEventBus.emit(
+                                        TopBarTitleEvent(
+                                            targetTag = TopBarConstants.TOP_BAR_TAG,
+                                            title = ScreenRoute.ServiceCenter.title,
+                                        ),
+                                    )
+                                }
+                                val viewModel = hiltViewModel<ServiceCenterViewModel>(owner)
+                                ServiceCenterView(
+                                    innerPadding,
+                                    navController,
+                                    viewModel,
+                                )
+                            }
+                            composable(ScreenRoute.MessageCenter.route) {
+                                LaunchedEffect(Unit) {
+                                    globalEventBus.emit(
+                                        TopBarTitleEvent(
+                                            targetTag = TopBarConstants.TOP_BAR_TAG,
+                                            title = ScreenRoute.MessageCenter.title,
+                                        ),
+                                    )
+                                }
+                                val viewModel = hiltViewModel<MessageCenterViewModel>(owner)
+                                MessageCenterView(
+                                    innerPadding,
+                                    viewModel,
+                                )
+                            }
+                            composable(ScreenRoute.Schedule.route) {
+                                val viewModel = hiltViewModel<ScheduleCenterViewModel>(owner)
+                                ScheduleCenterView(
+                                    innerPadding,
+                                    snackbarHostState,
+                                    viewModel,
+                                    globalEventBus,
+                                )
+                            }
+                            composable(ScreenRoute.PersonalCenter.route) {
+                                LaunchedEffect(Unit) {
+                                    globalEventBus.emit(
+                                        TopBarTitleEvent(
+                                            targetTag = TopBarConstants.TOP_BAR_TAG,
+                                            title = ScreenRoute.PersonalCenter.title,
+                                        ),
+                                    )
+                                }
+                                val viewModel = hiltViewModel<PersonalCenterViewModel>(owner)
+                                PersonalCenter(
+                                    innerPadding,
+                                    navController,
+                                    viewModel,
+                                )
+                            }
+                            composable("first_page") {
+                                FirstPage(
+                                    innerPadding,
+                                    navController,
+                                    snackbarHostState,
+                                )
+                            }
+                            composable(
+                                "browser/{url}?headerTokenKeyName={headerTokenKeyName}&urlTokenKeyName={urlTokenKeyName}",
+                                arguments =
+                                    listOf(
+                                        navArgument("url") {
+                                            type = NavType.StringType
+                                            defaultValue = ""
+                                        },
+                                        navArgument("headerTokenKeyName") {
+                                            type = NavType.StringType
+                                            defaultValue = ""
+                                        },
+                                        navArgument("urlTokenKeyName") {
+                                            type = NavType.StringType
+                                            defaultValue = ""
+                                        },
+                                    ),
+                            ) { backStackEntry ->
+                                val viewModel = hiltViewModel<BrowserViewModel>(owner)
+                                LaunchedEffect(Unit) {
+                                    globalEventBus.emit(
+                                        TopBarTitleEvent(
+                                            targetTag = TopBarConstants.TOP_BAR_TAG,
+                                            title = "",
+                                        ),
+                                    )
+                                }
+                                val url = backStackEntry.arguments?.getString("url") ?: ""
+                                val originalUrl =
+                                    URLDecoder.decode(
+                                        url,
+                                        "UTF-8",
+                                    )
+                                val headerTokenKeyName =
+                                    backStackEntry.arguments?.getString("headerTokenKeyName") ?: ""
+                                val urlTokenKeyName =
+                                    backStackEntry.arguments?.getString("urlTokenKeyName") ?: ""
+                                BrowserView(
+                                    originalUrl,
+                                    headerTokenKeyName,
+                                    urlTokenKeyName,
+                                    navController,
+                                    snackbarHostState,
+                                    innerPadding,
+                                    viewModel,
+                                    globalEventBus,
+                                )
+                            }
+                            composable("scanner") {
+                                ScannerView(
+                                    navController,
+                                )
+                            }
+                            composable("setting") {
+                                LaunchedEffect(Unit) {
+                                    globalEventBus.emit(
+                                        TopBarTitleEvent(
+                                            targetTag = TopBarConstants.TOP_BAR_TAG,
+                                            title = "设置",
+                                        ),
+                                    )
+                                }
+                                SettingView(
+                                    navController,
+                                    innerPadding,
+                                    snackbarHostState,
+                                )
+                            }
+                            composable("oss") {
+                                val libraries by produceLibraries(R.raw.aboutlibraries)
+                                val layoutDirection = LocalLayoutDirection.current
+                                LibrariesContainer(
+                                    libraries = libraries,
+                                    modifier =
+                                        Modifier
+                                            .fillMaxSize()
+                                            .padding(
+                                                start = innerPadding.calculateStartPadding(layoutDirection),
+                                                top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
+                                                end = innerPadding.calculateEndPadding(layoutDirection),
+                                                bottom =
+                                                    WindowInsets.navigationBars
+                                                        .asPaddingValues()
+                                                        .calculateBottomPadding(),
+                                            ),
+                                )
+                            }
                         }
                     }
                 }
