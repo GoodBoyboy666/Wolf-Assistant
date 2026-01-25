@@ -6,12 +6,14 @@ import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.navigation.NavController
@@ -19,7 +21,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import top.goodboyboy.wolfassistant.ScreenRoute
 
 @Composable
-fun PadNavigationRail(navController: NavController) {
+fun PadNavigationRail(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val haptic = LocalHapticFeedback.current
@@ -27,6 +32,7 @@ fun PadNavigationRail(navController: NavController) {
         visible = currentRoute in ScreenRoute.items.map { it.route },
         enter = slideInHorizontally(initialOffsetX = { -it }) + expandHorizontally(expandFrom = Alignment.Start),
         exit = slideOutHorizontally(targetOffsetX = { -it }) + shrinkHorizontally(shrinkTowards = Alignment.Start),
+        modifier = modifier,
     ) {
         NavigationRail {
             ScreenRoute.items.forEach { screen ->
@@ -45,6 +51,7 @@ fun PadNavigationRail(navController: NavController) {
                         Icon(
                             screen.icon,
                             contentDescription = screen.title,
+                            tint = MaterialTheme.colorScheme.primary,
                         )
                     },
                     label = { Text(screen.title) },
