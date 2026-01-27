@@ -52,6 +52,8 @@ object TopBarConstants {
 fun TopBar(
     navController: NavController,
     globalEventBus: GlobalEventBus,
+    searchQuery: String,
+    onUpdateQuery: (String) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -85,6 +87,7 @@ fun TopBar(
                     currentRoute in ScreenRoute.items.map { it.route } ||
                     currentRoute in listOf("setting")
             )
+    val isServiceCenter = currentRoute != null && currentRoute == ScreenRoute.ServiceCenter.route
 
     AnimatedVisibility(
         visible = shouldShowTopBar,
@@ -93,29 +96,38 @@ fun TopBar(
     ) {
         CenterAlignedTopAppBar(
             title = {
-                AnimatedContent(
-                    // title优先级最高，然后是Route的名称
-                    targetState =
-                        title.ifEmpty {
-                            ScreenRoute.items.firstOrNull { it.route == currentRoute }?.title
-                                ?: ""
+                if (isServiceCenter) {
+                    SearchTextField(
+                        value = searchQuery,
+                        onValueChange = {
+                            onUpdateQuery(it)
                         },
-                    label = "CoverAnimation",
-                    transitionSpec = {
-                        val enter =
-                            slideInVertically(
-                                animationSpec = tween(500),
-                                initialOffsetY = { fullHeight -> -fullHeight },
-                            ) + fadeIn()
-                        val exit = ExitTransition.None
-                        enter togetherWith exit
-                    },
-                ) { text ->
-                    Text(
-                        text = text,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
                     )
+                } else {
+                    AnimatedContent(
+                        // title优先级最高，然后是Route的名称
+                        targetState =
+                            title.ifEmpty {
+                                ScreenRoute.items.firstOrNull { it.route == currentRoute }?.title
+                                    ?: ""
+                            },
+                        label = "CoverAnimation",
+                        transitionSpec = {
+                            val enter =
+                                slideInVertically(
+                                    animationSpec = tween(500),
+                                    initialOffsetY = { fullHeight -> -fullHeight },
+                                ) + fadeIn()
+                            val exit = ExitTransition.None
+                            enter togetherWith exit
+                        },
+                    ) { text ->
+                        Text(
+                            text = text,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
             },
             navigationIcon = {
