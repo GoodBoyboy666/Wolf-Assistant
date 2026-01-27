@@ -5,5 +5,5 @@ import kotlinx.coroutines.flow.StateFlow
 interface SearchRepository {
     val searchQuery: StateFlow<String>
 
-    fun updateQuery(newQuery: String)
+    suspend fun updateQuery(newQuery: String)
 }

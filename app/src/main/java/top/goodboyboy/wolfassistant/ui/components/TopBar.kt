@@ -52,8 +52,6 @@ object TopBarConstants {
 fun TopBar(
     navController: NavController,
     globalEventBus: GlobalEventBus,
-    searchQuery: String,
-    onUpdateQuery: (String) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -96,38 +94,29 @@ fun TopBar(
     ) {
         CenterAlignedTopAppBar(
             title = {
-                if (isServiceCenter) {
-                    SearchTextField(
-                        value = searchQuery,
-                        onValueChange = {
-                            onUpdateQuery(it)
+                AnimatedContent(
+                    // title优先级最高，然后是Route的名称
+                    targetState =
+                        title.ifEmpty {
+                            ScreenRoute.items.firstOrNull { it.route == currentRoute }?.title
+                                ?: ""
                         },
+                    label = "CoverAnimation",
+                    transitionSpec = {
+                        val enter =
+                            slideInVertically(
+                                animationSpec = tween(500),
+                                initialOffsetY = { fullHeight -> -fullHeight },
+                            ) + fadeIn()
+                        val exit = ExitTransition.None
+                        enter togetherWith exit
+                    },
+                ) { text ->
+                    Text(
+                        text = text,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
-                } else {
-                    AnimatedContent(
-                        // title优先级最高，然后是Route的名称
-                        targetState =
-                            title.ifEmpty {
-                                ScreenRoute.items.firstOrNull { it.route == currentRoute }?.title
-                                    ?: ""
-                            },
-                        label = "CoverAnimation",
-                        transitionSpec = {
-                            val enter =
-                                slideInVertically(
-                                    animationSpec = tween(500),
-                                    initialOffsetY = { fullHeight -> -fullHeight },
-                                ) + fadeIn()
-                            val exit = ExitTransition.None
-                            enter togetherWith exit
-                        },
-                    ) { text ->
-                        Text(
-                            text = text,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
                 }
             },
             navigationIcon = {

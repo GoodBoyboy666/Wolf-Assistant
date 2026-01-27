@@ -1,7 +1,6 @@
 package top.goodboyboy.wolfassistant.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -27,7 +26,6 @@ fun SearchTextField(
         placeholder = { Text("搜索...") },
         modifier =
             Modifier
-                .padding(end = 20.dp)
                 .fillMaxWidth(),
         shape = RoundedCornerShape(25.dp),
         colors =

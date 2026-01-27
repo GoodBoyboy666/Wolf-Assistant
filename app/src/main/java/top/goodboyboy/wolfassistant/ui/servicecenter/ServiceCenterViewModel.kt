@@ -33,6 +33,8 @@ class ServiceCenterViewModel
 
         private val allServiceItems = MutableStateFlow<List<ServiceItem>>(emptyList())
 
+        val searchQuery: StateFlow<String> = searchRepository.searchQuery
+
         @OptIn(FlowPreview::class)
         val serviceList: StateFlow<List<ServiceItem>> =
             combine(
@@ -87,6 +89,10 @@ class ServiceCenterViewModel
         suspend fun cleanServiceList() {
             allServiceItems.value = emptyList()
             serviceRepository.cleanServiceList()
+        }
+
+        suspend fun updateQuery(query: String) {
+            searchRepository.updateQuery(query)
         }
 
         init {

@@ -29,7 +29,6 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -69,7 +68,6 @@ import top.goodboyboy.wolfassistant.ui.schedulecenter.ScheduleCenterView
 import top.goodboyboy.wolfassistant.ui.schedulecenter.ScheduleCenterViewModel
 import top.goodboyboy.wolfassistant.ui.servicecenter.ServiceCenterView
 import top.goodboyboy.wolfassistant.ui.servicecenter.ServiceCenterViewModel
-import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.SearchRepository
 import top.goodboyboy.wolfassistant.ui.theme.WolfAssistantTheme
 import top.goodboyboy.wolfassistant.ui.webview.BrowserView
 import top.goodboyboy.wolfassistant.ui.webview.BrowserViewModel
@@ -92,9 +90,6 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var settingsRepository: SettingsRepository
 
-    @Inject
-    lateinit var searchRepository: SearchRepository
-
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -110,7 +105,6 @@ class MainActivity : ComponentActivity() {
                 val snackbarHostState = remember { SnackbarHostState() }
                 val windowSizeClass = calculateWindowSizeClass(this)
                 val isMobile = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
-                val searchQuery by searchRepository.searchQuery.collectAsState()
 
                 LaunchedEffect(Unit) {
                     try {
@@ -151,9 +145,7 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     topBar = {
-                        TopBar(navController, globalEventBus, searchQuery, {
-                            searchRepository.updateQuery(it)
-                        })
+                        TopBar(navController, globalEventBus)
                     },
                 ) { innerPadding ->
                     val owner =

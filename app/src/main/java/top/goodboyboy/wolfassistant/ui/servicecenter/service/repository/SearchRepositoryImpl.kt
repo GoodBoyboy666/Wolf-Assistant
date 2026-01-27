@@ -13,7 +13,7 @@ class SearchRepositoryImpl
         private val _searchQuery = MutableStateFlow("")
         override val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-        override fun updateQuery(newQuery: String) {
+        override suspend fun updateQuery(newQuery: String) {
             _searchQuery.value = newQuery
         }
     }

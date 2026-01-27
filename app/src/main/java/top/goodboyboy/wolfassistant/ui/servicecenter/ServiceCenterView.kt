@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -34,6 +33,7 @@ import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.ui.components.LoadingCompose
+import top.goodboyboy.wolfassistant.ui.components.SearchTextField
 import top.goodboyboy.wolfassistant.ui.servicecenter.ServiceCenterViewModel.LoadServiceState
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.components.ServiceCard
 import java.net.URLEncoder
@@ -62,6 +62,7 @@ fun ServiceCenterView(
                     ),
                 )
             }.build()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     Column(
         modifier =
             Modifier
@@ -70,60 +71,69 @@ fun ServiceCenterView(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        OutlinedCard(
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                scope.launch {
+                    viewModel.cleanServiceList()
+                    viewModel.loadService()
+                }
+                isRefreshing = false
+            },
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(start = 20.dp, top = 10.dp, bottom = 10.dp, end = 20.dp),
         ) {
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                onRefresh = {
-                    scope.launch {
-                        viewModel.cleanServiceList()
-                        viewModel.loadService()
+            when (loadServiceState) {
+                is LoadServiceState.Idle -> {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Text(stringResource(R.string.please_wait))
                     }
-                    isRefreshing = false
-                },
-            ) {
-                when (loadServiceState) {
-                    is LoadServiceState.Idle -> {
-                        Column(
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.fillMaxSize(),
-                        ) {
-                            Text(stringResource(R.string.please_wait))
-                        }
-                    }
+                }
 
-                    is LoadServiceState.Loading -> {
-                        Column(
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.fillMaxSize(),
-                        ) {
-                            LoadingCompose()
-                        }
+                is LoadServiceState.Loading -> {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        LoadingCompose()
                     }
+                }
 
-                    is LoadServiceState.Failed -> {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .fillMaxSize()
-                                    .verticalScroll(rememberScrollState()),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = (loadServiceState as LoadServiceState.Failed).message,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(16.dp),
-                            )
-                        }
+                is LoadServiceState.Failed -> {
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState()),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = (loadServiceState as LoadServiceState.Failed).message,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(16.dp),
+                        )
                     }
+                }
 
-                    is LoadServiceState.Success -> {
+                is LoadServiceState.Success -> {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        SearchTextField(
+                            value = searchQuery,
+                            onValueChange = {
+                                scope.launch {
+                                    viewModel.updateQuery(it)
+                                }
+                            },
+                        )
                         LazyVerticalGrid(
                             columns = GridCells.Adaptive(minSize = 96.dp),
                             contentPadding = PaddingValues(16.dp),
