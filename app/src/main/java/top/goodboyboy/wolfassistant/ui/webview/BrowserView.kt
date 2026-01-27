@@ -1,5 +1,10 @@
 package top.goodboyboy.wolfassistant.ui.webview
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.webkit.GeolocationPermissions
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,8 +24,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
@@ -42,9 +49,26 @@ fun BrowserView(
     viewModel: BrowserViewModel,
     globalEventBus: GlobalEventBus,
 ) {
+    val context = LocalContext.current
     var currentProgress by remember { mutableFloatStateOf(0f) }
     var loading by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
+
+    var locationPermissionCallback by remember { mutableStateOf<GeolocationPermissions.Callback?>(null) }
+    var locationPermissionOrigin by remember { mutableStateOf<String?>(null) }
+
+    val locationPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                locationPermissionCallback?.invoke(locationPermissionOrigin, true, false)
+            } else {
+                locationPermissionCallback?.invoke(locationPermissionOrigin, false, false)
+            }
+            locationPermissionCallback = null
+            locationPermissionOrigin = null
+        }
     val scope = rememberCoroutineScope()
     val loadState by viewModel.loadState.collectAsStateWithLifecycle()
     val refreshEvent by viewModel.refreshEvent.collectAsStateWithLifecycle()
@@ -119,7 +143,24 @@ fun BrowserView(
                         }
                     },
                     { origin, callback ->
-                        callback.invoke(origin, true, false)
+                        val hasFineLocation =
+                            ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                            ) == PackageManager.PERMISSION_GRANTED
+                        val hasCoarseLocation =
+                            ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                            ) == PackageManager.PERMISSION_GRANTED
+
+                        if (hasFineLocation || hasCoarseLocation) {
+                            callback.invoke(origin, true, false)
+                        } else {
+                            locationPermissionCallback = callback
+                            locationPermissionOrigin = origin
+                            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                        }
                     },
                     { _, _ ->
 //                scope.launch {
