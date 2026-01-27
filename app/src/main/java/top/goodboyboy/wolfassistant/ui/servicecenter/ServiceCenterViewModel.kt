@@ -3,13 +3,19 @@ package top.goodboyboy.wolfassistant.ui.servicecenter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.ServiceItem
+import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.SearchRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.ServiceRepository
 import javax.inject.Inject
 
@@ -19,12 +25,34 @@ class ServiceCenterViewModel
     constructor(
         private val serviceRepository: ServiceRepository,
         private val settingsRepository: SettingsRepository,
+        private val searchRepository: SearchRepository,
         val okHttpClient: OkHttpClient,
     ) : ViewModel() {
         private val _loadServiceState = MutableStateFlow<LoadServiceState>(LoadServiceState.Idle)
         val loadServiceState: StateFlow<LoadServiceState> = _loadServiceState.asStateFlow()
-        private val _serviceList = MutableStateFlow<List<ServiceItem>>(emptyList())
-        val serviceList: StateFlow<List<ServiceItem>> = _serviceList.asStateFlow()
+
+        private val allServiceItems = MutableStateFlow<List<ServiceItem>>(emptyList())
+
+        val searchQuery: StateFlow<String> = searchRepository.searchQuery
+
+        @OptIn(FlowPreview::class)
+        val serviceList: StateFlow<List<ServiceItem>> =
+            combine(
+                allServiceItems,
+                searchRepository.searchQuery.debounce(100),
+            ) { allItems, query ->
+                if (query.isBlank()) {
+                    allItems
+                } else {
+                    allItems.filter {
+                        it.text.contains(query, ignoreCase = true)
+                    }
+                }
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = allServiceItems.value,
+            )
 
         sealed class LoadServiceState {
             object Idle : LoadServiceState()
@@ -52,15 +80,19 @@ class ServiceCenterViewModel
                 }
 
                 is ServiceRepository.ServiceListData.Success -> {
-                    _serviceList.value = data.data
+                    allServiceItems.value = data.data
                     _loadServiceState.value = LoadServiceState.Success
                 }
             }
         }
 
         suspend fun cleanServiceList() {
-            _serviceList.value = emptyList()
+            allServiceItems.value = emptyList()
             serviceRepository.cleanServiceList()
+        }
+
+        suspend fun updateQuery(query: String) {
+            searchRepository.updateQuery(query)
         }
 
         init {

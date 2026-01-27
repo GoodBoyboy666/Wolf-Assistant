@@ -11,6 +11,8 @@ import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceC
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceCacheDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceRemoteDataSource
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceRemoteDataSourceImpl
+import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.SearchRepository
+import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.SearchRepositoryImpl
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.ServiceRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.ServiceRepositoryImpl
 import javax.inject.Singleton
@@ -36,4 +38,8 @@ object ServiceModule {
         cacheDataSource: ServiceCacheDataSource,
         remoteDataSource: ServiceRemoteDataSource,
     ): ServiceRepository = ServiceRepositoryImpl(cacheDataSource, remoteDataSource)
+
+    @Provides
+    @Singleton
+    fun provideSearchRepository(): SearchRepository = SearchRepositoryImpl()
 }

@@ -85,6 +85,7 @@ fun TopBar(
                     currentRoute in ScreenRoute.items.map { it.route } ||
                     currentRoute in listOf("setting")
             )
+    val isServiceCenter = currentRoute != null && currentRoute == ScreenRoute.ServiceCenter.route
 
     AnimatedVisibility(
         visible = shouldShowTopBar,
