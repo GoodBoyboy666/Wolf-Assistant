@@ -19,13 +19,14 @@ import androidx.compose.ui.unit.dp
 fun SearchTextField(
     value: String,
     onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     TextField(
         value = value,
         onValueChange = onValueChange,
         placeholder = { Text("搜索...") },
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth(),
         shape = RoundedCornerShape(25.dp),
         colors =

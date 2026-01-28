@@ -128,6 +128,7 @@ fun ServiceCenterView(
                     ) {
                         SearchTextField(
                             value = searchQuery,
+                            modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 10.dp, top = 0.dp),
                             onValueChange = {
                                 scope.launch {
                                     viewModel.updateQuery(it)
