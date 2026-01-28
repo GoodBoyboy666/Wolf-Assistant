@@ -117,7 +117,7 @@ class ScheduleCenterViewModelTest {
             viewModel.setFirstAndLastDay(start, end)
 
             // Mock 依赖
-            coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
             coEvery { scheduleRepository.getSchedule(token, start, end) } returns
                 ScheduleRepository.ScheduleData.Success(mockData)
 
@@ -146,7 +146,7 @@ class ScheduleCenterViewModelTest {
             viewModel.setFirstAndLastDay(start, end)
 
             // Mock 依赖
-            coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
             coEvery { scheduleRepository.getSchedule(token, start, end) } returns
                 ScheduleRepository.ScheduleData.Failed(Failure.IOError(errorMsg, null))
 

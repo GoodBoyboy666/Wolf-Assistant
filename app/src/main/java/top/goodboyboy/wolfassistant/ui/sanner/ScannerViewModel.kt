@@ -6,7 +6,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import javax.inject.Inject
@@ -36,7 +35,7 @@ class ScannerViewModel
         init {
             _initState.value = InitState.Loading
             viewModelScope.launch {
-                val accessToken = settingsRepository.accessTokenFlow.first()
+                val accessToken = settingsRepository.getAccessTokenDecrypted()
                 if (accessToken.isNotEmpty()) {
                     _initState.value = InitState.Success
                 } else {

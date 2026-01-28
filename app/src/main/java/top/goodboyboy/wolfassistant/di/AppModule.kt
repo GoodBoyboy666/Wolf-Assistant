@@ -11,6 +11,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
+import top.goodboyboy.wolfassistant.settings.migration.PlainPasswdAndAKToEncryptedMigration
+import top.goodboyboy.wolfassistant.util.CryptoManager
 import javax.inject.Singleton
 
 @Module
@@ -26,10 +28,16 @@ object AppModule {
     @Singleton
     fun providePreferencesDataStore(
         @ApplicationContext context: Context,
+        cryptoManager: CryptoManager,
     ): DataStore<Preferences> =
         PreferenceDataStoreFactory.create(
             produceFile = { context.preferencesDataStoreFile("app_settings") },
+            migrations = listOf(PlainPasswdAndAKToEncryptedMigration(cryptoManager)),
         )
+
+    @Provides
+    @Singleton
+    fun provideCryptoManager(): CryptoManager = CryptoManager()
 
     @Provides
     @Singleton

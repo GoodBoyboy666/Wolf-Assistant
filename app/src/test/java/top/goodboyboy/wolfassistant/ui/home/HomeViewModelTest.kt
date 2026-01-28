@@ -51,7 +51,7 @@ class HomeViewModelTest {
         Dispatchers.setMain(testDispatcher)
         // default settings repository flows
         every { settingsRepository.userNameFlow } returns flowOf("TestUser")
-        every { settingsRepository.accessTokenFlow } returns flowOf("TestToken")
+        coEvery { settingsRepository.getAccessTokenDecrypted() } returns "TestToken"
     }
 
     /**

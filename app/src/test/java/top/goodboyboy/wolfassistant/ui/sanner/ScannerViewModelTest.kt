@@ -1,11 +1,10 @@
 package top.goodboyboy.wolfassistant.ui.sanner
 
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -56,7 +55,7 @@ class ScannerViewModelTest {
         runTest(testDispatcher) {
             // 准备数据：模拟 SettingsRepository 返回有效的 token
             val token = "valid-token"
-            every { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
 
             // 执行操作：初始化 ViewModel
             viewModel = ScannerViewModel(settingsRepository)
@@ -75,7 +74,7 @@ class ScannerViewModelTest {
         runTest(testDispatcher) {
             // 准备数据：模拟 SettingsRepository 返回空 token
             val token = ""
-            every { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
 
             // 执行操作：初始化 ViewModel
             viewModel = ScannerViewModel(settingsRepository)

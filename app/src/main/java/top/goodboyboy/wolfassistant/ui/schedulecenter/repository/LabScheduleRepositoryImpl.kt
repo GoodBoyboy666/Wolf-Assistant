@@ -26,7 +26,7 @@ class LabScheduleRepositoryImpl(
         val data =
             labScheduleRemoteDataSource.getLabSchedule(
                 settingsRepository.userIDFlow.first(),
-                settingsRepository.userPasswdFlow.first(),
+                settingsRepository.getUserPasswordDecrypted(),
             )
         return when (data) {
             is LabScheduleRemoteDataSource.LabScheduleDataResult.Error -> {

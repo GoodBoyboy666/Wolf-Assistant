@@ -30,7 +30,7 @@ class LabScheduleRepositoryImplTest {
         repository = LabScheduleRepositoryImpl(remoteDataSource, cacheDataSource, settingsRepository)
         // 模拟 SettingsRepository 返回的用户信息
         coEvery { settingsRepository.userIDFlow } returns flowOf("testUser")
-        coEvery { settingsRepository.userPasswdFlow } returns flowOf("testPass")
+        coEvery { settingsRepository.getUserPasswordDecrypted() } returns "testPass"
     }
 
     /**

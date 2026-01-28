@@ -7,7 +7,8 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.Test
 import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.ServiceItem
+import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.SearchRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.ServiceRepository
 
 /**
@@ -37,12 +39,16 @@ class ServiceCenterViewModelTest {
     private lateinit var viewModel: ServiceCenterViewModel
     private val serviceRepository: ServiceRepository = mockk(relaxed = true)
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
+    private val searchRepository: SearchRepository = mockk(relaxed = true)
     private val okHttpClient: OkHttpClient = mockk(relaxed = true)
     private val testDispatcher = StandardTestDispatcher()
 
     @BeforeEach
     fun setup() {
         Dispatchers.setMain(testDispatcher)
+        // Ensure same instance is returned for consistency
+        val flow = MutableStateFlow("")
+        coEvery { searchRepository.searchQuery } returns flow
     }
 
     @AfterEach
@@ -60,14 +66,23 @@ class ServiceCenterViewModelTest {
         runTest(testDispatcher) {
             // Arrange
             val token = "test-token"
-            val mockData = listOf(mockk<ServiceItem>())
+            val mockData =
+                listOf(
+                    mockk<ServiceItem> {
+                        coEvery { text } returns "Test Service"
+                    },
+                )
 
-            coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
             coEvery { serviceRepository.getServiceList(token) } returns
                 ServiceRepository.ServiceListData.Success(mockData)
 
-            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, okHttpClient)
+            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient)
+
+            // Collect to trigger SharingStarted.WhileSubscribed
+            val job = launch { viewModel.serviceList.collect {} }
             testDispatcher.scheduler.advanceUntilIdle()
+
             clearMocks(serviceRepository, answers = false)
 
             // Act
@@ -78,6 +93,8 @@ class ServiceCenterViewModelTest {
             assertTrue(viewModel.loadServiceState.value is ServiceCenterViewModel.LoadServiceState.Success)
             assertEquals(mockData, viewModel.serviceList.value)
             coVerify(exactly = 1) { serviceRepository.getServiceList(token) }
+
+            job.cancel()
         }
 
     /**
@@ -91,11 +108,11 @@ class ServiceCenterViewModelTest {
             val token = "test-token"
             val errorMsg = "Network Error"
 
-            coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
             coEvery { serviceRepository.getServiceList(token) } returns
                 ServiceRepository.ServiceListData.Failed(Failure.IOError(errorMsg, null))
 
-            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, okHttpClient)
+            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient)
             testDispatcher.scheduler.advanceUntilIdle()
             clearMocks(serviceRepository, answers = false)
 
@@ -118,11 +135,15 @@ class ServiceCenterViewModelTest {
         runTest(testDispatcher) {
             // Arrange
             val token = "test-token"
-            coEvery { settingsRepository.accessTokenFlow } returns flowOf(token)
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
             coEvery { serviceRepository.getServiceList(token) } returns
                 ServiceRepository.ServiceListData.Success(emptyList())
 
-            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, okHttpClient)
+            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient)
+
+            // Collect to trigger SharingStarted.WhileSubscribed
+            val job = launch { viewModel.serviceList.collect {} }
+            testDispatcher.scheduler.advanceUntilIdle()
 
             // Act
             viewModel.cleanServiceList()
@@ -131,5 +152,86 @@ class ServiceCenterViewModelTest {
             // Assert
             assertTrue(viewModel.serviceList.value.isEmpty())
             coVerify(exactly = 1) { serviceRepository.cleanServiceList() }
+
+            job.cancel()
+        }
+
+    /**
+     * 测试：更新搜索查询
+     * 预期：调用 SearchRepository 更新查询
+     */
+    @Test
+    fun `updateQuery should call searchRepository updateQuery`() =
+        runTest(testDispatcher) {
+            // Arrange
+            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient)
+
+            // Act
+            val query = "test"
+            viewModel.updateQuery(query)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Assert
+            coVerify(exactly = 1) { searchRepository.updateQuery(query) }
+        }
+
+    /**
+     * 测试：搜索过滤功能
+     * 预期：根据查询词过滤服务列表
+     */
+    @Test
+    fun `search functionality should filter service list`() =
+        runTest(testDispatcher) {
+            // Arrange
+            val token = "test-token"
+            val item1 = mockk<ServiceItem> { coEvery { text } returns "Apple Service" }
+            val item2 = mockk<ServiceItem> { coEvery { text } returns "Banana Service" }
+            val mockData = listOf(item1, item2)
+
+            coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
+            coEvery { serviceRepository.getServiceList(token) } returns
+                ServiceRepository.ServiceListData.Success(mockData)
+
+            val queryFlow = MutableStateFlow("")
+            coEvery { searchRepository.searchQuery } returns queryFlow
+
+            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient)
+
+            // Collect to trigger SharingStarted.WhileSubscribed
+            val job = launch { viewModel.serviceList.collect {} }
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Act - Initial load
+            viewModel.loadService()
+            testDispatcher.scheduler.advanceUntilIdle()
+            assertEquals(2, viewModel.serviceList.value.size)
+
+            // Act - Search "Apple"
+            queryFlow.value = "Apple"
+            testDispatcher.scheduler.advanceTimeBy(200) // Advance time for debounce
+            testDispatcher.scheduler.runCurrent()
+
+            // Assert
+            assertEquals(1, viewModel.serviceList.value.size)
+            assertTrue(viewModel.serviceList.value.contains(item1))
+
+            // Act - Search "Banana"
+            queryFlow.value = "Banana"
+            testDispatcher.scheduler.advanceTimeBy(200) // Advance time for debounce
+            testDispatcher.scheduler.runCurrent()
+
+            // Assert
+            assertEquals(1, viewModel.serviceList.value.size)
+            assertTrue(viewModel.serviceList.value.contains(item2))
+
+            // Act - Search empty
+            queryFlow.value = ""
+            testDispatcher.scheduler.advanceTimeBy(200) // Advance time for debounce
+            testDispatcher.scheduler.runCurrent()
+
+            // Assert
+            assertEquals(2, viewModel.serviceList.value.size)
+
+            job.cancel()
         }
 }

@@ -151,7 +151,7 @@ fun LoadPage(innerPadding: PaddingValues) {
                     ),
             )
             Text(
-                "Copyright © 2025 GoodBoyboy. All Rights Reserved.",
+                "Copyright © 2025-2026 GoodBoyboy. All Rights Reserved.",
                 modifier =
                     Modifier.align(
                         Alignment.BottomCenter,

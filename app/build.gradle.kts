@@ -16,8 +16,8 @@ android {
         applicationId = "top.goodboyboy.wolfassistant"
         minSdk = 28
         targetSdk = 36
-        versionCode = 17
-        versionName = "1.4.1"
+        versionCode = 21
+        versionName = "1.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         android.buildFeatures.buildConfig = true
@@ -116,6 +116,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.material)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.material3.window.size.class1)
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter)
     androidTestImplementation(libs.androidx.junit)

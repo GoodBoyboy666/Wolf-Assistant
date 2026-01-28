@@ -60,10 +60,10 @@ class LoginViewModel
 
                 is LoginRepository.UserData.Success -> {
                     settingsRepository.setUserID(status.data.userID)
-                    settingsRepository.setUserPasswd(passwd)
+                    settingsRepository.setUserPasswordEncrypted(passwd)
                     settingsRepository.setUserOrganization(status.data.userOrganization)
                     settingsRepository.setUserName(status.data.userName)
-                    settingsRepository.setAccessToken(status.data.accessToken)
+                    settingsRepository.setAccessTokenEncrypted(status.data.accessToken)
                     _loginState.value = LoginState.Success
                 }
             }

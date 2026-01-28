@@ -1,19 +1,19 @@
 package top.goodboyboy.wolfassistant.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarDefaults
-import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.navigation.NavController
@@ -21,19 +21,22 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import top.goodboyboy.wolfassistant.ScreenRoute
 
 @Composable
-fun BottomBar(navController: NavController) {
+fun PadNavigationRail(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val haptic = LocalHapticFeedback.current
-    // 仅在Route中显示底部导航栏
     AnimatedVisibility(
         visible = currentRoute in ScreenRoute.items.map { it.route },
-        enter = slideInVertically(initialOffsetY = { it }) + expandVertically(expandFrom = Alignment.Top),
-        exit = slideOutVertically(targetOffsetY = { it }) + shrinkVertically(shrinkTowards = Alignment.Top),
+        enter = slideInHorizontally(initialOffsetX = { -it }) + expandHorizontally(expandFrom = Alignment.Start),
+        exit = slideOutHorizontally(targetOffsetX = { -it }) + shrinkHorizontally(shrinkTowards = Alignment.Start),
+        modifier = modifier,
     ) {
-        NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
+        NavigationRail {
             ScreenRoute.items.forEach { screen ->
-                NavigationBarItem(
+                NavigationRailItem(
                     selected = currentRoute == screen.route,
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)

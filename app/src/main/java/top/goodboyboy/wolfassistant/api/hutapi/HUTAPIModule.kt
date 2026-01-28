@@ -21,6 +21,7 @@ import top.goodboyboy.wolfassistant.api.hutapi.service.ServiceListAPIService
 import top.goodboyboy.wolfassistant.api.hutapi.user.LoginAPIService
 import top.goodboyboy.wolfassistant.api.hutapi.user.UserAPIService
 import top.goodboyboy.wolfassistant.ui.appsetting.GlobalInitConfig
+import top.goodboyboy.wolfassistant.util.UserAgentUtils
 import java.net.Inet4Address
 import java.security.KeyStore
 import java.security.SecureRandom
@@ -113,6 +114,15 @@ object HUTAPIModule {
                 .sslSocketFactory(sslContext.socketFactory, dynamicTrustManager)
                 .hostnameVerifier(dynamicHostnameVerifier)
                 .dns(dynamicIpv4Only)
+                .addInterceptor { chain ->
+                    val request =
+                        chain
+                            .request()
+                            .newBuilder()
+                            .header("User-Agent", UserAgentUtils.getRandomUserAgent())
+                            .build()
+                    chain.proceed(request)
+                }
         return builder
     }
 
@@ -216,7 +226,7 @@ object HUTAPIModule {
                         .newBuilder()
                         .header(
                             "User-Agent",
-                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0",
+                            UserAgentUtils.getRandomUserAgent(),
                         ).header(
                             "Accept",
                             "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
