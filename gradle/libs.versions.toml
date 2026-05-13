@@ -42,6 +42,7 @@ gsonVersion = "2.14.0"
 navigationCompose = "2.9.8"
 turbine = "1.2.1"
 junitJupiter = "6.0.3"
+junitPlatformLauncher = "6.0.3"
 material3WindowSizeClass = "1.4.0"
 
 [libraries]
@@ -82,6 +83,7 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "androidxUiTest" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junitPlatformLauncher" }
 jwtdecode = { module = "com.auth0.android:jwtdecode", version.ref = "jwtdecode" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
