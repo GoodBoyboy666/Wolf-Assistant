@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import top.goodboyboy.wolfassistant.common.AlarmTriggeredEvent
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
+import top.goodboyboy.wolfassistant.di.AppModule
 import top.goodboyboy.wolfassistant.notification.AppNotificationManager
 import top.goodboyboy.wolfassistant.notification.NotifyIntent
 import top.goodboyboy.wolfassistant.task.alarm.AlarmBizType
@@ -21,7 +22,7 @@ class ScheduleNotificationController @Inject constructor(
     private val scheduleNotificationRepository: ScheduleNotificationRepository,
     private val appAlarmManager: AppAlarmManager,
     private val appNotificationManager: AppNotificationManager,
-    private val scope: CoroutineScope
+    @param:AppModule.ApplicationScope private val scope: CoroutineScope
 ) {
     init {
         eventBus.subscribeToTarget<AlarmTriggeredEvent>(

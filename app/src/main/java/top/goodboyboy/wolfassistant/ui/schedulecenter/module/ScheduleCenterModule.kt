@@ -6,6 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
 import top.goodboyboy.wolfassistant.api.hutapi.schedule.LabScheduleAPIService
 import top.goodboyboy.wolfassistant.api.hutapi.schedule.LabScheduleSSOAPIService
 import top.goodboyboy.wolfassistant.api.hutapi.schedule.ScheduleAPIService
