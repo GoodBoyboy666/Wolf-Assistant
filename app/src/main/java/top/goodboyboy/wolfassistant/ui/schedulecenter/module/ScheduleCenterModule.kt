@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import top.goodboyboy.wolfassistant.api.hutapi.schedule.LabScheduleAPIService
 import top.goodboyboy.wolfassistant.api.hutapi.schedule.LabScheduleSSOAPIService
 import top.goodboyboy.wolfassistant.api.hutapi.schedule.ScheduleAPIService
+import top.goodboyboy.wolfassistant.room.dao.ScheduleNotificationTaskDao
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.LabScheduleCacheDataSource
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.LabScheduleCacheDataSourceImpl
@@ -20,6 +21,8 @@ import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleRemoteD
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleRemoteDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.LabScheduleRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.LabScheduleRepositoryImpl
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleNotificationRepository
+import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleNotificationRepositoryImpl
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepositoryImpl
 import javax.inject.Singleton
@@ -66,4 +69,11 @@ object ScheduleCenterModule {
         settingsRepository: SettingsRepository,
     ): LabScheduleRepository =
         LabScheduleRepositoryImpl(labScheduleRemoteDataSource, labScheduleCacheDataSource, settingsRepository)
+
+    @Provides
+    @Singleton
+    fun provideScheduleNotificationRepository(
+        @ApplicationContext context: Context,
+        scheduleNotificationTaskDao: ScheduleNotificationTaskDao
+    ): ScheduleNotificationRepository = ScheduleNotificationRepositoryImpl(scheduleNotificationTaskDao, context)
 }
