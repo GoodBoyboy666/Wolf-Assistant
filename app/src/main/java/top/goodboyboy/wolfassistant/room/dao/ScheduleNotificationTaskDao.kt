@@ -28,6 +28,9 @@ interface ScheduleNotificationTaskDao {
     @Query("SELECT * FROM schedule_notification_tasks WHERE id = :id")
     suspend fun getByID(id: Long): ScheduleNotificationTaskEntity?
 
+    @Query("SELECT * FROM schedule_notification_tasks WHERE scheduleType = :type")
+    suspend fun getAllEntitiesByType(type: ScheduleType): List<ScheduleNotificationTaskEntity>
+
     @Query("SELECT * FROM schedule_notification_tasks")
-    suspend fun getAllEntities(): List<ScheduleNotificationTaskEntity>
+    suspend fun getAllTypeEntities(): List<ScheduleNotificationTaskEntity>
 }

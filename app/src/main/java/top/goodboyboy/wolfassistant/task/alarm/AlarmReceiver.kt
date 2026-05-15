@@ -3,6 +3,7 @@ package top.goodboyboy.wolfassistant.task.alarm
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +24,7 @@ class AlarmReceiver : BroadcastReceiver() {
         if (eventId == -1L) return
         val bizType = runCatching { AlarmBizType.valueOf(bizTypeName) }.getOrDefault(AlarmBizType.UNKNOWN)
         val pendingResult = goAsync()
+        Log.d("AlarmReceiver", "Received alarm: bizType=$bizTypeName, eventId=$eventId")
         scope.launch {
             try {
                 globalEventBus.emit(AlarmTriggeredEvent(bizTypeName, bizType, eventId))

@@ -23,6 +23,9 @@ class ScheduleNotificationHandler @Inject constructor(
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
             description = "用于上课提醒的通知渠道"
+            enableVibration(true)
+            vibrationPattern = longArrayOf(0, 500, 200, 500)
+            enableLights(true)
         }
         notificationManager.createNotificationChannel(channel)
 
@@ -32,6 +35,7 @@ class ScheduleNotificationHandler @Inject constructor(
             .setContentTitle(intent.title)
             .setContentText(intent.content)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setGroup("SCHEDULE_NOTIFICATIONS")
             .setAutoCancel(true)
 
