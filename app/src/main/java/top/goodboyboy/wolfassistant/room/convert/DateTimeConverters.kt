@@ -8,14 +8,11 @@ class DateTimeConverters {
     private val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
     @TypeConverter
-    fun toOffsetDateTime(value: String?): OffsetDateTime? {
-        return value?.let {
+    fun toOffsetDateTime(value: String?): OffsetDateTime? =
+        value?.let {
             formatter.parse(it, OffsetDateTime::from)
         }
-    }
 
     @TypeConverter
-    fun fromOffsetDateTime(date: OffsetDateTime?): String? {
-        return date?.format(formatter)
-    }
+    fun fromOffsetDateTime(date: OffsetDateTime?): String? = date?.format(formatter)
 }

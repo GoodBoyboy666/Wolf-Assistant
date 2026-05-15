@@ -1,9 +1,9 @@
 package top.goodboyboy.wolfassistant.ui.schedulecenter.repository
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.JsonParseException
 import com.google.gson.reflect.TypeToken
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.room.const.ScheduleType
 import top.goodboyboy.wolfassistant.room.dao.ScheduleNotificationTaskDao
 import top.goodboyboy.wolfassistant.room.entity.ScheduleNotificationTaskEntity
@@ -17,16 +17,14 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.temporal.WeekFields
 import java.util.Locale
-
 
 class ScheduleNotificationRepositoryImpl(
     private val scheduleNotificationTaskDao: ScheduleNotificationTaskDao,
     private val context: Context,
+    private val logger: AppLogger,
 ) : ScheduleNotificationRepository {
-
     override suspend fun setScheduleNotificationTask(time: LocalDate) {
         val notifications = getScheduleItems(time)
         notifications.forEach { entity ->
@@ -38,8 +36,8 @@ class ScheduleNotificationRepositoryImpl(
                     address = entity.address,
                     remark = entity.remark,
                     triggerTime = entity.startDate.toInstant().toEpochMilli() - 15 * 60 * 1000, // 提前15分钟通知
-                    scheduleType = ScheduleType.NORMAL
-                )
+                    scheduleType = ScheduleType.NORMAL,
+                ),
             )
         }
     }
@@ -63,21 +61,24 @@ class ScheduleNotificationRepositoryImpl(
                 val day = index % 7
                 val jieci = index / 7
                 val now = LocalDateTime.now()
-                val time = when (jieci) {
-                    0 -> LocalTime.of(8, 0)
-                    1 -> LocalTime.of(10, 0)
-                    2 -> LocalTime.of(14, 0)
-                    3 -> LocalTime.of(16, 0)
-                    4 -> LocalTime.of(19, 0)
-                    else -> LocalTime.of(21, 0)
-                }
-                val startDayTime = now
-                    .with(DayOfWeek.of(day + 1))
-                    .with(time)
-                val startDayTimeMillis = startDayTime
-                    .atZone(ZoneId.systemDefault())
-                    .toInstant()
-                    .toEpochMilli()
+                val time =
+                    when (jieci) {
+                        0 -> LocalTime.of(8, 0)
+                        1 -> LocalTime.of(10, 0)
+                        2 -> LocalTime.of(14, 0)
+                        3 -> LocalTime.of(16, 0)
+                        4 -> LocalTime.of(19, 0)
+                        else -> LocalTime.of(21, 0)
+                    }
+                val startDayTime =
+                    now
+                        .with(DayOfWeek.of(day + 1))
+                        .with(time)
+                val startDayTimeMillis =
+                    startDayTime
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant()
+                        .toEpochMilli()
                 val endDayTime = startDayTime.plusHours(1).plusMinutes(30)
                 scheduleNotificationTaskDao.insert(
                     ScheduleNotificationTaskEntity(
@@ -87,8 +88,8 @@ class ScheduleNotificationRepositoryImpl(
                         address = item.location,
                         remark = "",
                         triggerTime = startDayTimeMillis - 15 * 60 * 1000, // 提前15分钟通知
-                        scheduleType = ScheduleType.LAB
-                    )
+                        scheduleType = ScheduleType.LAB,
+                    ),
                 )
             }
         }
@@ -101,13 +102,11 @@ class ScheduleNotificationRepositoryImpl(
         return null
     }
 
-    override suspend fun getAllScheduleNotificationTasks(): List<ScheduleNotificationTaskEntity> {
-        return scheduleNotificationTaskDao.getAllEntitiesByType(ScheduleType.NORMAL)
-    }
+    override suspend fun getAllScheduleNotificationTasks(): List<ScheduleNotificationTaskEntity> =
+        scheduleNotificationTaskDao.getAllEntitiesByType(ScheduleType.NORMAL)
 
-    override suspend fun getAllLabScheduleNotificationTasks(): List<ScheduleNotificationTaskEntity> {
-        return scheduleNotificationTaskDao.getAllEntitiesByType(ScheduleType.LAB)
-    }
+    override suspend fun getAllLabScheduleNotificationTasks(): List<ScheduleNotificationTaskEntity> =
+        scheduleNotificationTaskDao.getAllEntitiesByType(ScheduleType.LAB)
 
     private suspend fun getScheduleItems(time: LocalDate): List<ScheduleItem> {
         val baseDir = File(context.filesDir, "schedule")
@@ -117,11 +116,11 @@ class ScheduleNotificationRepositoryImpl(
         val startOfWeek: LocalDate? = time.with(weekFields.dayOfWeek(), 1)
         // 获取本周的最后一天
         val endOfWeek: LocalDate? = time.with(weekFields.dayOfWeek(), 7)
-        val scheduleFileName = "${startOfWeek}-${endOfWeek}.json"
+        val scheduleFileName = "$startOfWeek-$endOfWeek.json"
         try {
             val scheduleFile = File(baseDir, scheduleFileName)
             if (!scheduleFile.exists()) {
-                Log.w(null, "课表缓存文件不存在: ${scheduleFile.absolutePath}")
+                logger.w("课表缓存文件不存在: ${scheduleFile.absolutePath}")
                 return emptyList()
             }
             val fileContent = scheduleFile.readText()
@@ -130,15 +129,14 @@ class ScheduleNotificationRepositoryImpl(
                 GsonUtil.getGson().fromJson<List<ScheduleItem?>>(fileContent, type)
             return scheduleObject.filterNotNull()
         } catch (e: JsonParseException) {
-            Log.e(
-                null,
-                "解析课表时出现Json解析异常" + e.message
+            logger.e(
+                e,
+                "解析课表时出现Json解析异常" + e.message,
             )
         } catch (e: IOException) {
-            Log.e(null, "获取课表缓存时出现IO异常" + e.message)
+            logger.e(e, "获取课表缓存时出现IO异常" + e.message)
         } catch (e: Exception) {
-            Log.e(null, "获取课表缓存时出现未知异常" + e.message)
-
+            logger.e(e, "获取课表缓存时出现未知异常" + e.message)
         }
         return emptyList()
     }
@@ -155,14 +153,14 @@ class ScheduleNotificationRepositoryImpl(
                 return scheduleObject
             }
         } catch (e: JsonParseException) {
-            Log.e(
-                null,
-                "解析实验课表时出现Json解析异常" + e.message
+            logger.e(
+                e,
+                "解析实验课表时出现Json解析异常" + e.message,
             )
         } catch (e: IOException) {
-            Log.e(null, "获取实验课表缓存时出现IO异常" + e.message)
+            logger.e(e, "获取实验课表缓存时出现IO异常" + e.message)
         } catch (e: Exception) {
-            Log.e(null, "获取实验课表缓存时出现未知异常" + e.message)
+            logger.e(e, "获取实验课表缓存时出现未知异常" + e.message)
         }
         return emptyList()
     }

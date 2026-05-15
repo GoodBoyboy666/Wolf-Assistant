@@ -6,10 +6,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineScope
 import top.goodboyboy.wolfassistant.api.hutapi.schedule.LabScheduleAPIService
 import top.goodboyboy.wolfassistant.api.hutapi.schedule.LabScheduleSSOAPIService
 import top.goodboyboy.wolfassistant.api.hutapi.schedule.ScheduleAPIService
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.room.dao.ScheduleNotificationTaskDao
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.LabScheduleCacheDataSource
@@ -47,7 +47,8 @@ object ScheduleCenterModule {
     fun provideScheduleCenterRepository(
         scheduleCacheDataSource: ScheduleCacheDataSource,
         scheduleRemoteDataSource: ScheduleRemoteDataSource,
-    ): ScheduleRepository = ScheduleRepositoryImpl(scheduleCacheDataSource, scheduleRemoteDataSource)
+        logger: AppLogger
+    ): ScheduleRepository = ScheduleRepositoryImpl(scheduleCacheDataSource, scheduleRemoteDataSource, logger)
 
     @Provides
     @Singleton
@@ -75,6 +76,7 @@ object ScheduleCenterModule {
     @Singleton
     fun provideScheduleNotificationRepository(
         @ApplicationContext context: Context,
-        scheduleNotificationTaskDao: ScheduleNotificationTaskDao
-    ): ScheduleNotificationRepository = ScheduleNotificationRepositoryImpl(scheduleNotificationTaskDao, context)
+        scheduleNotificationTaskDao: ScheduleNotificationTaskDao,
+        logger: AppLogger
+    ): ScheduleNotificationRepository = ScheduleNotificationRepositoryImpl(scheduleNotificationTaskDao, context, logger)
 }

@@ -1,6 +1,6 @@
 package top.goodboyboy.wolfassistant.ui.schedulecenter.repository
 
-import android.util.Log
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleCacheDataSource
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleRemoteDataSource
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository.ScheduleData
@@ -9,6 +9,7 @@ import java.time.LocalDate
 class ScheduleRepositoryImpl(
     private val scheduleCacheDataSource: ScheduleCacheDataSource,
     private val scheduleRemoteDataSource: ScheduleRemoteDataSource,
+    private val logger: AppLogger,
 ) : ScheduleRepository {
     override suspend fun getSchedule(
         accessToken: String,
@@ -23,7 +24,7 @@ class ScheduleRepositoryImpl(
 
         when (cache) {
             is ScheduleCacheDataSource.DataResult.Error -> {
-                Log.e(null, "缓存")
+                logger.e(null, "缓存异常")
                 return ScheduleData.Failed(cache.error)
             }
 
@@ -41,7 +42,7 @@ class ScheduleRepositoryImpl(
             )
         when (remote) {
             is ScheduleRemoteDataSource.DataResult.Error -> {
-                Log.e(null, "远程")
+                logger.e(null, "远程拉取异常")
                 return ScheduleData.Failed(remote.error)
             }
 

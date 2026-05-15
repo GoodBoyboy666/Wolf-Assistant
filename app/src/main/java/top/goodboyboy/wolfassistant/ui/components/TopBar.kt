@@ -74,7 +74,7 @@ fun TopBar(
         // 设置页面、浏览器页面、课表页面均展示navigation按钮
         showNavigationIcon = currentRoute in listOf("setting") ||
             (currentRoute != null && currentRoute.startsWith("browser")) ||
-                (currentRoute == ScreenRoute.Schedule.route)
+            (currentRoute == ScreenRoute.Schedule.route)
 
         // 浏览器页面和课表页面展示action按钮
         showActions = (currentRoute != null && currentRoute.startsWith("browser")) ||
@@ -140,7 +140,7 @@ fun TopBar(
                         }) {
                             Icon(Icons.Rounded.Alarm, "订阅当前周课表通知")
                         }
-                    }else {
+                    } else {
                         IconButton(onClick = {
                             navController.popBackStack()
                         }) {

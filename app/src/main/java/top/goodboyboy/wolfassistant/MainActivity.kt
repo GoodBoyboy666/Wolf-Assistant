@@ -2,7 +2,6 @@ package top.goodboyboy.wolfassistant
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -46,6 +45,7 @@ import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.appsetting.SettingView
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionDomainData
@@ -89,6 +89,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var settingsRepository: SettingsRepository
+
+    @Inject
+    lateinit var appLogger: AppLogger
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -390,7 +393,7 @@ class MainActivity : ComponentActivity() {
         thread: Thread,
         throwable: Throwable,
     ) {
-        Log.e("AppCrash", "检测到未捕获异常，线程: ${thread.name}", throwable)
+        appLogger.tag("AppCrash").e(throwable, "检测到未捕获异常，线程: ${thread.name}")
         Toast.makeText(this, "程序发生崩溃，正在收集日志...", Toast.LENGTH_LONG).show()
         val deviceInfo = CrashInfoUtil.getDeviceAndAppInfo(this)
         val sw = StringWriter()

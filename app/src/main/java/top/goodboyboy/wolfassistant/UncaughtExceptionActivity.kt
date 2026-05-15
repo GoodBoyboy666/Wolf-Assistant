@@ -39,7 +39,6 @@ class UncaughtExceptionActivity : ComponentActivity() {
                 val file = File(filePath)
                 if (file.exists()) {
                     errorMsg = file.readText()
-                    file.delete()
                 }
             } catch (e: Exception) {
                 errorMsg = "读取崩溃日志文件出错: ${e.message}"

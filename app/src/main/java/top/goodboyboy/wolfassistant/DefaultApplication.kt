@@ -6,7 +6,7 @@ import top.goodboyboy.wolfassistant.ui.schedulecenter.ScheduleNotificationContro
 import javax.inject.Inject
 
 @HiltAndroidApp
-class DefaultApplication : Application(){
+class DefaultApplication : Application() {
     @Inject
     lateinit var scheduleNotificationController: ScheduleNotificationController
 }

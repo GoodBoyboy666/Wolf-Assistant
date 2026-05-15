@@ -15,6 +15,6 @@ object AlarmModule {
     @Provides
     @Singleton
     fun provideAlarmManager(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
     ): AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 }

@@ -10,11 +10,10 @@ class ScheduleTypeEnumConverters {
     }
 
     @TypeConverter
-    fun toScheduleType(typeString: String): ScheduleType {
-        return try {
+    fun toScheduleType(typeString: String): ScheduleType =
+        try {
             ScheduleType.valueOf(typeString) // 将字符串还原为枚举
         } catch (e: IllegalArgumentException) {
             ScheduleType.UNKNOWN
         }
-    }
 }

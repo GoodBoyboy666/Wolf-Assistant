@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.migration.PlainPasswdAndAKToEncryptedMigration
 import top.goodboyboy.wolfassistant.util.CryptoManager
 import javax.inject.Qualifier
@@ -45,7 +46,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGlobalEventBus(): GlobalEventBus = GlobalEventBus()
+    fun provideGlobalEventBus(logger: AppLogger): GlobalEventBus = GlobalEventBus(logger)
 
     @Retention(AnnotationRetention.RUNTIME)
     @Qualifier

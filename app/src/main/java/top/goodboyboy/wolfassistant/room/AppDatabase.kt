@@ -17,7 +17,7 @@ import top.goodboyboy.wolfassistant.room.entity.TokenKeyNameEntity
     entities = [ServiceItemEntity::class, TokenKeyNameEntity::class, ScheduleNotificationTaskEntity::class],
     version = 2,
     autoMigrations = [
-        AutoMigration(from = 1, to = 2)
+        AutoMigration(from = 1, to = 2),
     ],
     exportSchema = true,
 )

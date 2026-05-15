@@ -33,5 +33,6 @@ object DatabaseModule {
     fun provideTokenKeyNameDao(database: AppDatabase): TokenKeyNameDao = database.tokenKeyNameDao()
 
     @Provides
-    fun provideScheduleNotificationTaskDao(database: AppDatabase): ScheduleNotificationTaskDao = database.scheduleNotificationTaskDao()
+    fun provideScheduleNotificationTaskDao(database: AppDatabase): ScheduleNotificationTaskDao =
+        database.scheduleNotificationTaskDao()
 }

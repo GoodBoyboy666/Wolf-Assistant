@@ -62,12 +62,11 @@ fun ScheduleCenterView(
                     viewModel.setScheduleNotification()
                     viewModel.setShowScheduleNotificationDialog(false)
                 }
-            }
+            },
         ) {
             viewModel.setShowScheduleNotificationDialog(false)
         }
     }
-
 
     Column(
         modifier =

@@ -3,7 +3,6 @@ package top.goodboyboy.wolfassistant.ui.schedulecenter
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -28,29 +27,29 @@ fun SubmitScheduleNotificationDialog(
 ) {
     val context = LocalContext.current
 
-
-
-    val exactAlarmLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) {
-        // 用户从设置页返回后，再次检查是否给了权限
-        if (AppPermissionChecker.hasExactAlarmPermission(context)) {
-            onAllPermissionAllowed()
-        } else {
+    val exactAlarmLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult(),
+        ) {
+            // 用户从设置页返回后，再次检查是否给了权限
+            if (AppPermissionChecker.hasExactAlarmPermission(context)) {
+                onAllPermissionAllowed()
+            } else {
 //            Toast.makeText(context, "必须开启闹钟权限才能准时提醒哦！", Toast.LENGTH_SHORT).show()
+            }
         }
-    }
 
-    val notificationLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            // 通知权限拿到手了，接着去检查/请求闹钟权限
-            checkAndRequestExactAlarm(context, exactAlarmLauncher, onAllPermissionAllowed)
-        } else {
+    val notificationLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                // 通知权限拿到手了，接着去检查/请求闹钟权限
+                checkAndRequestExactAlarm(context, exactAlarmLauncher, onAllPermissionAllowed)
+            } else {
 //            Toast.makeText(context, "没有通知权限，您将无法收到提醒！", Toast.LENGTH_SHORT).show()
+            }
         }
-    }
 
     AlertDialog(
         icon = {
@@ -72,9 +71,9 @@ fun SubmitScheduleNotificationDialog(
                         context = context,
                         notificationLauncher = notificationLauncher,
                         exactAlarmLauncher = exactAlarmLauncher,
-                        onSuccess = onAllPermissionAllowed
+                        onSuccess = onAllPermissionAllowed,
                     )
-                }
+                },
             ) {
                 Text("确定")
             }
@@ -83,20 +82,19 @@ fun SubmitScheduleNotificationDialog(
             TextButton(
                 onClick = {
                     onCancel()
-                }
+                },
             ) {
                 Text("取消")
             }
-        }
+        },
     )
 }
-
 
 private fun startPermissionCheckFlow(
     context: Context,
     notificationLauncher: ManagedActivityResultLauncher<String, Boolean>,
     exactAlarmLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
-    onSuccess: () -> Unit
+    onSuccess: () -> Unit,
 ) {
     if (!AppPermissionChecker.hasNotificationPermission(context)) {
         // 去申请通知权限 (Android 13+)
@@ -112,14 +110,15 @@ private fun startPermissionCheckFlow(
 private fun checkAndRequestExactAlarm(
     context: Context,
     exactAlarmLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
-    onSuccess: () -> Unit
+    onSuccess: () -> Unit,
 ) {
     if (!AppPermissionChecker.hasExactAlarmPermission(context)) {
         // 去申请精确闹钟权限 (Android 12+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                data = "package:${context.packageName}".toUri()
-            }
+            val intent =
+                Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                    data = "package:${context.packageName}".toUri()
+                }
             exactAlarmLauncher.launch(intent)
         }
     } else {

@@ -166,4 +166,5 @@ dependencies {
     implementation(libs.jwtdecode)
     testImplementation(libs.robolectric)
     implementation(libs.jsoup)
+    implementation(libs.xlog)
 }
