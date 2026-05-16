@@ -19,7 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
-import top.goodboyboy.wolfassistant.common.Event
+import kotlinx.coroutines.flow.Flow
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -28,7 +28,7 @@ fun WebViewCompose(
     accessToken: String,
     headerTokenKeyName: String,
     urlTokenKeyName: String,
-    refreshEvent: Event<Unit>?,
+    refreshEvent: Flow<Unit>,
     onPageStarted: () -> Unit,
     onPageFinished: () -> Unit,
     onProgressChanged: (Int) -> Unit,
@@ -157,8 +157,8 @@ fun WebViewCompose(
         webView.loadUrl(newUrl, header)
     }
 
-    LaunchedEffect(refreshEvent) {
-        refreshEvent?.getContent()?.let {
+    LaunchedEffect(Unit) {
+        refreshEvent.collect {
             webView.reload()
         }
     }

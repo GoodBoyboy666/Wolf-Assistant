@@ -1,5 +1,6 @@
 package top.goodboyboy.wolfassistant.ui.webview
 
+import app.cash.turbine.test
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.unmockkAll
@@ -97,10 +98,10 @@ class BrowserViewModelTest {
             coEvery { settingsRepository.getAccessTokenDecrypted() } returns "token"
             viewModel = BrowserViewModel(settingsRepository, logger)
 
-            // Act
-            viewModel.onRefresh()
-
-            // Assert
-            assertNotNull(viewModel.refreshEvent.value)
+            // Act & Assert
+            viewModel.refreshEvent.test {
+                viewModel.onRefresh()
+                assertNotNull(awaitItem())
+            }
         }
 }
