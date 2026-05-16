@@ -5,8 +5,13 @@ import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleCacheDa
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleRemoteDataSource
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository.ScheduleData
 import java.time.LocalDate
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ScheduleRepositoryImpl(
+@Singleton
+class ScheduleRepositoryImpl
+    @Inject
+    constructor(
     private val scheduleCacheDataSource: ScheduleCacheDataSource,
     private val scheduleRemoteDataSource: ScheduleRemoteDataSource,
     private val logger: AppLogger,

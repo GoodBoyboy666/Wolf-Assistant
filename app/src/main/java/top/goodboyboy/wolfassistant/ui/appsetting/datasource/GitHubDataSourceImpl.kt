@@ -11,7 +11,9 @@ import top.goodboyboy.wolfassistant.ui.appsetting.datasource.GitHubDataSource.Ve
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionInfo
 import java.io.IOException
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class GitHubDataSourceImpl
     @Inject
     constructor(

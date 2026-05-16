@@ -11,7 +11,9 @@ import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoRemoteDataSource.DataResult
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.model.PersonalInfo
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class PersonalInfoRemoteDataSourceImpl
     @Inject
     constructor(

@@ -1,43 +1,25 @@
 package top.goodboyboy.wolfassistant.ui.personalcenter.personal.module
 
-import android.content.Context
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import top.goodboyboy.wolfassistant.api.hutapi.user.UserAPIService
-import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoCacheDataSource
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoCacheDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoRemoteDataSource
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoRemoteDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.repository.PersonalInfoRepository
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.repository.PersonalInfoRepositoryImpl
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object PersonalCenterModule {
-    @Provides
-    @Singleton
-    fun providePersonalInfoCacheDataSource(
-        @ApplicationContext context: Context,
-        logger: AppLogger,
-    ): PersonalInfoCacheDataSource = PersonalInfoCacheDataSourceImpl(context, logger)
+abstract class PersonalCenterModule {
+    @Binds
+    abstract fun bindPersonalInfoCacheDataSource(impl: PersonalInfoCacheDataSourceImpl): PersonalInfoCacheDataSource
 
-    @Provides
-    @Singleton
-    fun providePersonalInfoRemoteDataSource(
-        apiService: UserAPIService,
-        logger: AppLogger,
-    ): PersonalInfoRemoteDataSource = PersonalInfoRemoteDataSourceImpl(apiService, logger)
+    @Binds
+    abstract fun bindPersonalInfoRemoteDataSource(impl: PersonalInfoRemoteDataSourceImpl): PersonalInfoRemoteDataSource
 
-    @Provides
-    @Singleton
-    fun providePersonalInfoRepository(
-        cacheDataSource: PersonalInfoCacheDataSource,
-        remoteDataSource: PersonalInfoRemoteDataSource,
-        logger: AppLogger,
-    ): PersonalInfoRepository = PersonalInfoRepositoryImpl(cacheDataSource, remoteDataSource, logger)
+    @Binds
+    abstract fun bindPersonalInfoRepository(impl: PersonalInfoRepositoryImpl): PersonalInfoRepository
 }

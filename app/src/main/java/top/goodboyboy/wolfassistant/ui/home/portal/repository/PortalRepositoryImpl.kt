@@ -11,7 +11,9 @@ import top.goodboyboy.wolfassistant.ui.home.portal.repository.PortalRepository.P
 import top.goodboyboy.wolfassistant.ui.home.portal.repository.PortalRepository.PortalData.Failed
 import top.goodboyboy.wolfassistant.ui.home.portal.repository.PortalRepository.PortalData.Success
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class PortalRepositoryImpl
     @Inject
     constructor(

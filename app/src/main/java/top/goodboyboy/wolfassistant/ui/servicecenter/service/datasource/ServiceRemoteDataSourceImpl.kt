@@ -13,7 +13,9 @@ import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceR
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.ServiceItem
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.TokenKeyName
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ServiceRemoteDataSourceImpl
     @Inject
     constructor(

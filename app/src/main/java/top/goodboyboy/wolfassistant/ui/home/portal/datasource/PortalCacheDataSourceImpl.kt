@@ -17,12 +17,15 @@ import java.io.File
 import java.io.IOException
 import java.time.Duration
 import java.time.LocalDateTime
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class PortalCacheDataSourceImpl
     @Inject
     constructor(
-        context: Context,
+        @ApplicationContext context: Context,
         private val logger: AppLogger,
     ) : PortalCacheDataSource {
         private val baseDir = File(context.filesDir, "portal")

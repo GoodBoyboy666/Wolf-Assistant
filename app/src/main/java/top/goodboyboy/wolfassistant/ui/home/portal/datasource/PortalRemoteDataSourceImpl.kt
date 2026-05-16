@@ -11,7 +11,9 @@ import top.goodboyboy.wolfassistant.ui.home.portal.model.PortalInfoItem
 import top.goodboyboy.wolfassistant.ui.home.portal.model.RemoteDataResult
 import java.io.IOException
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class PortalRemoteDataSourceImpl
     @Inject
     constructor(

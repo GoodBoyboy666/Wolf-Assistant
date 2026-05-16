@@ -2,7 +2,9 @@ package top.goodboyboy.wolfassistant.ui.appsetting.repository
 
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionDomainData
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class AppSettingRepositoryImpl
     @Inject
     constructor(

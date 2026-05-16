@@ -9,12 +9,15 @@ import top.goodboyboy.wolfassistant.util.GsonUtil
 import top.goodboyboy.wolfassistant.util.deleteDirectory
 import java.io.File
 import java.io.IOException
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class LabScheduleCacheDataSourceImpl
     @Inject
     constructor(
-        context: Context,
+        @ApplicationContext context: Context,
         private val logger: AppLogger,
     ) : LabScheduleCacheDataSource {
         private val baseDir = File(context.filesDir, "labSchedule")

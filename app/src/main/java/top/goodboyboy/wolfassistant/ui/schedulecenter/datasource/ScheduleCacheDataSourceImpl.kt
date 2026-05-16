@@ -14,12 +14,15 @@ import top.goodboyboy.wolfassistant.util.deleteDirectory
 import java.io.File
 import java.io.IOException
 import java.time.LocalDate
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ScheduleCacheDataSourceImpl
     @Inject
     constructor(
-        context: Context,
+        @ApplicationContext context: Context,
         private val logger: AppLogger,
     ) : ScheduleCacheDataSource {
         private val baseDir = File(context.filesDir, "schedule")

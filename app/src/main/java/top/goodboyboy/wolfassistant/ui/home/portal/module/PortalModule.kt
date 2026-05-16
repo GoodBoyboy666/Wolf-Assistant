@@ -1,43 +1,25 @@
 package top.goodboyboy.wolfassistant.ui.home.portal.module
 
-import android.content.Context
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import top.goodboyboy.wolfassistant.api.hutapi.portal.PortalAPIService
-import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.home.portal.datasource.PortalCacheDataSource
 import top.goodboyboy.wolfassistant.ui.home.portal.datasource.PortalCacheDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.home.portal.datasource.PortalRemoteDataSource
 import top.goodboyboy.wolfassistant.ui.home.portal.datasource.PortalRemoteDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.home.portal.repository.PortalRepository
 import top.goodboyboy.wolfassistant.ui.home.portal.repository.PortalRepositoryImpl
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object PortalModule {
-    @Provides
-    @Singleton
-    fun providePortalRemoteDataSource(
-        apiService: PortalAPIService,
-        logger: AppLogger,
-    ): PortalRemoteDataSource = PortalRemoteDataSourceImpl(apiService, logger)
+abstract class PortalModule {
+    @Binds
+    abstract fun bindPortalRemoteDataSource(impl: PortalRemoteDataSourceImpl): PortalRemoteDataSource
 
-    @Provides
-    @Singleton
-    fun providePortalCacheDataSource(
-        @ApplicationContext context: Context,
-        logger: AppLogger,
-    ): PortalCacheDataSource = PortalCacheDataSourceImpl(context, logger)
+    @Binds
+    abstract fun bindPortalCacheDataSource(impl: PortalCacheDataSourceImpl): PortalCacheDataSource
 
-    @Provides
-    @Singleton
-    fun providePortalRepository(
-        remoteDataSource: PortalRemoteDataSource,
-        cacheDataSource: PortalCacheDataSource,
-        logger: AppLogger,
-    ): PortalRepository = PortalRepositoryImpl(remoteDataSource, cacheDataSource, logger)
+    @Binds
+    abstract fun bindPortalRepository(impl: PortalRepositoryImpl): PortalRepository
 }

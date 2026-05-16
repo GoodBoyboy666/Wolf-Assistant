@@ -5,8 +5,13 @@ import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.LabScheduleCacheDataSource
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.LabScheduleRemoteDataSource
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class LabScheduleRepositoryImpl(
+@Singleton
+class LabScheduleRepositoryImpl
+    @Inject
+    constructor(
     private val labScheduleRemoteDataSource: LabScheduleRemoteDataSource,
     private val labScheduleCacheDataSource: LabScheduleCacheDataSource,
     private val settingsRepository: SettingsRepository,

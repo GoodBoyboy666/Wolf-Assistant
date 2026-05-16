@@ -5,8 +5,13 @@ import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.Person
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoRemoteDataSource
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.repository.PersonalInfoRepository.PersonalInfoData
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.repository.PersonalInfoRepository.PersonalInfoData.Failed
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class PersonalInfoRepositoryImpl(
+@Singleton
+class PersonalInfoRepositoryImpl
+    @Inject
+    constructor(
     private val personalInfoCacheDataSource: PersonalInfoCacheDataSource,
     private val personalInfoRemoteDataSource: PersonalInfoRemoteDataSource,
     private val logger: AppLogger,

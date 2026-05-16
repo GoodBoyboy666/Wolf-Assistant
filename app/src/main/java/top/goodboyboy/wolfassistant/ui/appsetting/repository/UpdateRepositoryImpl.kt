@@ -5,7 +5,9 @@ import top.goodboyboy.wolfassistant.ui.appsetting.datasource.GitHubDataSource
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionDomainData
 import top.goodboyboy.wolfassistant.util.version.VersionUtil
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class UpdateRepositoryImpl
     @Inject
     constructor(

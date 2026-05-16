@@ -13,7 +13,9 @@ import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceC
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.ServiceItem
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.TokenKeyName
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ServiceCacheDataSourceImpl
     @Inject
     constructor(
