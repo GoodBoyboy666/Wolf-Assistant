@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.common.Event
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import javax.inject.Inject
 
@@ -15,6 +16,7 @@ class BrowserViewModel
     @Inject
     constructor(
         private val settingsRepository: SettingsRepository,
+        private val logger: AppLogger,
     ) : ViewModel() {
         sealed class LoadState {
             object Idle : LoadState()
@@ -40,12 +42,15 @@ class BrowserViewModel
         }
 
         init {
+            logger.i("初始化浏览器")
             viewModelScope.launch {
                 _loadState.value = LoadState.Loading
                 val accessToken = settingsRepository.getAccessTokenDecrypted()
                 if (accessToken.isNotEmpty()) {
+                    logger.i("浏览器初始化完成")
                     _loadState.value = LoadState.Success(accessToken)
                 } else {
+                    logger.e(null, "令牌为空，无法加载浏览器")
                     _loadState.value = LoadState.Failed("No access token found")
                 }
             }

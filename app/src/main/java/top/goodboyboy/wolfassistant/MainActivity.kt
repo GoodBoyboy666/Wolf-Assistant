@@ -427,7 +427,7 @@ class MainActivity : ComponentActivity() {
                 }
             startActivity(intent)
         } catch (e: Exception) {
-            e.printStackTrace()
+            appLogger.tag("AppCrash").e(e, "处理未捕获异常时发生错误")
         } finally {
             android.os.Process.killProcess(android.os.Process.myPid())
             exitProcess(1)

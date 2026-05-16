@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.util.CryptoManager
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,6 +23,7 @@ class SettingsRepository
     constructor(
         private val dataStore: DataStore<Preferences>,
         private val cryptoManager: CryptoManager,
+        private val logger: AppLogger,
     ) {
         /**
          * 深色模式状态流
@@ -109,6 +111,7 @@ class SettingsRepository
          * @param value true 开启，false 关闭
          */
         suspend fun setDarkMode(value: Boolean) {
+            logger.tag("Settings").i("设置深色模式")
             dataStore.edit { prefs ->
                 prefs[booleanPreferencesKey("dark_mode")] = value
             }
@@ -119,6 +122,7 @@ class SettingsRepository
          * @param value 用户名称
          */
         suspend fun setUserName(value: String) {
+            logger.tag("Settings").i("更新用户名")
             dataStore.edit { prefs ->
                 prefs[stringPreferencesKey("user_name")] = value
             }
@@ -129,6 +133,7 @@ class SettingsRepository
          * @param value 用户 ID
          */
         suspend fun setUserID(value: String) {
+            logger.tag("Settings").i("更新用户ID")
             dataStore.edit { prefs ->
                 prefs[stringPreferencesKey("user_id")] = value
             }
@@ -159,6 +164,7 @@ class SettingsRepository
          * @param value 组织名称
          */
         suspend fun setUserOrganization(value: String) {
+            logger.tag("Settings").i("更新用户组织")
             dataStore.edit { prefs ->
                 prefs[stringPreferencesKey("user_organization")] = value
             }
@@ -169,6 +175,7 @@ class SettingsRepository
          * @param value 周次数字
          */
         suspend fun setSelectWeekNum(value: Int) {
+            logger.tag("Settings").i("设置选择周次")
             dataStore.edit { prefs ->
                 prefs[stringPreferencesKey("select_week_num")] = value.toString()
             }
@@ -179,6 +186,7 @@ class SettingsRepository
          * @param value true 启用，false 禁用
          */
         suspend fun setEnablePreRelease(value: Boolean) {
+            logger.tag("Settings").i("设置预发布版本更新")
             dataStore.edit { prefs ->
                 prefs[booleanPreferencesKey("enable_pre_release")] = value
             }
@@ -188,6 +196,7 @@ class SettingsRepository
          * 清除所有数据
          */
         suspend fun cleanAllData() {
+            logger.tag("Settings").i("清除全部设置数据")
             dataStore.edit { prefs ->
                 prefs.clear()
             }
@@ -197,6 +206,7 @@ class SettingsRepository
          * 清除用户相关数据 (用户名、ID、Token、组织)
          */
         suspend fun cleanUser() {
+            logger.tag("Settings").i("清除用户数据")
             dataStore.edit { prefs ->
                 prefs.remove(stringPreferencesKey("user_name"))
                 prefs.remove(stringPreferencesKey("user_id"))
@@ -210,6 +220,7 @@ class SettingsRepository
          * @param value true 禁用，false 启用
          */
         suspend fun setSSLCertVerification(value: Boolean) {
+            logger.tag("Settings").i("设置SSL证书验证")
             dataStore.edit { prefs ->
                 prefs[booleanPreferencesKey("disable_SSLCert_verification")] = value
             }
@@ -220,6 +231,7 @@ class SettingsRepository
          * @param value true 仅 IPv4，false 不限制
          */
         suspend fun setOnlyIPv4(value: Boolean) {
+            logger.tag("Settings").i("设置仅IPv4")
             dataStore.edit { prefs ->
                 prefs[booleanPreferencesKey("only_IPv4")] = value
             }
@@ -229,6 +241,7 @@ class SettingsRepository
             require(password.isNotEmpty()) {
                 "Password cannot be empty"
             }
+            logger.tag("Settings").i("保存加密密码")
             val encryptedPassword = cryptoManager.encrypt(password)
             dataStore.edit { prefs ->
                 prefs[stringPreferencesKey("encrypted_user_passwd")] = encryptedPassword
@@ -239,6 +252,7 @@ class SettingsRepository
             require(accessToken.isNotEmpty()) {
                 "Access token cannot be empty"
             }
+            logger.tag("Settings").i("保存加密令牌")
             val encryptedToken = cryptoManager.encrypt(accessToken)
             dataStore.edit { prefs ->
                 prefs[stringPreferencesKey("encrypted_access_token")] = encryptedToken
@@ -246,6 +260,7 @@ class SettingsRepository
         }
 
         suspend fun getUserPasswordDecrypted(): String {
+            logger.tag("Settings").i("读取解密密码")
             val encryptedPassword =
                 dataStore.data
                     .map {
@@ -258,6 +273,7 @@ class SettingsRepository
         }
 
         suspend fun getAccessTokenDecrypted(): String {
+            logger.tag("Settings").i("读取解密令牌")
             val encryptedToken =
                 dataStore.data
                     .map {

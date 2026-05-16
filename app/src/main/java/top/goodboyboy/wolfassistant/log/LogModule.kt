@@ -25,18 +25,14 @@ object LogModule {
     fun provideAppLogger(
         @ApplicationContext context: Context,
     ): AppLogger {
-        // 基础配置
-        val config =
+        val dummyConfig =
             LogConfiguration
                 .Builder()
                 .logLevel(LogLevel.ALL)
-                .tag("AppDebug")
-                .enableThreadInfo()
-                .enableBorder()
                 .build()
-
+        XLog.init(dummyConfig)
         // Logcat 打印器
-        val androidPrinter = AndroidPrinter(true)
+        val consolePrinter = AndroidPrinter(true)
 
         // 文件打印器 (利用 Hilt 注入的 context 获取缓存目录)
         val logFolder = File(context.cacheDir, "app_logs").absolutePath
@@ -50,9 +46,6 @@ object LogModule {
                 .cleanStrategy(FileLastModifiedCleanStrategy(7L * 24 * 60 * 60 * 1000))
                 .build()
 
-        // 执行 xLog 全局初始化
-        XLog.init(config, androidPrinter, filePrinter)
-
-        return XLogWrapper()
+        return XLogWrapper(consolePrinter, filePrinter)
     }
 }

@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import top.goodboyboy.wolfassistant.api.github.update.UpdateAPIService
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.appsetting.datasource.GitHubDataSource
 import top.goodboyboy.wolfassistant.ui.appsetting.datasource.GitHubDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.appsetting.repository.AppSettingRepository
@@ -18,12 +19,17 @@ import javax.inject.Singleton
 object AppSettingModule {
     @Provides
     @Singleton
-    fun provideGitHubDataSource(apiService: UpdateAPIService): GitHubDataSource = GitHubDataSourceImpl(apiService)
+    fun provideGitHubDataSource(
+        apiService: UpdateAPIService,
+        logger: AppLogger,
+    ): GitHubDataSource = GitHubDataSourceImpl(apiService, logger)
 
     @Provides
     @Singleton
-    fun provideUpdateRepository(gitHubDataSource: GitHubDataSource): UpdateRepository =
-        UpdateRepositoryImpl(gitHubDataSource)
+    fun provideUpdateRepository(
+        gitHubDataSource: GitHubDataSource,
+        logger: AppLogger,
+    ): UpdateRepository = UpdateRepositoryImpl(gitHubDataSource, logger)
 
     @Provides
     @Singleton

@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import top.goodboyboy.wolfassistant.api.hutapi.service.ServiceListAPIService
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.room.dao.ServiceItemDao
 import top.goodboyboy.wolfassistant.room.dao.TokenKeyNameDao
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceCacheDataSource
@@ -25,19 +26,23 @@ object ServiceModule {
     fun provideServiceCacheDataSource(
         serviceItemDao: ServiceItemDao,
         tokenKeyNameDao: TokenKeyNameDao,
-    ): ServiceCacheDataSource = ServiceCacheDataSourceImpl(serviceItemDao, tokenKeyNameDao)
+        logger: AppLogger,
+    ): ServiceCacheDataSource = ServiceCacheDataSourceImpl(serviceItemDao, tokenKeyNameDao, logger)
 
     @Provides
     @Singleton
-    fun provideServiceRemoteDataSource(apiService: ServiceListAPIService): ServiceRemoteDataSource =
-        ServiceRemoteDataSourceImpl(apiService)
+    fun provideServiceRemoteDataSource(
+        apiService: ServiceListAPIService,
+        logger: AppLogger,
+    ): ServiceRemoteDataSource = ServiceRemoteDataSourceImpl(apiService, logger)
 
     @Provides
     @Singleton
     fun provideServiceRepository(
         cacheDataSource: ServiceCacheDataSource,
         remoteDataSource: ServiceRemoteDataSource,
-    ): ServiceRepository = ServiceRepositoryImpl(cacheDataSource, remoteDataSource)
+        logger: AppLogger,
+    ): ServiceRepository = ServiceRepositoryImpl(cacheDataSource, remoteDataSource, logger)
 
     @Provides
     @Singleton

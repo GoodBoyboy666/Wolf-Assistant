@@ -12,10 +12,12 @@ import com.google.zxing.MultiFormatReader
 import com.google.zxing.NotFoundException
 import com.google.zxing.PlanarYUVLuminanceSource
 import com.google.zxing.common.HybridBinarizer
+import top.goodboyboy.wolfassistant.log.AppLogger
 import java.nio.ByteBuffer
 
 class BarcodeAnalyzer(
     private val onBarcodeScanned: (String) -> Unit,
+    private val logger: AppLogger? = null,
 ) : ImageAnalysis.Analyzer {
     // 将ML Kit更换为ZXing
     //    private val scanner = BarcodeScanning.getClient()
@@ -75,8 +77,9 @@ class BarcodeAnalyzer(
                 onBarcodeScanned(rawValue)
             }
         } catch (e: NotFoundException) {
+            // 正常情况，帧中无条码
         } catch (e: Exception) {
-            e.printStackTrace()
+            logger?.e(e, "条码分析失败")
         } finally {
             imageProxy.close()
             reader.reset()
@@ -109,6 +112,7 @@ class BarcodeAnalyzer(
             val host = uri.host
             return (scheme == "https" || scheme == "http") && host == "mycas.hut.edu.cn"
         } catch (e: Exception) {
+            logger?.e(e, "URL校验失败")
             return false
         }
     }

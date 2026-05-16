@@ -42,7 +42,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCryptoManager(): CryptoManager = CryptoManager()
+    fun provideCryptoManager(logger: AppLogger): CryptoManager = CryptoManager(logger)
 
     @Provides
     @Singleton

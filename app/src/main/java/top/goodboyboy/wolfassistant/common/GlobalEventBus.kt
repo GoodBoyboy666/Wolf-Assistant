@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
-import top.goodboyboy.wolfassistant.BuildConfig
 import top.goodboyboy.wolfassistant.log.AppLogger
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,8 +34,6 @@ class GlobalEventBus
         }
 
         private fun printEventLog(event: AppEvent) {
-            if (!BuildConfig.DEBUG) return
-
             val eventName = event::class.java.simpleName
 
             val timeString =

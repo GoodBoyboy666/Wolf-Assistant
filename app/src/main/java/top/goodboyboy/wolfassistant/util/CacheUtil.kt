@@ -35,14 +35,10 @@ object CacheUtil {
             return 0L
         }
         var size = 0L
-        try {
-            file.walk().forEach {
-                if (it.isFile) {
-                    size += it.length()
-                }
+        file.walk().forEach {
+            if (it.isFile) {
+                size += it.length()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
         return size
     }

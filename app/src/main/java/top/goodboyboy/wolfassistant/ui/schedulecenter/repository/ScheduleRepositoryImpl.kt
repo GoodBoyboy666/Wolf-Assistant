@@ -16,6 +16,7 @@ class ScheduleRepositoryImpl(
         startDate: LocalDate,
         endDate: LocalDate,
     ): ScheduleData {
+        logger.i("获取课表: 检查缓存")
         val cache =
             scheduleCacheDataSource.getSchedule(
                 startDate,
@@ -24,12 +25,15 @@ class ScheduleRepositoryImpl(
 
         when (cache) {
             is ScheduleCacheDataSource.DataResult.Error -> {
-                logger.e(null, "缓存异常")
+                logger.e(cache.error.cause, "缓存异常")
                 return ScheduleData.Failed(cache.error)
             }
 
-            ScheduleCacheDataSource.DataResult.NoCache -> {}
+            ScheduleCacheDataSource.DataResult.NoCache -> {
+                logger.i("获取课表: 缓存未命中，请求远程数据")
+            }
             is ScheduleCacheDataSource.DataResult.Success -> {
+                logger.i("获取课表: 缓存命中")
                 return ScheduleData.Success(cache.list)
             }
         }
@@ -42,11 +46,12 @@ class ScheduleRepositoryImpl(
             )
         when (remote) {
             is ScheduleRemoteDataSource.DataResult.Error -> {
-                logger.e(null, "远程拉取异常")
+                logger.e(remote.error.cause, "远程拉取异常")
                 return ScheduleData.Failed(remote.error)
             }
 
             is ScheduleRemoteDataSource.DataResult.Success -> {
+                logger.i("获取课表: 远程数据获取成功")
                 scheduleCacheDataSource.saveSchedule(
                     startDate,
                     endDate,
@@ -58,6 +63,7 @@ class ScheduleRepositoryImpl(
     }
 
     override suspend fun cleanScheduleCache() {
+        logger.i("清除课表缓存")
         scheduleCacheDataSource.cleanSchedule()
     }
 }

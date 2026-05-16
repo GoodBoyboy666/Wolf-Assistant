@@ -35,19 +35,22 @@ object ScheduleCenterModule {
     @Singleton
     fun provideScheduleCacheDataSource(
         @ApplicationContext context: Context,
-    ): ScheduleCacheDataSource = ScheduleCacheDataSourceImpl(context)
+        logger: AppLogger,
+    ): ScheduleCacheDataSource = ScheduleCacheDataSourceImpl(context, logger)
 
     @Provides
     @Singleton
-    fun provideScheduleRemoteDataSource(apiService: ScheduleAPIService): ScheduleRemoteDataSource =
-        ScheduleRemoteDataSourceImpl(apiService)
+    fun provideScheduleRemoteDataSource(
+        apiService: ScheduleAPIService,
+        logger: AppLogger,
+    ): ScheduleRemoteDataSource = ScheduleRemoteDataSourceImpl(apiService, logger)
 
     @Provides
     @Singleton
     fun provideScheduleCenterRepository(
         scheduleCacheDataSource: ScheduleCacheDataSource,
         scheduleRemoteDataSource: ScheduleRemoteDataSource,
-        logger: AppLogger
+        logger: AppLogger,
     ): ScheduleRepository = ScheduleRepositoryImpl(scheduleCacheDataSource, scheduleRemoteDataSource, logger)
 
     @Provides
@@ -55,13 +58,15 @@ object ScheduleCenterModule {
     fun provideLabScheduleRemoteDataSource(
         ssoApiService: LabScheduleSSOAPIService,
         scheduleAPIService: LabScheduleAPIService,
-    ): LabScheduleRemoteDataSource = LabScheduleRemoteDataSourceImpl(ssoApiService, scheduleAPIService)
+        logger: AppLogger,
+    ): LabScheduleRemoteDataSource = LabScheduleRemoteDataSourceImpl(ssoApiService, scheduleAPIService, logger)
 
     @Provides
     @Singleton
     fun provideLabScheduleCacheDataSource(
         @ApplicationContext context: Context,
-    ): LabScheduleCacheDataSource = LabScheduleCacheDataSourceImpl(context)
+        logger: AppLogger,
+    ): LabScheduleCacheDataSource = LabScheduleCacheDataSourceImpl(context, logger)
 
     @Provides
     @Singleton
@@ -69,14 +74,15 @@ object ScheduleCenterModule {
         labScheduleRemoteDataSource: LabScheduleRemoteDataSource,
         labScheduleCacheDataSource: LabScheduleCacheDataSource,
         settingsRepository: SettingsRepository,
+        logger: AppLogger,
     ): LabScheduleRepository =
-        LabScheduleRepositoryImpl(labScheduleRemoteDataSource, labScheduleCacheDataSource, settingsRepository)
+        LabScheduleRepositoryImpl(labScheduleRemoteDataSource, labScheduleCacheDataSource, settingsRepository, logger)
 
     @Provides
     @Singleton
     fun provideScheduleNotificationRepository(
         @ApplicationContext context: Context,
         scheduleNotificationTaskDao: ScheduleNotificationTaskDao,
-        logger: AppLogger
+        logger: AppLogger,
     ): ScheduleNotificationRepository = ScheduleNotificationRepositoryImpl(scheduleNotificationTaskDao, context, logger)
 }

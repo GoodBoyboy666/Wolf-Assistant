@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.shareIn
 import top.goodboyboy.wolfassistant.R
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.messagecenter.model.MessageItem
 import top.goodboyboy.wolfassistant.ui.messagecenter.repository.MessageRepository
@@ -25,6 +26,7 @@ class MessageCenterViewModel
         private val messageRepository: MessageRepository,
         private val settingsRepository: SettingsRepository,
         private val application: Application,
+        private val logger: AppLogger,
     ) : ViewModel() {
         //    val messageCategory = listOf("公告", "学工系统", "办事大厅")
         val messageCategory = listOf(application.getString(R.string.announcement), application.getString(R.string.xgxt))
@@ -32,6 +34,7 @@ class MessageCenterViewModel
 
         @OptIn(ExperimentalCoroutinesApi::class)
         fun getMessagePagingFlow(category: Int): Flow<PagingData<MessageItem>> {
+            logger.i("创建消息分页流: category=$category")
             val cachedFlow = messageFlows[category]
             if (cachedFlow != null) {
                 return cachedFlow
@@ -41,6 +44,7 @@ class MessageCenterViewModel
                 flow {
                     val accessToken = settingsRepository.getAccessTokenDecrypted()
                     if (accessToken.isBlank()) {
+                        logger.e(null, "令牌为空，无法获取消息")
                         emit(messageRepository.createErrorFlow(Throwable("accessToken为空或null")))
                     } else {
                         val appidData =
@@ -49,6 +53,7 @@ class MessageCenterViewModel
                             )
                         when (appidData) {
                             is MessageRepository.AppIDData.Failed -> {
+                                logger.e(null, "获取APPID失败")
                                 emit(messageRepository.createErrorFlow(Throwable("获取APPID失败")))
                             }
 

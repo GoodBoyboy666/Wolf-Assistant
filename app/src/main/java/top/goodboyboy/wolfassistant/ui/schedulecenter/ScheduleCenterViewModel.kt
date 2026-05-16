@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.event.RollBackToCurrentDateEvent
 import top.goodboyboy.wolfassistant.ui.schedulecenter.event.SubmitScheduleNotification
@@ -34,6 +35,7 @@ class ScheduleCenterViewModel
         private val settingsRepository: SettingsRepository,
         private val scheduleNotificationController: ScheduleNotificationController,
         globalEventBus: GlobalEventBus,
+        private val logger: AppLogger,
     ) : ViewModel() {
         companion object {
             const val SCHEDULE_CENTER_TAG = "ScheduleCenter"
@@ -91,6 +93,7 @@ class ScheduleCenterViewModel
         val weekNumber: StateFlow<Int> = _weekNumber.asStateFlow()
 
         suspend fun loadScheduleList() {
+            logger.i("加载课表")
             val startDay = firstDay.value
             val endDay = lastDay.value
             if (startDay == null || endDay == null) {
@@ -115,10 +118,11 @@ class ScheduleCenterViewModel
             when (data) {
                 is Failed -> {
                     _loadScheduleState.value = LoadScheduleState.Failed(data.error.message)
-                    data.error.cause?.printStackTrace()
+                    logger.e(data.error.cause, "加载课表失败")
                 }
 
                 is Success -> {
+                    logger.i("加载课表成功")
                     _scheduleList.value = data.data
                     _loadScheduleState.value = LoadScheduleState.Success
                 }
@@ -126,12 +130,14 @@ class ScheduleCenterViewModel
         }
 
         suspend fun cleanCache() {
+            logger.i("清除课表缓存")
             withContext(Dispatchers.IO) {
                 scheduleRepository.cleanScheduleCache()
             }
         }
 
         suspend fun cleanLabCache() {
+            logger.i("清除课表缓存")
             withContext(Dispatchers.IO) {
                 labScheduleRepository.cleanLabScheduleCache()
             }
@@ -146,16 +152,19 @@ class ScheduleCenterViewModel
         }
 
         suspend fun loadLabScheduleList() {
+            logger.i("加载实验课表")
             _loadLabScheduleState.value = LoadScheduleState.Loading
 
             val data = labScheduleRepository.getLabSchedule(weekNumber.first())
             when (data) {
                 is LabScheduleRepository.LabScheduleData.Failed -> {
+                    logger.e(data.error.cause, "加载实验课表失败")
                     _loadLabScheduleState.value =
                         LoadScheduleState.Failed(data.error.message + data.error.cause?.message)
                 }
 
                 is LabScheduleRepository.LabScheduleData.Success -> {
+                    logger.i("加载实验课表成功")
                     _labScheduleList.value = data.data
                     _loadLabScheduleState.value = LoadScheduleState.Success
                 }
@@ -168,6 +177,7 @@ class ScheduleCenterViewModel
         }
 
         suspend fun setScheduleNotification() {
+            logger.i("设置课表通知")
             if (loadScheduleState.value != LoadScheduleState.Success ||
                 loadLabScheduleState.value != LoadScheduleState.Success
             ) {

@@ -5,6 +5,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.login.repository.LoginRepository
 import top.goodboyboy.wolfassistant.util.Hash.sha256
@@ -17,6 +18,7 @@ class LoginViewModel
     constructor(
         private val settingsRepository: SettingsRepository,
         private val loginRepository: LoginRepository,
+        private val logger: AppLogger,
     ) : ViewModel() {
         sealed class LoginState {
             object Idle : LoginState()
@@ -43,6 +45,7 @@ class LoginViewModel
             id: String,
             passwd: String,
         ) {
+            logger.i("开始登录")
             _loginState.value = LoginState.Loading
             val status =
                 loginRepository.loginUser(
@@ -55,10 +58,12 @@ class LoginViewModel
                 )
             when (status) {
                 is LoginRepository.UserData.Failed -> {
+                    logger.e(status.error.cause, "登录失败")
                     _loginState.value = LoginState.Failed(status.error.message)
                 }
 
                 is LoginRepository.UserData.Success -> {
+                    logger.i("登录成功")
                     settingsRepository.setUserID(status.data.userID)
                     settingsRepository.setUserPasswordEncrypted(passwd)
                     settingsRepository.setUserOrganization(status.data.userOrganization)

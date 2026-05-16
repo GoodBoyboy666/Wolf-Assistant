@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import top.goodboyboy.wolfassistant.log.AppLogger
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,6 +16,7 @@ class AppAlarmManager
     constructor(
         @param:ApplicationContext private val context: Context,
         private val alarmManager: AlarmManager,
+        private val logger: AppLogger,
     ) {
         @SuppressLint("ScheduleExactAlarm")
         fun scheduleWakeUp(
@@ -22,11 +24,13 @@ class AppAlarmManager
             eventId: Long,
             triggerTime: Long,
         ) {
+            logger.tag("Alarm").i("调度闹钟: type=${type.name}, eventId=$eventId")
             val pendingIntent = createPendingIntent(type, eventId, triggerTime)
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
         }
 
         fun cancelAlarm(eventId: Long) {
+            logger.tag("Alarm").i("取消闹钟: eventId=$eventId")
             val pendingIntent = createPendingIntent(AlarmBizType.UNKNOWN, eventId, 0L)
             alarmManager.cancel(pendingIntent)
         }

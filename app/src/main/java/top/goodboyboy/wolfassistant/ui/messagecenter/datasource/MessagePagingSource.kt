@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.google.gson.JsonParser
 import top.goodboyboy.wolfassistant.api.hutapi.message.MessageAPIService
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.messagecenter.model.MessageItem
 
 /**
@@ -12,12 +13,14 @@ import top.goodboyboy.wolfassistant.ui.messagecenter.model.MessageItem
  * @property accessToken 令牌
  * @property appID appid（message）
  * @property apiService MessageAPIService依赖注入
+ * @property logger 日志记录器
  * @constructor Create empty Message paging source
  */
 class MessagePagingSource(
     private val accessToken: String,
     private val appID: String = "",
     private val apiService: MessageAPIService,
+    private val logger: AppLogger? = null,
 ) : PagingSource<Int, MessageItem>() {
     companion object {
         const val INITIAL_PAGE_INDEX = 0
@@ -64,6 +67,7 @@ class MessagePagingSource(
                 nextKey = nextKey,
             )
         } catch (e: Exception) {
+            logger?.e(e, "加载消息页失败: page=$page")
             LoadResult.Error(e)
         }
     }

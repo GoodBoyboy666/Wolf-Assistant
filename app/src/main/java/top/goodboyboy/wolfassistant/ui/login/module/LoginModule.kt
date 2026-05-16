@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import top.goodboyboy.wolfassistant.api.hutapi.user.LoginAPIService
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.login.repository.LoginRepository
 import top.goodboyboy.wolfassistant.ui.login.repository.LoginRepositoryImpl
 import javax.inject.Singleton
@@ -14,5 +15,8 @@ import javax.inject.Singleton
 object LoginModule {
     @Provides
     @Singleton
-    fun provideLoginRepository(apiService: LoginAPIService): LoginRepository = LoginRepositoryImpl(apiService)
+    fun provideLoginRepository(
+        apiService: LoginAPIService,
+        logger: AppLogger,
+    ): LoginRepository = LoginRepositoryImpl(apiService, logger)
 }

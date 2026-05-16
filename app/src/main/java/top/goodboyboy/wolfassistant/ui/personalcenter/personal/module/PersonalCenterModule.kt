@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import top.goodboyboy.wolfassistant.api.hutapi.user.UserAPIService
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoCacheDataSource
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoCacheDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoRemoteDataSource
@@ -22,17 +23,21 @@ object PersonalCenterModule {
     @Singleton
     fun providePersonalInfoCacheDataSource(
         @ApplicationContext context: Context,
-    ): PersonalInfoCacheDataSource = PersonalInfoCacheDataSourceImpl(context)
+        logger: AppLogger,
+    ): PersonalInfoCacheDataSource = PersonalInfoCacheDataSourceImpl(context, logger)
 
     @Provides
     @Singleton
-    fun providePersonalInfoRemoteDataSource(apiService: UserAPIService): PersonalInfoRemoteDataSource =
-        PersonalInfoRemoteDataSourceImpl(apiService)
+    fun providePersonalInfoRemoteDataSource(
+        apiService: UserAPIService,
+        logger: AppLogger,
+    ): PersonalInfoRemoteDataSource = PersonalInfoRemoteDataSourceImpl(apiService, logger)
 
     @Provides
     @Singleton
     fun providePersonalInfoRepository(
         cacheDataSource: PersonalInfoCacheDataSource,
         remoteDataSource: PersonalInfoRemoteDataSource,
-    ): PersonalInfoRepository = PersonalInfoRepositoryImpl(cacheDataSource, remoteDataSource)
+        logger: AppLogger,
+    ): PersonalInfoRepository = PersonalInfoRepositoryImpl(cacheDataSource, remoteDataSource, logger)
 }

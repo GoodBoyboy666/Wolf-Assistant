@@ -1,7 +1,6 @@
 package top.goodboyboy.wolfassistant.util
 
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
 
 object CrashInfoUtil {
@@ -11,14 +10,10 @@ object CrashInfoUtil {
         // ---------------------------------------------------------
         // App 版本信息
         // ---------------------------------------------------------
-        try {
-            val pm = context.packageManager
-            val pi = pm.getPackageInfo(context.packageName, 0)
-            sb.append("App Version Name: ${pi.versionName}\n")
-            sb.append("App Version Code: ${pi.longVersionCode}\n")
-        } catch (e: PackageManager.NameNotFoundException) {
-            sb.append("App Version: Unknown\n")
-        }
+        val pm = context.packageManager
+        val pi = pm.getPackageInfo(context.packageName, 0)
+        sb.append("App Version Name: ${pi.versionName}\n")
+        sb.append("App Version Code: ${pi.longVersionCode}\n")
 
         // ---------------------------------------------------------
         // 操作系统信息

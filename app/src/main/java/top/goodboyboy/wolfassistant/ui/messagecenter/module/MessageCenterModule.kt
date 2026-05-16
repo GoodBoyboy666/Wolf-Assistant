@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import top.goodboyboy.wolfassistant.api.hutapi.message.MessageAPIService
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.messagecenter.datasource.MessageDataSource
 import top.goodboyboy.wolfassistant.ui.messagecenter.datasource.MessageDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.messagecenter.repository.MessageRepository
@@ -19,9 +20,13 @@ object MessageCenterModule {
     fun provideMessageRepository(
         apiService: MessageAPIService,
         messageDataSource: MessageDataSource,
-    ): MessageRepository = MessageRepositoryImpl(apiService, messageDataSource)
+        logger: AppLogger,
+    ): MessageRepository = MessageRepositoryImpl(apiService, messageDataSource, logger)
 
     @Provides
     @Singleton
-    fun provideMessageDataSource(apiService: MessageAPIService): MessageDataSource = MessageDataSourceImpl(apiService)
+    fun provideMessageDataSource(
+        apiService: MessageAPIService,
+        logger: AppLogger,
+    ): MessageDataSource = MessageDataSourceImpl(apiService, logger)
 }
