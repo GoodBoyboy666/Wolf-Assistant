@@ -13,8 +13,10 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
 import top.goodboyboy.wolfassistant.ui.components.TopBarConstants
@@ -28,6 +30,7 @@ fun ScheduleCenterView(
     viewModel: ScheduleCenterViewModel,
     globalEventBus: GlobalEventBus,
 ) {
+    val showSubmitScheduleNotificationDialog by viewModel.showScheduleNotificationDialog.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
         viewModel.errorMessage.collect { message ->
             snackbarHostState.showSnackbar(message)
@@ -49,6 +52,19 @@ fun ScheduleCenterView(
                     ),
                 )
             }
+        }
+    }
+
+    if (showSubmitScheduleNotificationDialog) {
+        SubmitScheduleNotificationDialog(
+            {
+                scope.launch {
+                    viewModel.setScheduleNotification()
+                    viewModel.setShowScheduleNotificationDialog(false)
+                }
+            },
+        ) {
+            viewModel.setShowScheduleNotificationDialog(false)
         }
     }
 

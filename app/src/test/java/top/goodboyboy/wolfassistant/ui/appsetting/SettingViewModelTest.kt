@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test
 import top.goodboyboy.wolfassistant.BuildConfig
 import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionDomainData
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionInfo
@@ -59,6 +60,7 @@ class SettingViewModelTest {
     private lateinit var application: Application
     private lateinit var context: Context
     private lateinit var okHttpClient: OkHttpClient
+    private val logger: AppLogger = mockk(relaxed = true)
 
     private lateinit var viewModel: SettingViewModel
 
@@ -112,6 +114,7 @@ class SettingViewModelTest {
                 labScheduleRepository,
                 application,
                 okHttpClient,
+                logger,
             )
     }
 
@@ -233,7 +236,7 @@ class SettingViewModelTest {
     @Test
     fun `getUpdateInfo error updates state`() =
         runTest {
-            val failure = mockk<Failure>()
+            val failure = Failure.IOError("test", null)
             coEvery { appSettingRepository.getUpdateInfo(BuildConfig.VERSION_NAME, false) } returns
                 VersionDomainData.Error(failure)
 

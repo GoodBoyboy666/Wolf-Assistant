@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.model.PersonalInfo
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.repository.PersonalInfoRepository
@@ -20,6 +21,7 @@ class PersonalCenterViewModel
     constructor(
         private val personalInfoRepository: PersonalInfoRepository,
         private val settingsRepository: SettingsRepository,
+        private val logger: AppLogger,
     ) : ViewModel() {
         private val _loadState = MutableStateFlow<LoadState>(LoadState.Idle)
         val loadState: StateFlow<LoadState> = _loadState.asStateFlow()
@@ -47,6 +49,7 @@ class PersonalCenterViewModel
         }
 
         suspend fun loadPersonalInfo() {
+            logger.i("加载个人信息")
             val accessToken = settingsRepository.getAccessTokenDecrypted()
             val info =
                 personalInfoRepository.getPersonalInfo(
@@ -56,11 +59,12 @@ class PersonalCenterViewModel
                 is PersonalInfoRepository.PersonalInfoData.Failed -> {
                     withContext(Dispatchers.Main) {
                         _loadState.value = LoadState.Failed(info.error.message)
-                        info.error.cause?.printStackTrace()
+                        logger.e(info.error.cause, "加载个人信息失败")
                     }
                 }
 
                 is PersonalInfoRepository.PersonalInfoData.Success -> {
+                    logger.i("加载个人信息成功")
                     withContext(Dispatchers.Main) {
                         _personalInfo.value = info.data
                         _loadState.value = LoadState.Success

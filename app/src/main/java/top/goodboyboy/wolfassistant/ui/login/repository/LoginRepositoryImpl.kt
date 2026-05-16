@@ -9,6 +9,7 @@ import okio.IOException
 import retrofit2.HttpException
 import top.goodboyboy.wolfassistant.api.hutapi.user.LoginAPIService
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.login.model.UserInfo
 import top.goodboyboy.wolfassistant.ui.login.repository.LoginRepository.UserData
 import javax.inject.Inject
@@ -17,6 +18,7 @@ class LoginRepositoryImpl
     @Inject
     constructor(
         private val apiService: LoginAPIService,
+        private val logger: AppLogger,
     ) : LoginRepository {
         override suspend fun loginUser(
             username: String,
@@ -27,6 +29,7 @@ class LoginRepositoryImpl
             clientId: String,
         ): UserData {
             try {
+                logger.i("开始登录用户")
                 val emptyRequestBody =
                     "".toRequestBody("application/x-www-form-urlencoded".toMediaType())
                 val response =
@@ -63,6 +66,7 @@ class LoginRepositoryImpl
                                 userName,
                                 accessToken,
                             )
+                        logger.i("登录成功")
                         return UserData.Success(userInfo)
                     } else {
                         return UserData.Failed(
@@ -74,6 +78,7 @@ class LoginRepositoryImpl
                     }
                 }
             } catch (e: HttpException) {
+                logger.e(e, "登录失败: HTTP错误 ${e.code()}")
                 return UserData.Failed(
                     Failure.ApiError(
                         e.code(),
@@ -81,8 +86,10 @@ class LoginRepositoryImpl
                     ),
                 )
             } catch (e: IOException) {
+                logger.e(e, "登录失败: IO异常")
                 return UserData.Failed(Failure.IOError("登录时时出现IO异常" + e.message, e))
             } catch (e: JsonParseException) {
+                logger.e(e, "登录失败: Json解析异常")
                 return UserData.Failed(
                     Failure.JsonParsingError(
                         "登录时出现Json解析异常" + e.message,
@@ -90,6 +97,7 @@ class LoginRepositoryImpl
                     ),
                 )
             } catch (e: Exception) {
+                logger.e(e, "登录失败: 未知异常")
                 return UserData.Failed(Failure.UnknownError(e))
             }
         }

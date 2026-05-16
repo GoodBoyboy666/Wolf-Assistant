@@ -7,6 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import top.goodboyboy.wolfassistant.room.dao.ScheduleNotificationTaskDao
 import top.goodboyboy.wolfassistant.room.dao.ServiceItemDao
 import top.goodboyboy.wolfassistant.room.dao.TokenKeyNameDao
 import javax.inject.Singleton
@@ -30,4 +31,8 @@ object DatabaseModule {
 
     @Provides
     fun provideTokenKeyNameDao(database: AppDatabase): TokenKeyNameDao = database.tokenKeyNameDao()
+
+    @Provides
+    fun provideScheduleNotificationTaskDao(database: AppDatabase): ScheduleNotificationTaskDao =
+        database.scheduleNotificationTaskDao()
 }

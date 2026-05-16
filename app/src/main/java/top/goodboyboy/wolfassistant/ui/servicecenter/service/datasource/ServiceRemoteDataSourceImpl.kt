@@ -8,6 +8,7 @@ import okio.IOException
 import retrofit2.HttpException
 import top.goodboyboy.wolfassistant.api.hutapi.service.ServiceListAPIService
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceRemoteDataSource.DataResult
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.ServiceItem
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.TokenKeyName
@@ -17,9 +18,11 @@ class ServiceRemoteDataSourceImpl
     @Inject
     constructor(
         private val apiService: ServiceListAPIService,
+        private val logger: AppLogger,
     ) : ServiceRemoteDataSource {
         override suspend fun getServiceList(accessToken: String): DataResult {
             try {
+                logger.tag("ServiceRemote").i("获取服务列表")
                 val emptyRequestBody = "".toRequestBody("application/json".toMediaType())
                 val response =
                     apiService.getServiceList(
@@ -53,6 +56,7 @@ class ServiceRemoteDataSourceImpl
                     return DataResult.Success(list.toList())
                 }
             } catch (e: HttpException) {
+                logger.e(e, "获取服务列表时发生Http异常")
                 return DataResult.Error(
                     Failure.ApiError(
                         e.code(),
@@ -60,8 +64,10 @@ class ServiceRemoteDataSourceImpl
                     ),
                 )
             } catch (e: IOException) {
+                logger.e(e, "获取服务列表时发生IO异常")
                 return DataResult.Error(Failure.IOError("请求服务列表时出现IO异常" + e.message, e))
             } catch (e: JsonParseException) {
+                logger.e(e, "获取服务列表时发生Json解析异常")
                 return DataResult.Error(
                     Failure.JsonParsingError(
                         "请求服务列表时出现Json解析异常" + e.message,
@@ -69,6 +75,7 @@ class ServiceRemoteDataSourceImpl
                     ),
                 )
             } catch (e: Exception) {
+                logger.e(e, "获取服务列表时发生未知异常")
                 return DataResult.Error(Failure.UnknownError(e))
             }
         }

@@ -13,6 +13,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -42,6 +43,7 @@ import top.goodboyboy.wolfassistant.ui.event.BrowserMenuClickEvent
 import top.goodboyboy.wolfassistant.ui.event.TopBarTitleEvent
 import top.goodboyboy.wolfassistant.ui.schedulecenter.ScheduleCenterViewModel
 import top.goodboyboy.wolfassistant.ui.schedulecenter.event.RollBackToCurrentDateEvent
+import top.goodboyboy.wolfassistant.ui.schedulecenter.event.SubmitScheduleNotification
 
 object TopBarConstants {
     const val TOP_BAR_TAG = "TopBar"
@@ -69,9 +71,10 @@ fun TopBar(
     }
 
     LaunchedEffect(currentRoute) {
-        // 设置页面和浏览器页面均使用回退按钮
+        // 设置页面、浏览器页面、课表页面均展示navigation按钮
         showNavigationIcon = currentRoute in listOf("setting") ||
-            (currentRoute != null && currentRoute.startsWith("browser"))
+            (currentRoute != null && currentRoute.startsWith("browser")) ||
+            (currentRoute == ScreenRoute.Schedule.route)
 
         // 浏览器页面和课表页面展示action按钮
         showActions = (currentRoute != null && currentRoute.startsWith("browser")) ||
@@ -125,13 +128,27 @@ fun TopBar(
                     enter = slideInVertically { -it } + fadeIn(),
                     exit = slideOutVertically { -it } + fadeOut(),
                 ) {
-                    IconButton(onClick = {
-                        navController.popBackStack()
-                    }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = stringResource(R.string.back),
-                        )
+                    if (currentRoute == ScreenRoute.Schedule.route) {
+                        IconButton(onClick = {
+                            scope.launch {
+                                globalEventBus.emit(
+                                    SubmitScheduleNotification(
+                                        targetTag = ScheduleCenterViewModel.SCHEDULE_CENTER_TAG,
+                                    ),
+                                )
+                            }
+                        }) {
+                            Icon(Icons.Rounded.Alarm, "订阅当前周课表通知")
+                        }
+                    } else {
+                        IconButton(onClick = {
+                            navController.popBackStack()
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                contentDescription = stringResource(R.string.back),
+                            )
+                        }
                     }
                 }
             },

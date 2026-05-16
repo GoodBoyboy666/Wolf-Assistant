@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.ServiceItem
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.SearchRepository
@@ -27,6 +28,7 @@ class ServiceCenterViewModel
         private val settingsRepository: SettingsRepository,
         private val searchRepository: SearchRepository,
         val okHttpClient: OkHttpClient,
+        private val logger: AppLogger,
     ) : ViewModel() {
         private val _loadServiceState = MutableStateFlow<LoadServiceState>(LoadServiceState.Idle)
         val loadServiceState: StateFlow<LoadServiceState> = _loadServiceState.asStateFlow()
@@ -67,6 +69,7 @@ class ServiceCenterViewModel
         }
 
         suspend fun loadService() {
+            logger.i("加载服务列表")
             _loadServiceState.value = LoadServiceState.Loading
             val accessToken = settingsRepository.getAccessTokenDecrypted()
             val data =
@@ -76,10 +79,11 @@ class ServiceCenterViewModel
             when (data) {
                 is ServiceRepository.ServiceListData.Failed -> {
                     _loadServiceState.value = LoadServiceState.Failed(data.error.message)
-                    data.error.cause?.printStackTrace()
+                    logger.e(data.error.cause, "加载服务列表失败")
                 }
 
                 is ServiceRepository.ServiceListData.Success -> {
+                    logger.i("加载服务列表成功")
                     allServiceItems.value = data.data
                     _loadServiceState.value = LoadServiceState.Success
                 }
@@ -87,6 +91,7 @@ class ServiceCenterViewModel
         }
 
         suspend fun cleanServiceList() {
+            logger.i("清除服务列表")
             allServiceItems.value = emptyList()
             serviceRepository.cleanServiceList()
         }

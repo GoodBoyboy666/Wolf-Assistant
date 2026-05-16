@@ -1,7 +1,6 @@
 package top.goodboyboy.wolfassistant.api.hutapi
 
 import android.annotation.SuppressLint
-import android.util.Log
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,6 +19,7 @@ import top.goodboyboy.wolfassistant.api.hutapi.schedule.ScheduleAPIService
 import top.goodboyboy.wolfassistant.api.hutapi.service.ServiceListAPIService
 import top.goodboyboy.wolfassistant.api.hutapi.user.LoginAPIService
 import top.goodboyboy.wolfassistant.api.hutapi.user.UserAPIService
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.appsetting.GlobalInitConfig
 import top.goodboyboy.wolfassistant.util.UserAgentUtils
 import java.net.Inet4Address
@@ -49,6 +49,7 @@ object HUTAPIModule {
     fun provideOKHttpBuilder(
         cookieJar: CookieJar,
         sharedPool: ConnectionPool,
+        logger: AppLogger,
     ): OkHttpClient.Builder {
         val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
         trustManagerFactory.init(null as KeyStore?)
@@ -73,10 +74,10 @@ object HUTAPIModule {
                 ) {
                     // 判断是否禁用SSL验证
                     if (GlobalInitConfig.disableSSL) {
-                        Log.w("SSL_Warning", "Ignoring server certificate validation")
+                        logger.tag("SSL_Info").w("Ignoring server certificate validation")
                         return
                     } else {
-                        Log.i("SSL_Info", "执行系统标准校验")
+                        logger.tag("SSL_Info").i("执行系统标准校验")
                         systemDefaultTrustManager.checkServerTrusted(chain, authType)
                     }
                 }

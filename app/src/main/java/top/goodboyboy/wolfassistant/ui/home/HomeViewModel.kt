@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.home.portal.model.PortalCategoryItem
 import top.goodboyboy.wolfassistant.ui.home.portal.model.PortalInfoItem
@@ -20,6 +21,7 @@ class HomeViewModel
     constructor(
         private val portalRepository: PortalRepository,
         private val settingsRepository: SettingsRepository,
+        private val logger: AppLogger,
     ) : ViewModel() {
         sealed class PortalState {
             object Idle : PortalState()
@@ -68,6 +70,7 @@ class HomeViewModel
          *
          */
         suspend fun loadPortalCategories() {
+            logger.i("加载门户分类")
             val categories =
                 portalRepository.getPortalCategory(
                     settingsRepository.getAccessTokenDecrypted(),
@@ -75,7 +78,7 @@ class HomeViewModel
             when (categories) {
                 is PortalRepository.PortalData.Failed -> {
                     _portalState.value = PortalState.Failed(categories.e.message)
-                    categories.e.cause?.printStackTrace()
+                    logger.e(categories.e.cause, "加载门户分类失败")
                 }
 
                 is PortalRepository.PortalData.Success<List<PortalCategoryItem>> -> {
@@ -89,6 +92,7 @@ class HomeViewModel
          *
          */
         suspend fun loadPortalInfo() {
+            logger.i("加载门户信息")
             val allInfos = mutableListOf<List<PortalInfoItem>>()
             portalCategoryList.value.forEach { category ->
                 val infos =
@@ -97,6 +101,7 @@ class HomeViewModel
                     )
                 when (infos) {
                     is PortalRepository.PortalData.Failed -> {
+                        logger.e(infos.e.cause, "加载门户信息列表失败")
                         allInfos.add(emptyList())
                     }
 
@@ -117,6 +122,7 @@ class HomeViewModel
         }
 
         suspend fun cleanPortal() {
+            logger.i("清除门户数据")
             _portalInfoList.value = emptyList()
             _portalCategoryList.value = emptyList()
             portalRepository.cleanCache()

@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import top.goodboyboy.wolfassistant.api.hutapi.message.MessageAPIService
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.messagecenter.datasource.MessageDataSource
 
 /**
@@ -20,10 +21,11 @@ class MessageRepositoryImplTest {
     private lateinit var repository: MessageRepositoryImpl
     private val apiService: MessageAPIService = mockk()
     private val messageDataSource: MessageDataSource = mockk()
+    private val logger: AppLogger = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
-        repository = MessageRepositoryImpl(apiService, messageDataSource)
+        repository = MessageRepositoryImpl(apiService, messageDataSource, logger)
     }
 
     /**

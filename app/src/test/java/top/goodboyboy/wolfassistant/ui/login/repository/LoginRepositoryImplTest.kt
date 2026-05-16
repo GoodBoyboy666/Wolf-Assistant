@@ -20,6 +20,7 @@ import retrofit2.HttpException
 import retrofit2.Response
 import top.goodboyboy.wolfassistant.api.hutapi.user.LoginAPIService
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.login.repository.LoginRepository.UserData
 import java.io.IOException
 
@@ -33,11 +34,12 @@ import java.io.IOException
 class LoginRepositoryImplTest {
     private lateinit var apiService: LoginAPIService
     private lateinit var repository: LoginRepositoryImpl
+    private val logger: AppLogger = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
         apiService = mockk()
-        repository = LoginRepositoryImpl(apiService)
+        repository = LoginRepositoryImpl(apiService, logger)
 
         // Mock Android Base64，因为 JWT 库依赖它，而单元测试运行在 JVM 上
         mockkStatic(Base64::class)

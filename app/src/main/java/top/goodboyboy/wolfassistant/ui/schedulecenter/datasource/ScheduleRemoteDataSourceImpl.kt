@@ -6,6 +6,7 @@ import okio.IOException
 import retrofit2.HttpException
 import top.goodboyboy.wolfassistant.api.hutapi.schedule.ScheduleAPIService
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleRemoteDataSource.DataResult
 import top.goodboyboy.wolfassistant.ui.schedulecenter.model.ScheduleItem
 import java.time.LocalDate
@@ -18,6 +19,7 @@ class ScheduleRemoteDataSourceImpl
     @Inject
     constructor(
         private val apiService: ScheduleAPIService,
+        private val logger: AppLogger,
     ) : ScheduleRemoteDataSource {
         override suspend fun getSchedule(
             accessToken: String,
@@ -25,6 +27,7 @@ class ScheduleRemoteDataSourceImpl
             endDate: LocalDate,
         ): DataResult {
             try {
+                logger.tag("ScheduleRemote").i("获取课表远程数据: $startDate ~ $endDate")
                 val response =
                     apiService.getSchedule(
                         accessToken = accessToken,
@@ -83,9 +86,11 @@ class ScheduleRemoteDataSourceImpl
                                 }
                             }
                         }
+                    logger.tag("ScheduleRemote").i("获取课表远程数据成功")
                     return DataResult.Success(list)
                 }
             } catch (e: HttpException) {
+                logger.e(e, "获取课表远程数据时发生Http异常")
                 return DataResult.Error(
                     Failure.ApiError(
                         e.code(),
@@ -93,6 +98,7 @@ class ScheduleRemoteDataSourceImpl
                     ),
                 )
             } catch (e: JsonParseException) {
+                logger.e(e, "获取课表远程数据时发生Json解析异常")
                 return DataResult.Error(
                     Failure.JsonParsingError(
                         "请求课表时出现Json解析异常" + e.message,
@@ -100,11 +106,13 @@ class ScheduleRemoteDataSourceImpl
                     ),
                 )
             } catch (e: IOException) {
+                logger.e(e, "获取课表远程数据时发生IO异常")
                 return DataResult.Error(Failure.IOError("请求课表时出现IO异常" + e.message, e))
             } catch (e: Exception) {
                 if (e is CancellationException) {
                     throw e
                 }
+                logger.e(e, "获取课表远程数据时发生未知异常")
                 return DataResult.Error(Failure.UnknownError(e))
             }
         }

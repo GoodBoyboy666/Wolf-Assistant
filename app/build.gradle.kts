@@ -15,8 +15,8 @@ android {
         applicationId = "top.goodboyboy.wolfassistant"
         minSdk = 28
         targetSdk = 36
-        versionCode = 21
-        versionName = "1.5.0"
+        versionCode = 22
+        versionName = "1.5.0-beta.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         android.buildFeatures.buildConfig = true
@@ -103,6 +103,10 @@ android {
     }
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -162,4 +166,5 @@ dependencies {
     implementation(libs.jwtdecode)
     testImplementation(libs.robolectric)
     implementation(libs.jsoup)
+    implementation(libs.xlog)
 }

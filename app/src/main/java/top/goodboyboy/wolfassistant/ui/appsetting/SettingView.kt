@@ -1,6 +1,5 @@
 package top.goodboyboy.wolfassistant.ui.appsetting
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -262,14 +261,6 @@ fun SettingView(
         when (checkUpdateState) {
             is SettingViewModel.CheckUpdateState.Error -> {
                 val message = (checkUpdateState as SettingViewModel.CheckUpdateState.Error).error.message
-                val stackTrace =
-                    (checkUpdateState as SettingViewModel.CheckUpdateState.Error)
-                        .error.cause
-                        ?.stackTraceToString() ?: ""
-                Log.e(
-                    null,
-                    stackTrace,
-                )
                 LaunchedEffect(Unit) {
                     scope.launch {
                         snackbarHostState.showSnackbar(

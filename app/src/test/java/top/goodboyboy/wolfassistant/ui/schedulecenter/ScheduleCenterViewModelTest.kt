@@ -20,7 +20,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
+import top.goodboyboy.wolfassistant.ui.schedulecenter.ScheduleNotificationController
 import top.goodboyboy.wolfassistant.ui.schedulecenter.model.LabScheduleItem
 import top.goodboyboy.wolfassistant.ui.schedulecenter.model.ScheduleItem
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.LabScheduleRepository
@@ -45,6 +47,8 @@ class ScheduleCenterViewModelTest {
     private val labScheduleRepository: LabScheduleRepository = mockk(relaxed = true)
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
     private val globalEventBus: GlobalEventBus = mockk(relaxed = true)
+    private val scheduleNotificationController: ScheduleNotificationController = mockk(relaxed = true)
+    private val logger: AppLogger = mockk(relaxed = true)
 
     private val testDispatcher = StandardTestDispatcher()
 
@@ -71,7 +75,14 @@ class ScheduleCenterViewModelTest {
     fun `setFirstAndLastDay should update firstDay and lastDay flows`() =
         runTest(testDispatcher) {
             viewModel =
-                ScheduleCenterViewModel(scheduleRepository, labScheduleRepository, settingsRepository, globalEventBus)
+                ScheduleCenterViewModel(
+                    scheduleRepository,
+                    labScheduleRepository,
+                    settingsRepository,
+                    scheduleNotificationController,
+                    globalEventBus,
+                    logger,
+                )
 
             val start = LocalDate.of(2023, 1, 1)
             val end = LocalDate.of(2023, 1, 7)
@@ -89,7 +100,14 @@ class ScheduleCenterViewModelTest {
     fun `loadScheduleList should fail when dates are null`() =
         runTest(testDispatcher) {
             viewModel =
-                ScheduleCenterViewModel(scheduleRepository, labScheduleRepository, settingsRepository, globalEventBus)
+                ScheduleCenterViewModel(
+                    scheduleRepository,
+                    labScheduleRepository,
+                    settingsRepository,
+                    scheduleNotificationController,
+                    globalEventBus,
+                    logger,
+                )
 
             viewModel.loadScheduleList()
             testDispatcher.scheduler.advanceUntilIdle()
@@ -106,7 +124,14 @@ class ScheduleCenterViewModelTest {
     fun `loadScheduleList success should update scheduleList and set Success state`() =
         runTest(testDispatcher) {
             viewModel =
-                ScheduleCenterViewModel(scheduleRepository, labScheduleRepository, settingsRepository, globalEventBus)
+                ScheduleCenterViewModel(
+                    scheduleRepository,
+                    labScheduleRepository,
+                    settingsRepository,
+                    scheduleNotificationController,
+                    globalEventBus,
+                    logger,
+                )
 
             val start = LocalDate.of(2023, 1, 1)
             val end = LocalDate.of(2023, 1, 7)
@@ -135,7 +160,14 @@ class ScheduleCenterViewModelTest {
     fun `loadScheduleList failure from repository should set Failed state and emit error message`() =
         runTest(testDispatcher) {
             viewModel =
-                ScheduleCenterViewModel(scheduleRepository, labScheduleRepository, settingsRepository, globalEventBus)
+                ScheduleCenterViewModel(
+                    scheduleRepository,
+                    labScheduleRepository,
+                    settingsRepository,
+                    scheduleNotificationController,
+                    globalEventBus,
+                    logger,
+                )
 
             val start = LocalDate.of(2023, 1, 1)
             val end = LocalDate.of(2023, 1, 7)
@@ -165,7 +197,14 @@ class ScheduleCenterViewModelTest {
     fun `loadLabScheduleList success should update labScheduleList and set Success state`() =
         runTest(testDispatcher) {
             viewModel =
-                ScheduleCenterViewModel(scheduleRepository, labScheduleRepository, settingsRepository, globalEventBus)
+                ScheduleCenterViewModel(
+                    scheduleRepository,
+                    labScheduleRepository,
+                    settingsRepository,
+                    scheduleNotificationController,
+                    globalEventBus,
+                    logger,
+                )
 
             val week = 1
             val mockData = listOf(mockk<LabScheduleItem>())
@@ -191,7 +230,14 @@ class ScheduleCenterViewModelTest {
     fun `loadLabScheduleList failure should set Failed state and emit error message`() =
         runTest(testDispatcher) {
             viewModel =
-                ScheduleCenterViewModel(scheduleRepository, labScheduleRepository, settingsRepository, globalEventBus)
+                ScheduleCenterViewModel(
+                    scheduleRepository,
+                    labScheduleRepository,
+                    settingsRepository,
+                    scheduleNotificationController,
+                    globalEventBus,
+                    logger,
+                )
 
             val week = 1
             val errorMsg = "Lab Error"
@@ -216,7 +262,14 @@ class ScheduleCenterViewModelTest {
     fun `setSelectedWeek should update weekNumber and save to settings`() =
         runTest(testDispatcher) {
             viewModel =
-                ScheduleCenterViewModel(scheduleRepository, labScheduleRepository, settingsRepository, globalEventBus)
+                ScheduleCenterViewModel(
+                    scheduleRepository,
+                    labScheduleRepository,
+                    settingsRepository,
+                    scheduleNotificationController,
+                    globalEventBus,
+                    logger,
+                )
             // 确保 init 块中的协程先执行完毕
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -238,7 +291,14 @@ class ScheduleCenterViewModelTest {
             every { settingsRepository.selectWeekNum } returns flowOf(savedWeek)
 
             viewModel =
-                ScheduleCenterViewModel(scheduleRepository, labScheduleRepository, settingsRepository, globalEventBus)
+                ScheduleCenterViewModel(
+                    scheduleRepository,
+                    labScheduleRepository,
+                    settingsRepository,
+                    scheduleNotificationController,
+                    globalEventBus,
+                    logger,
+                )
             testDispatcher.scheduler.advanceUntilIdle()
 
             assertEquals(savedWeek, viewModel.weekNumber.value)
@@ -251,7 +311,14 @@ class ScheduleCenterViewModelTest {
     fun `cleanCache should call repository cleanScheduleCache`() =
         runTest(testDispatcher) {
             viewModel =
-                ScheduleCenterViewModel(scheduleRepository, labScheduleRepository, settingsRepository, globalEventBus)
+                ScheduleCenterViewModel(
+                    scheduleRepository,
+                    labScheduleRepository,
+                    settingsRepository,
+                    scheduleNotificationController,
+                    globalEventBus,
+                    logger,
+                )
 
             viewModel.cleanCache()
             testDispatcher.scheduler.advanceUntilIdle()
@@ -266,7 +333,14 @@ class ScheduleCenterViewModelTest {
     fun `cleanLabCache should call repository cleanLabScheduleCache`() =
         runTest(testDispatcher) {
             viewModel =
-                ScheduleCenterViewModel(scheduleRepository, labScheduleRepository, settingsRepository, globalEventBus)
+                ScheduleCenterViewModel(
+                    scheduleRepository,
+                    labScheduleRepository,
+                    settingsRepository,
+                    scheduleNotificationController,
+                    globalEventBus,
+                    logger,
+                )
 
             viewModel.cleanLabCache()
             testDispatcher.scheduler.advanceUntilIdle()

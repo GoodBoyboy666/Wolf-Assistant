@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.login.model.UserInfo
 import top.goodboyboy.wolfassistant.ui.login.repository.LoginRepository
@@ -32,6 +33,7 @@ class LoginViewModelTest {
     private lateinit var viewModel: LoginViewModel
     private val loginRepository: LoginRepository = mockk(relaxed = true)
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
+    private val logger: AppLogger = mockk(relaxed = true)
     private val testDispatcher = StandardTestDispatcher()
 
     /**
@@ -69,7 +71,7 @@ class LoginViewModelTest {
                 loginRepository.loginUser(any(), any(), any(), any(), any(), any())
             } returns LoginRepository.UserData.Success(userInfo)
 
-            viewModel = LoginViewModel(settingsRepository, loginRepository)
+            viewModel = LoginViewModel(settingsRepository, loginRepository, logger)
 
             viewModel.login("id", "passwd")
             testDispatcher.scheduler.advanceUntilIdle()
@@ -93,7 +95,7 @@ class LoginViewModelTest {
                 loginRepository.loginUser(any(), any(), any(), any(), any(), any())
             } returns LoginRepository.UserData.Failed(failure)
 
-            viewModel = LoginViewModel(settingsRepository, loginRepository)
+            viewModel = LoginViewModel(settingsRepository, loginRepository, logger)
 
             viewModel.login("id", "passwd")
             testDispatcher.scheduler.advanceUntilIdle()

@@ -6,6 +6,7 @@ import com.google.gson.JsonParser
 import retrofit2.HttpException
 import top.goodboyboy.wolfassistant.api.github.update.UpdateAPIService
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.appsetting.datasource.GitHubDataSource.VersionDataResult
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionInfo
 import java.io.IOException
@@ -15,9 +16,11 @@ class GitHubDataSourceImpl
     @Inject
     constructor(
         private val apiService: UpdateAPIService,
+        private val logger: AppLogger,
     ) : GitHubDataSource {
         override suspend fun checkUpdateInfo(): VersionDataResult {
             try {
+                logger.tag("GitHub").i("检查更新")
                 val response = apiService.getLatestVersionInfo()
                 response.use {
                     val releaseObject = JsonParser.parseString(it.string()).asJsonObject
@@ -25,8 +28,10 @@ class GitHubDataSourceImpl
                     return VersionDataResult.Success(versionInfo)
                 }
             } catch (e: HttpException) {
+                logger.e(e, "检查更新时发生Http异常")
                 return VersionDataResult.Error(Failure.ApiError(e.code(), e.message, e))
             } catch (e: JsonParseException) {
+                logger.e(e, "检查更新时发生Json解析异常")
                 return VersionDataResult.Error(
                     Failure.JsonParsingError(
                         "请求时出现Json解析错误" + e.message,
@@ -34,14 +39,17 @@ class GitHubDataSourceImpl
                     ),
                 )
             } catch (e: IOException) {
+                logger.e(e, "检查更新时发生IO异常")
                 return VersionDataResult.Error(Failure.IOError("请求时发生IO错误！" + e.message, e))
             } catch (e: Exception) {
+                logger.e(e, "检查更新时发生未知异常")
                 return VersionDataResult.Error(Failure.UnknownError(e))
             }
         }
 
         override suspend fun checkUpdateInfoIncludePreRelease(): VersionDataResult {
             try {
+                logger.tag("GitHub").i("检查更新(含预发布版本)")
                 val response = apiService.getReleases()
                 response.use {
                     val releasesArray = JsonParser.parseString(it.string()).asJsonArray
@@ -52,8 +60,10 @@ class GitHubDataSourceImpl
                     return VersionDataResult.Success(versionInfo)
                 }
             } catch (e: HttpException) {
+                logger.e(e, "检查更新时发生Http异常")
                 return VersionDataResult.Error(Failure.ApiError(e.code(), e.message, e))
             } catch (e: JsonParseException) {
+                logger.e(e, "检查更新时发生Json解析异常")
                 return VersionDataResult.Error(
                     Failure.JsonParsingError(
                         "请求时出现Json解析错误" + e.message,
@@ -61,8 +71,10 @@ class GitHubDataSourceImpl
                     ),
                 )
             } catch (e: IOException) {
+                logger.e(e, "检查更新时发生IO异常")
                 return VersionDataResult.Error(Failure.IOError("请求时发生IO错误！" + e.message, e))
             } catch (e: Exception) {
+                logger.e(e, "检查更新时发生未知异常")
                 return VersionDataResult.Error(Failure.UnknownError(e))
             }
         }

@@ -10,9 +10,14 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.migration.PlainPasswdAndAKToEncryptedMigration
 import top.goodboyboy.wolfassistant.util.CryptoManager
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -37,9 +42,21 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCryptoManager(): CryptoManager = CryptoManager()
+    fun provideCryptoManager(logger: AppLogger): CryptoManager = CryptoManager(logger)
 
     @Provides
     @Singleton
-    fun provideGlobalEventBus(): GlobalEventBus = GlobalEventBus()
+    fun provideGlobalEventBus(logger: AppLogger): GlobalEventBus = GlobalEventBus(logger)
+
+    @Retention(AnnotationRetention.RUNTIME)
+    @Qualifier
+    annotation class ApplicationScope
+
+    @Provides
+    @Singleton
+    @ApplicationScope
+    fun provideApplicationScope(): CoroutineScope {
+        // SupervisorJob() 避免取消整个作用域
+        return CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    }
 }

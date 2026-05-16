@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.LabScheduleCacheDataSource
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.LabScheduleRemoteDataSource
@@ -24,10 +25,11 @@ class LabScheduleRepositoryImplTest {
     private val remoteDataSource: LabScheduleRemoteDataSource = mockk()
     private val cacheDataSource: LabScheduleCacheDataSource = mockk(relaxed = true)
     private val settingsRepository: SettingsRepository = mockk()
+    private val logger: AppLogger = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
-        repository = LabScheduleRepositoryImpl(remoteDataSource, cacheDataSource, settingsRepository)
+        repository = LabScheduleRepositoryImpl(remoteDataSource, cacheDataSource, settingsRepository, logger)
         // 模拟 SettingsRepository 返回的用户信息
         coEvery { settingsRepository.userIDFlow } returns flowOf("testUser")
         coEvery { settingsRepository.getUserPasswordDecrypted() } returns "testPass"

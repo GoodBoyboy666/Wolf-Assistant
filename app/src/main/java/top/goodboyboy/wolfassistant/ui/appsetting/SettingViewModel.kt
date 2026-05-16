@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient
 import top.goodboyboy.wolfassistant.BuildConfig
 import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionDomainData
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionInfo
@@ -39,6 +40,7 @@ class SettingViewModel
         private val labScheduleRepository: LabScheduleRepository,
         private val application: Application,
         private val okHttpClient: OkHttpClient,
+        private val logger: AppLogger,
     ) : ViewModel() {
         private val _cacheSize = MutableStateFlow(application.getString(R.string.calculating))
         val cacheSize: StateFlow<String> = _cacheSize.asStateFlow()
@@ -52,6 +54,7 @@ class SettingViewModel
         val enablePreRelease = settingsRepository.enablePreRelease
 
         suspend fun getTotalCacheSize(context: Context) {
+            logger.i("计算缓存大小")
             withContext(Dispatchers.IO) {
                 val size = CacheUtil.getTotalCacheSize(context)
                 withContext(Dispatchers.Main) {
@@ -61,6 +64,7 @@ class SettingViewModel
         }
 
         suspend fun cleanAllCache(context: Context) {
+            logger.i("清除全部缓存")
             withContext(Dispatchers.IO) {
                 CacheUtil.clearAllCache(context)
                 getTotalCacheSize(context)
@@ -68,6 +72,7 @@ class SettingViewModel
         }
 
         suspend fun logout(context: Context) {
+            logger.i("退出登录")
             portalRepository.cleanCache()
             serviceRepository.cleanServiceList()
             scheduleRepository.cleanScheduleCache()
@@ -78,6 +83,7 @@ class SettingViewModel
         }
 
         suspend fun getUpdateInfo() {
+            logger.i("检查更新")
             _updateState.value = CheckUpdateState.Loading
             val result =
                 appSettingRepository.getUpdateInfo(
@@ -86,6 +92,7 @@ class SettingViewModel
                 )
             when (result) {
                 is VersionDomainData.Error -> {
+                    logger.e(result.error.cause, "检查更新失败")
                     _updateState.value = CheckUpdateState.Error(result.error)
                 }
 
@@ -94,6 +101,7 @@ class SettingViewModel
                 }
 
                 is VersionDomainData.Success -> {
+                    logger.i("发现新版本")
                     _updateState.value = CheckUpdateState.Success(result.data)
                 }
             }
@@ -104,6 +112,7 @@ class SettingViewModel
         }
 
         suspend fun setSSLCertVerification(value: Boolean) {
+            logger.i("设置SSL证书验证")
             settingsRepository.setSSLCertVerification(value)
             GlobalInitConfig.setConfig(
                 settingsRepository.disableSSLCertVerification.first(),
@@ -116,6 +125,7 @@ class SettingViewModel
         }
 
         suspend fun setOnlyIPv4(value: Boolean) {
+            logger.i("设置仅IPv4")
             settingsRepository.setOnlyIPv4(value)
             GlobalInitConfig.setConfig(
                 settingsRepository.disableSSLCertVerification.first(),
@@ -128,6 +138,7 @@ class SettingViewModel
         }
 
         suspend fun setEnablePreRelease(value: Boolean) {
+            logger.i("设置预发布版本更新")
             settingsRepository.setEnablePreRelease(value)
         }
 

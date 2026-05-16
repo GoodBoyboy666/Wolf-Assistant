@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.ScreenRoute
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.appsetting.GlobalInitConfig
 import top.goodboyboy.wolfassistant.ui.home.portal.repository.PortalRepository
@@ -37,6 +38,7 @@ class FirstPageViewModel
         private val personalInfoRepository: PersonalInfoRepository,
         private val settingsRepository: SettingsRepository,
         private val application: Application,
+        private val logger: AppLogger,
     ) : ViewModel() {
         private val _hasAccessToken = MutableStateFlow(false)
         val hasAccessToken: StateFlow<Boolean> = _hasAccessToken.asStateFlow()
@@ -79,6 +81,7 @@ class FirstPageViewModel
 
         @VisibleForTesting
         internal suspend fun checkLoginStatue() {
+            logger.i("检查登录状态")
             val accessToken = settingsRepository.getAccessTokenDecrypted()
             _hasAccessToken.value = accessToken.isNotEmpty()
             val password = settingsRepository.getUserPasswordDecrypted()
@@ -99,17 +102,21 @@ class FirstPageViewModel
         }
 
         private suspend fun initAPP() {
+            logger.i("开始应用初始化")
             try {
                 _loadState.value = LoadState.Loading
                 checkLoginStatue()
                 initGlobalConfig()
+                logger.i("应用初始化完成")
                 _loadState.value = LoadState.Success
             } catch (e: Exception) {
+                logger.e(e, "应用初始化失败")
                 _loadState.value = LoadState.Failed(e.message ?: "Unknown Error")
             }
         }
 
         suspend fun logout() {
+            logger.i("退出登录，清除全部数据")
             portalRepository.cleanCache()
             serviceRepository.cleanServiceList()
             scheduleRepository.cleanScheduleCache()
@@ -120,6 +127,7 @@ class FirstPageViewModel
         }
 
         fun handleNav(intent: Intent?) {
+            logger.i("处理导航")
             val data = intent?.data
             val isExpired = hasTokenExpired.value
             val hasToken = hasAccessToken.value
