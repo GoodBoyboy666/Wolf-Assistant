@@ -60,11 +60,11 @@ android {
                 "proguard-rules.pro",
             )
         }
-        create("releaseDebuggable") {
-            initWith(getByName("release"))
-            isDebuggable = true
-            applicationIdSuffix = ".releaseDebuggable"
-        }
+//        create("releaseDebuggable") {
+//            initWith(getByName("release"))
+//            isDebuggable = true
+//            applicationIdSuffix = ".releaseDebuggable"
+//        }
         create("GitHubActionRelease") {
             initWith(getByName("release"))
             val keystorePath = System.getenv("SIGNING_KEYSTORE_PATH")
