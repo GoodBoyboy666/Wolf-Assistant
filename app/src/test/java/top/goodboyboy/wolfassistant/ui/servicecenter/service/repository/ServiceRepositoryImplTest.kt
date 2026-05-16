@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceCacheDataSource
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceRemoteDataSource
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.ServiceItem
@@ -26,6 +27,7 @@ class ServiceRepositoryImplTest {
     private lateinit var cacheDataSource: ServiceCacheDataSource
     private lateinit var remoteDataSource: ServiceRemoteDataSource
     private lateinit var repository: ServiceRepositoryImpl
+    private val logger: AppLogger = mockk(relaxed = true)
 
     private val testServiceItem =
         ServiceItem(
@@ -39,7 +41,7 @@ class ServiceRepositoryImplTest {
     fun setup() {
         cacheDataSource = mockk()
         remoteDataSource = mockk()
-        repository = ServiceRepositoryImpl(cacheDataSource, remoteDataSource)
+        repository = ServiceRepositoryImpl(cacheDataSource, remoteDataSource, logger)
     }
 
     @AfterEach

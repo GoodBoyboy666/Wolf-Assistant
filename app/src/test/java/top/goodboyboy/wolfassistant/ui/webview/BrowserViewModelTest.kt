@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 
 /**
@@ -29,6 +30,7 @@ import top.goodboyboy.wolfassistant.settings.SettingsRepository
 class BrowserViewModelTest {
     private lateinit var viewModel: BrowserViewModel
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
+    private val logger: AppLogger = mockk(relaxed = true)
     private val testDispatcher = StandardTestDispatcher()
 
     @BeforeEach
@@ -54,7 +56,7 @@ class BrowserViewModelTest {
             coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
 
             // Act
-            viewModel = BrowserViewModel(settingsRepository)
+            viewModel = BrowserViewModel(settingsRepository, logger)
             testDispatcher.scheduler.advanceUntilIdle()
 
             // Assert
@@ -75,7 +77,7 @@ class BrowserViewModelTest {
             coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
 
             // Act
-            viewModel = BrowserViewModel(settingsRepository)
+            viewModel = BrowserViewModel(settingsRepository, logger)
             testDispatcher.scheduler.advanceUntilIdle()
 
             // Assert
@@ -93,7 +95,7 @@ class BrowserViewModelTest {
         runTest(testDispatcher) {
             // Arrange
             coEvery { settingsRepository.getAccessTokenDecrypted() } returns "token"
-            viewModel = BrowserViewModel(settingsRepository)
+            viewModel = BrowserViewModel(settingsRepository, logger)
 
             // Act
             viewModel.onRefresh()

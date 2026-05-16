@@ -1,11 +1,8 @@
 package top.goodboyboy.wolfassistant.ui.schedulecenter.repository
 
-import android.util.Log
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -15,6 +12,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleCacheDataSource
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.ScheduleRemoteDataSource
 import top.goodboyboy.wolfassistant.ui.schedulecenter.model.ScheduleItem
@@ -33,6 +31,7 @@ class ScheduleRepositoryImplTest {
     private lateinit var cacheDataSource: ScheduleCacheDataSource
     private lateinit var remoteDataSource: ScheduleRemoteDataSource
     private lateinit var repository: ScheduleRepositoryImpl
+    private val logger: AppLogger = mockk(relaxed = true)
 
     private val testDate = LocalDate.of(2023, 10, 1)
     private val testScheduleItem =
@@ -52,11 +51,7 @@ class ScheduleRepositoryImplTest {
     fun setup() {
         cacheDataSource = mockk()
         remoteDataSource = mockk()
-        repository = ScheduleRepositoryImpl(cacheDataSource, remoteDataSource)
-
-        // Mock android.util.Log 因为实现类中使用了它
-        mockkStatic(Log::class)
-        every { Log.e(any(), any()) } returns 0
+        repository = ScheduleRepositoryImpl(cacheDataSource, remoteDataSource, logger)
     }
 
     @AfterEach

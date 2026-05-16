@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.appsetting.datasource.GitHubDataSource
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionDomainData
 import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionInfo
@@ -17,7 +18,8 @@ import top.goodboyboy.wolfassistant.ui.appsetting.model.VersionInfo
  */
 class UpdateRepositoryImplTest {
     private val gitHubDataSource: GitHubDataSource = mockk()
-    private val repository = UpdateRepositoryImpl(gitHubDataSource)
+    private val logger: AppLogger = mockk(relaxed = true)
+    private val repository = UpdateRepositoryImpl(gitHubDataSource, logger)
 
     /**
      * 测试场景：当有新版本可用时，checkUpdate 应返回 Success

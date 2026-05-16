@@ -18,6 +18,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.messagecenter.model.MessageItem
 import top.goodboyboy.wolfassistant.ui.messagecenter.repository.MessageRepository
 
@@ -37,6 +38,7 @@ class MessageCenterViewModelTest {
     private val messageRepository: MessageRepository = mockk(relaxed = true)
     private val settingsRepository = mockk<top.goodboyboy.wolfassistant.settings.SettingsRepository>(relaxed = true)
     private val application: Application = mockk(relaxed = true)
+    private val logger: AppLogger = mockk(relaxed = true)
 
     // 用于在测试中替换主协程调度器，便于对协程调度进行控制和前进
     private val testDispatcher = StandardTestDispatcher()
@@ -80,7 +82,7 @@ class MessageCenterViewModelTest {
 
             // When
             val flow =
-                MessageCenterViewModel(messageRepository, settingsRepository, application)
+                MessageCenterViewModel(messageRepository, settingsRepository, application, logger)
                     .getMessagePagingFlow(0)
 
             // Then: collect 一次以触发上游逻辑并断言仓库方法被调用
@@ -112,7 +114,7 @@ class MessageCenterViewModelTest {
 
             // When
             val flow =
-                MessageCenterViewModel(messageRepository, settingsRepository, application)
+                MessageCenterViewModel(messageRepository, settingsRepository, application, logger)
                     .getMessagePagingFlow(0)
 
             // Then
@@ -142,7 +144,7 @@ class MessageCenterViewModelTest {
 
             // When
             val flow =
-                MessageCenterViewModel(messageRepository, settingsRepository, application)
+                MessageCenterViewModel(messageRepository, settingsRepository, application, logger)
                     .getMessagePagingFlow(0)
 
             // Then
@@ -172,7 +174,7 @@ class MessageCenterViewModelTest {
 
             // When
             val flow =
-                MessageCenterViewModel(messageRepository, settingsRepository, application)
+                MessageCenterViewModel(messageRepository, settingsRepository, application, logger)
                     .getMessagePagingFlow(1)
 
             // Then
@@ -201,7 +203,7 @@ class MessageCenterViewModelTest {
 
             // When
             val flow =
-                MessageCenterViewModel(messageRepository, settingsRepository, application)
+                MessageCenterViewModel(messageRepository, settingsRepository, application, logger)
                     .getMessagePagingFlow(5)
 
             // Then
@@ -229,7 +231,7 @@ class MessageCenterViewModelTest {
             coEvery { messageRepository.getMessages(any(), any()) } returns flowOf(TestPagingDataFactory.create())
 
             // When
-            val vm = MessageCenterViewModel(messageRepository, settingsRepository, application)
+            val vm = MessageCenterViewModel(messageRepository, settingsRepository, application, logger)
             val f1 = vm.getMessagePagingFlow(0)
             val f2 = vm.getMessagePagingFlow(0)
 

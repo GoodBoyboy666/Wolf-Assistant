@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoCacheDataSource
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoRemoteDataSource
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.model.PersonalInfo
@@ -26,6 +27,7 @@ class PersonalInfoRepositoryImplTest {
     private lateinit var cacheDataSource: PersonalInfoCacheDataSource
     private lateinit var remoteDataSource: PersonalInfoRemoteDataSource
     private lateinit var repository: PersonalInfoRepositoryImpl
+    private val logger: AppLogger = mockk(relaxed = true)
 
     private val testPersonalInfo =
         PersonalInfo(
@@ -40,7 +42,7 @@ class PersonalInfoRepositoryImplTest {
     fun setup() {
         cacheDataSource = mockk()
         remoteDataSource = mockk()
-        repository = PersonalInfoRepositoryImpl(cacheDataSource, remoteDataSource)
+        repository = PersonalInfoRepositoryImpl(cacheDataSource, remoteDataSource, logger)
     }
 
     @AfterEach

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.util.CryptoManager
 
 /**
@@ -25,6 +26,7 @@ import top.goodboyboy.wolfassistant.util.CryptoManager
 class SettingsRepositoryTest {
     private lateinit var dataStore: DataStore<Preferences>
     private lateinit var cryptoManager: CryptoManager
+    private val logger: AppLogger = mockk(relaxed = true)
     private lateinit var settingsRepository: SettingsRepository
 
     // 使用 MutableStateFlow 模拟 DataStore 的数据流
@@ -62,7 +64,7 @@ class SettingsRepositoryTest {
             }
         }
 
-        settingsRepository = SettingsRepository(dataStore, cryptoManager)
+        settingsRepository = SettingsRepository(dataStore, cryptoManager, logger)
     }
 
     /**

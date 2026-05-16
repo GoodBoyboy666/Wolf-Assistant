@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.model.ServiceItem
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.SearchRepository
@@ -41,6 +42,7 @@ class ServiceCenterViewModelTest {
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
     private val searchRepository: SearchRepository = mockk(relaxed = true)
     private val okHttpClient: OkHttpClient = mockk(relaxed = true)
+    private val logger: AppLogger = mockk(relaxed = true)
     private val testDispatcher = StandardTestDispatcher()
 
     @BeforeEach
@@ -77,7 +79,8 @@ class ServiceCenterViewModelTest {
             coEvery { serviceRepository.getServiceList(token) } returns
                 ServiceRepository.ServiceListData.Success(mockData)
 
-            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient)
+            viewModel =
+                ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient, logger)
 
             // Collect to trigger SharingStarted.WhileSubscribed
             val job = launch { viewModel.serviceList.collect {} }
@@ -112,7 +115,8 @@ class ServiceCenterViewModelTest {
             coEvery { serviceRepository.getServiceList(token) } returns
                 ServiceRepository.ServiceListData.Failed(Failure.IOError(errorMsg, null))
 
-            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient)
+            viewModel =
+                ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient, logger)
             testDispatcher.scheduler.advanceUntilIdle()
             clearMocks(serviceRepository, answers = false)
 
@@ -139,7 +143,8 @@ class ServiceCenterViewModelTest {
             coEvery { serviceRepository.getServiceList(token) } returns
                 ServiceRepository.ServiceListData.Success(emptyList())
 
-            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient)
+            viewModel =
+                ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient, logger)
 
             // Collect to trigger SharingStarted.WhileSubscribed
             val job = launch { viewModel.serviceList.collect {} }
@@ -164,7 +169,8 @@ class ServiceCenterViewModelTest {
     fun `updateQuery should call searchRepository updateQuery`() =
         runTest(testDispatcher) {
             // Arrange
-            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient)
+            viewModel =
+                ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient, logger)
 
             // Act
             val query = "test"
@@ -195,7 +201,8 @@ class ServiceCenterViewModelTest {
             val queryFlow = MutableStateFlow("")
             coEvery { searchRepository.searchQuery } returns queryFlow
 
-            viewModel = ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient)
+            viewModel =
+                ServiceCenterViewModel(serviceRepository, settingsRepository, searchRepository, okHttpClient, logger)
 
             // Collect to trigger SharingStarted.WhileSubscribed
             val job = launch { viewModel.serviceList.collect {} }

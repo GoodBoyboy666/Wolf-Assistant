@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import top.goodboyboy.wolfassistant.ScreenRoute
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.home.portal.repository.PortalRepository
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.repository.PersonalInfoRepository
@@ -53,6 +54,7 @@ class FirstPageViewModelTest {
     private lateinit var personalInfoRepository: PersonalInfoRepository
     private lateinit var settingsRepository: SettingsRepository
     private lateinit var application: Application
+    private val logger: AppLogger = mockk(relaxed = true)
 
     private val testDispatcher = StandardTestDispatcher()
 
@@ -150,6 +152,7 @@ class FirstPageViewModelTest {
                     personalInfoRepository,
                     settingsRepository,
                     application,
+                    logger,
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -187,6 +190,7 @@ class FirstPageViewModelTest {
                     personalInfoRepository,
                     settingsRepository,
                     application,
+                    logger,
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -225,6 +229,7 @@ class FirstPageViewModelTest {
                     personalInfoRepository,
                     settingsRepository,
                     application,
+                    logger,
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -262,6 +267,7 @@ class FirstPageViewModelTest {
                     personalInfoRepository,
                     settingsRepository,
                     application,
+                    logger,
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -296,6 +302,7 @@ class FirstPageViewModelTest {
                     personalInfoRepository,
                     settingsRepository,
                     application,
+                    logger,
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -328,6 +335,7 @@ class FirstPageViewModelTest {
                     personalInfoRepository,
                     settingsRepository,
                     application,
+                    logger,
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -365,6 +373,7 @@ class FirstPageViewModelTest {
                     personalInfoRepository,
                     settingsRepository,
                     application,
+                    logger,
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -400,6 +409,7 @@ class FirstPageViewModelTest {
                     personalInfoRepository,
                     settingsRepository,
                     application,
+                    logger,
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -434,6 +444,7 @@ class FirstPageViewModelTest {
                     personalInfoRepository,
                     settingsRepository,
                     application,
+                    logger,
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -468,6 +479,7 @@ class FirstPageViewModelTest {
                     personalInfoRepository,
                     settingsRepository,
                     application,
+                    logger,
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 

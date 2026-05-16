@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.home.portal.model.PortalCategoryItem
 import top.goodboyboy.wolfassistant.ui.home.portal.model.PortalInfoItem
@@ -40,6 +41,7 @@ class HomeViewModelTest {
     private lateinit var viewModel: HomeViewModel
     private val portalRepository: PortalRepository = mockk(relaxed = true)
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
+    private val logger: AppLogger = mockk(relaxed = true)
     private val testDispatcher = StandardTestDispatcher()
 
     /**
@@ -100,7 +102,7 @@ class HomeViewModelTest {
         mockkStatic(LocalTime::class)
         every { LocalTime.now() } returns LocalTime.of(hour, 0)
 
-        viewModel = HomeViewModel(portalRepository, settingsRepository)
+        viewModel = HomeViewModel(portalRepository, settingsRepository, logger)
 
         assertEquals(expectedMessage, viewModel.timeTalk.value)
     }
@@ -120,7 +122,7 @@ class HomeViewModelTest {
             mockkStatic(LocalTime::class)
             every { LocalTime.now() } returns LocalTime.of(10, 0)
 
-            viewModel = HomeViewModel(portalRepository, settingsRepository)
+            viewModel = HomeViewModel(portalRepository, settingsRepository, logger)
             testDispatcher.scheduler.advanceUntilIdle()
 
             assertEquals(categories, viewModel.portalCategoryList.value)
@@ -140,7 +142,7 @@ class HomeViewModelTest {
             mockkStatic(LocalTime::class)
             every { LocalTime.now() } returns LocalTime.of(10, 0)
 
-            viewModel = HomeViewModel(portalRepository, settingsRepository)
+            viewModel = HomeViewModel(portalRepository, settingsRepository, logger)
             testDispatcher.scheduler.advanceUntilIdle()
 
             val state = viewModel.portalState.value
@@ -169,7 +171,7 @@ class HomeViewModelTest {
             mockkStatic(LocalTime::class)
             every { LocalTime.now() } returns LocalTime.of(10, 0)
 
-            viewModel = HomeViewModel(portalRepository, settingsRepository)
+            viewModel = HomeViewModel(portalRepository, settingsRepository, logger)
             testDispatcher.scheduler.advanceUntilIdle()
 
             // ensure data loaded
@@ -207,7 +209,7 @@ class HomeViewModelTest {
             mockkStatic(LocalTime::class)
             every { LocalTime.now() } returns LocalTime.of(10, 0)
 
-            viewModel = HomeViewModel(portalRepository, settingsRepository)
+            viewModel = HomeViewModel(portalRepository, settingsRepository, logger)
             testDispatcher.scheduler.advanceUntilIdle()
 
             assertEquals(categories, viewModel.portalCategoryList.value)
@@ -226,7 +228,7 @@ class HomeViewModelTest {
             mockkStatic(LocalTime::class)
             every { LocalTime.now() } returns LocalTime.of(10, 0)
 
-            viewModel = HomeViewModel(portalRepository, settingsRepository)
+            viewModel = HomeViewModel(portalRepository, settingsRepository, logger)
 
             viewModel.changePortalState(HomeViewModel.PortalState.Loading)
             assertEquals(HomeViewModel.PortalState.Loading, viewModel.portalState.value)

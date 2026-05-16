@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.home.portal.datasource.PortalCacheDataSource
 import top.goodboyboy.wolfassistant.ui.home.portal.datasource.PortalRemoteDataSource
 import top.goodboyboy.wolfassistant.ui.home.portal.model.CacheDataResult
@@ -26,12 +27,13 @@ class PortalRepositoryImplTest {
     private lateinit var remoteDataSource: PortalRemoteDataSource
     private lateinit var cacheDataSource: PortalCacheDataSource
     private lateinit var repository: PortalRepositoryImpl
+    private val logger: AppLogger = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
         remoteDataSource = mockk()
         cacheDataSource = mockk()
-        repository = PortalRepositoryImpl(remoteDataSource, cacheDataSource)
+        repository = PortalRepositoryImpl(remoteDataSource, cacheDataSource, logger)
     }
 
     /**
@@ -64,7 +66,7 @@ class PortalRepositoryImplTest {
         runTest {
             // Arrange
             val accessToken = "token"
-            val failure = mockk<Failure>()
+            val failure = Failure.IOError("test", null)
             coEvery { cacheDataSource.getPortalCategory(any()) } returns CacheDataResult.Error(failure)
 
             // Act
@@ -110,7 +112,7 @@ class PortalRepositoryImplTest {
         runTest {
             // Arrange
             val accessToken = "token"
-            val failure = mockk<Failure>()
+            val failure = Failure.IOError("test", null)
 
             coEvery { cacheDataSource.getPortalCategory(any()) } returns CacheDataResult.NoCache
             coEvery { remoteDataSource.getPortalCategory(accessToken) } returns RemoteDataResult.Error(failure)
@@ -153,7 +155,7 @@ class PortalRepositoryImplTest {
         runTest {
             // Arrange
             val portalId = "123"
-            val failure = mockk<Failure>()
+            val failure = Failure.IOError("test", null)
             coEvery { cacheDataSource.getPortalInfoList(portalId, any()) } returns CacheDataResult.Error(failure)
 
             // Act
@@ -199,7 +201,7 @@ class PortalRepositoryImplTest {
         runTest {
             // Arrange
             val portalId = "123"
-            val failure = mockk<Failure>()
+            val failure = Failure.IOError("test", null)
 
             coEvery { cacheDataSource.getPortalInfoList(portalId, any()) } returns CacheDataResult.NoCache
             coEvery { remoteDataSource.getPortalInfoList(portalId) } returns RemoteDataResult.Error(failure)

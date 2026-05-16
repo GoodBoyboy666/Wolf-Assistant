@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 
 /**
@@ -28,6 +29,7 @@ import top.goodboyboy.wolfassistant.settings.SettingsRepository
 class ScannerViewModelTest {
     private lateinit var viewModel: ScannerViewModel
     private val settingsRepository: SettingsRepository = mockk()
+    private val logger: AppLogger = mockk(relaxed = true)
     private val testDispatcher = StandardTestDispatcher()
 
     /**
@@ -58,7 +60,7 @@ class ScannerViewModelTest {
             coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
 
             // 执行操作：初始化 ViewModel
-            viewModel = ScannerViewModel(settingsRepository)
+            viewModel = ScannerViewModel(settingsRepository, logger)
             // 让协程调度器执行完所有挂起的任务
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -77,7 +79,7 @@ class ScannerViewModelTest {
             coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
 
             // 执行操作：初始化 ViewModel
-            viewModel = ScannerViewModel(settingsRepository)
+            viewModel = ScannerViewModel(settingsRepository, logger)
             // 让协程调度器执行完所有挂起的任务
             testDispatcher.scheduler.advanceUntilIdle()
 

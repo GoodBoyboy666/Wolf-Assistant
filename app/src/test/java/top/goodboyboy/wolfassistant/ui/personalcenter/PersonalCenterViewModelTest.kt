@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import top.goodboyboy.wolfassistant.common.Failure
+import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.model.PersonalInfo
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.repository.PersonalInfoRepository
@@ -33,6 +34,7 @@ class PersonalCenterViewModelTest {
     private lateinit var viewModel: PersonalCenterViewModel
     private lateinit var personalInfoRepository: PersonalInfoRepository
     private lateinit var settingsRepository: SettingsRepository
+    private val logger: AppLogger = mockk(relaxed = true)
 
     // 使用标准测试调度器，用于控制协程执行顺序
     private val testDispatcher = StandardTestDispatcher()
@@ -88,7 +90,7 @@ class PersonalCenterViewModelTest {
                 PersonalInfoRepository.PersonalInfoData.Success(expected)
 
             // 执行操作：初始化 ViewModel（会自动触发加载逻辑）
-            viewModel = PersonalCenterViewModel(personalInfoRepository, settingsRepository)
+            viewModel = PersonalCenterViewModel(personalInfoRepository, settingsRepository, logger)
             // 让协程调度器执行完所有挂起的任务
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -120,7 +122,7 @@ class PersonalCenterViewModelTest {
                 PersonalInfoRepository.PersonalInfoData.Failed(Failure.IOError(errMsg, null))
 
             // 执行操作：初始化 ViewModel
-            viewModel = PersonalCenterViewModel(personalInfoRepository, settingsRepository)
+            viewModel = PersonalCenterViewModel(personalInfoRepository, settingsRepository, logger)
             // 让协程调度器执行完所有挂起的任务
             testDispatcher.scheduler.advanceUntilIdle()
 
