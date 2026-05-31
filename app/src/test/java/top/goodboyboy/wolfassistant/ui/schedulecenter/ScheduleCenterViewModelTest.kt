@@ -143,7 +143,7 @@ class ScheduleCenterViewModelTest {
 
             // Mock 依赖
             coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
-            coEvery { scheduleRepository.getSchedule(token, start, end) } returns
+            coEvery { scheduleRepository.getSchedule(token, start, end, any()) } returns
                 ScheduleRepository.ScheduleData.Success(mockData)
 
             viewModel.loadScheduleList()
@@ -179,7 +179,7 @@ class ScheduleCenterViewModelTest {
 
             // Mock 依赖
             coEvery { settingsRepository.getAccessTokenDecrypted() } returns token
-            coEvery { scheduleRepository.getSchedule(token, start, end) } returns
+            coEvery { scheduleRepository.getSchedule(token, start, end, any()) } returns
                 ScheduleRepository.ScheduleData.Failed(Failure.IOError(errorMsg, null))
 
             viewModel.loadScheduleList()
@@ -210,7 +210,7 @@ class ScheduleCenterViewModelTest {
             val mockData = listOf(mockk<LabScheduleItem>())
 
             // Mock依赖
-            coEvery { labScheduleRepository.getLabSchedule(week) } returns
+            coEvery { labScheduleRepository.getLabSchedule(week, any()) } returns
                 LabScheduleRepository.LabScheduleData.Success(mockData)
 
             // 确保初始周数为1
@@ -243,7 +243,7 @@ class ScheduleCenterViewModelTest {
             val errorMsg = "Lab Error"
 
             // Mock依赖
-            coEvery { labScheduleRepository.getLabSchedule(week) } returns
+            coEvery { labScheduleRepository.getLabSchedule(week, any()) } returns
                 LabScheduleRepository.LabScheduleData.Failed(Failure.IOError(errorMsg, null))
 
             viewModel.loadLabScheduleList()

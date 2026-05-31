@@ -92,20 +92,21 @@ class ScheduleCenterViewModel
         private val _weekNumber = MutableStateFlow(1)
         val weekNumber: StateFlow<Int> = _weekNumber.asStateFlow()
 
-        suspend fun loadScheduleList() {
+        suspend fun loadScheduleList(forceRefresh: Boolean = false) {
             logger.i("加载课表")
             val startDay = firstDay.value
             val endDay = lastDay.value
             if (startDay == null || endDay == null) {
                 _loadScheduleState.value = LoadScheduleState.Failed("日期不可为Null")
             } else {
-                loadSchedule(startDay, endDay)
+                loadSchedule(startDay, endDay, forceRefresh)
             }
         }
 
         private suspend fun loadSchedule(
             startDate: LocalDate,
             endDate: LocalDate,
+            forceRefresh: Boolean = false,
         ) {
             _loadScheduleState.value = LoadScheduleState.Loading
             val accessToken = settingsRepository.getAccessTokenDecrypted()
@@ -114,6 +115,7 @@ class ScheduleCenterViewModel
                     accessToken,
                     startDate,
                     endDate,
+                    forceRefresh,
                 )
             when (data) {
                 is Failed -> {
@@ -151,11 +153,11 @@ class ScheduleCenterViewModel
             _lastDay.value = endDate
         }
 
-        suspend fun loadLabScheduleList() {
+        suspend fun loadLabScheduleList(forceRefresh: Boolean = false) {
             logger.i("加载实验课表")
             _loadLabScheduleState.value = LoadScheduleState.Loading
 
-            val data = labScheduleRepository.getLabSchedule(weekNumber.first())
+            val data = labScheduleRepository.getLabSchedule(weekNumber.first(), forceRefresh)
             when (data) {
                 is LabScheduleRepository.LabScheduleData.Failed -> {
                     logger.e(data.error.cause, "加载实验课表失败")

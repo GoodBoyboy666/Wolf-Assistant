@@ -20,27 +20,32 @@ class ScheduleRepositoryImpl
         accessToken: String,
         startDate: LocalDate,
         endDate: LocalDate,
+        forceRefresh: Boolean,
     ): ScheduleData {
-        logger.i("获取课表: 检查缓存")
-        val cache =
-            scheduleCacheDataSource.getSchedule(
-                startDate,
-                endDate,
-            )
+        if (!forceRefresh) {
+            logger.i("获取课表: 检查缓存")
+            val cache =
+                scheduleCacheDataSource.getSchedule(
+                    startDate,
+                    endDate,
+                )
 
-        when (cache) {
-            is ScheduleCacheDataSource.DataResult.Error -> {
-                logger.e(cache.error.cause, "缓存异常")
-                return ScheduleData.Failed(cache.error)
-            }
+            when (cache) {
+                is ScheduleCacheDataSource.DataResult.Error -> {
+                    logger.e(cache.error.cause, "缓存异常")
+                    return ScheduleData.Failed(cache.error)
+                }
 
-            ScheduleCacheDataSource.DataResult.NoCache -> {
-                logger.i("获取课表: 缓存未命中，请求远程数据")
+                ScheduleCacheDataSource.DataResult.NoCache -> {
+                    logger.i("获取课表: 缓存未命中，请求远程数据")
+                }
+                is ScheduleCacheDataSource.DataResult.Success -> {
+                    logger.i("获取课表: 缓存命中")
+                    return ScheduleData.Success(cache.list)
+                }
             }
-            is ScheduleCacheDataSource.DataResult.Success -> {
-                logger.i("获取课表: 缓存命中")
-                return ScheduleData.Success(cache.list)
-            }
+        } else {
+            logger.i("获取课表: 强制刷新，跳过缓存")
         }
 
         val remote =

@@ -127,8 +127,7 @@ fun ScheduleView(
             isRefreshing = isRefreshing,
             onRefresh = {
                 scope.launch {
-                    viewModel.cleanCache()
-                    viewModel.loadScheduleList()
+                    viewModel.loadScheduleList(forceRefresh = true)
                 }
                 isRefreshing = false
             },

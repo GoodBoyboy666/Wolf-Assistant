@@ -17,22 +17,29 @@ class LabScheduleRepositoryImpl
     private val settingsRepository: SettingsRepository,
     private val logger: AppLogger,
 ) : LabScheduleRepository {
-    override suspend fun getLabSchedule(week: Int): LabScheduleRepository.LabScheduleData {
+    override suspend fun getLabSchedule(
+        week: Int,
+        forceRefresh: Boolean,
+    ): LabScheduleRepository.LabScheduleData {
         logger.i("获取实验课表: 第${week}周")
-        val cache = labScheduleCacheDataSource.getLabScheduleCache(week)
-        when (cache) {
-            is LabScheduleCacheDataSource.LabScheduleResult.Error -> {
-                logger.i("获取实验课表: 缓存未命中，请求远程数据")
-                return LabScheduleRepository.LabScheduleData.Failed(cache.error)
-            }
+        if (!forceRefresh) {
+            val cache = labScheduleCacheDataSource.getLabScheduleCache(week)
+            when (cache) {
+                is LabScheduleCacheDataSource.LabScheduleResult.Error -> {
+                    logger.i("获取实验课表: 缓存未命中，请求远程数据")
+                    return LabScheduleRepository.LabScheduleData.Failed(cache.error)
+                }
 
-            is LabScheduleCacheDataSource.LabScheduleResult.Success -> {
-                logger.i("获取实验课表: 缓存命中")
-                return LabScheduleRepository.LabScheduleData.Success(cache.data)
+                is LabScheduleCacheDataSource.LabScheduleResult.Success -> {
+                    logger.i("获取实验课表: 缓存命中")
+                    return LabScheduleRepository.LabScheduleData.Success(cache.data)
+                }
+                LabScheduleCacheDataSource.LabScheduleResult.NoCache -> {
+                    logger.i("获取实验课表: 缓存未命中，请求远程数据")
+                }
             }
-            LabScheduleCacheDataSource.LabScheduleResult.NoCache -> {
-                logger.i("获取实验课表: 缓存未命中，请求远程数据")
-            }
+        } else {
+            logger.i("获取实验课表: 强制刷新，跳过缓存")
         }
         val data =
             labScheduleRemoteDataSource.getLabSchedule(

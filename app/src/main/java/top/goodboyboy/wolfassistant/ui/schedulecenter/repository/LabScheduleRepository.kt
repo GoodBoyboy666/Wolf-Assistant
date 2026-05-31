@@ -4,7 +4,7 @@ import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.ui.schedulecenter.model.LabScheduleItem
 
 interface LabScheduleRepository {
-    suspend fun getLabSchedule(week: Int): LabScheduleData
+    suspend fun getLabSchedule(week: Int, forceRefresh: Boolean = false): LabScheduleData
 
     sealed class LabScheduleData {
         data class Success(
