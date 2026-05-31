@@ -13,8 +13,10 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.cancellation.CancellationException
 
+@Singleton
 class ScheduleRemoteDataSourceImpl
     @Inject
     constructor(

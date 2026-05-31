@@ -60,11 +60,11 @@ android {
                 "proguard-rules.pro",
             )
         }
-        create("releaseDebuggable") {
-            initWith(getByName("release"))
-            isDebuggable = true
-            applicationIdSuffix = ".releaseDebuggable"
-        }
+//        create("releaseDebuggable") {
+//            initWith(getByName("release"))
+//            isDebuggable = true
+//            applicationIdSuffix = ".releaseDebuggable"
+//        }
         create("GitHubActionRelease") {
             initWith(getByName("release"))
             val keystorePath = System.getenv("SIGNING_KEYSTORE_PATH")
@@ -74,13 +74,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
-        }
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
@@ -105,6 +100,12 @@ android {
 
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
 }
 
 dependencies {

@@ -71,7 +71,6 @@ fun BrowserView(
         }
     val scope = rememberCoroutineScope()
     val loadState by viewModel.loadState.collectAsStateWithLifecycle()
-    val refreshEvent by viewModel.refreshEvent.collectAsStateWithLifecycle()
     // Precompute the localized message at composition time so we don't call a @Composable from a coroutine
     val cantPullUpMessage = stringResource(R.string.cant_pull_up_app)
     val layoutDirection = LocalLayoutDirection.current
@@ -129,7 +128,7 @@ fun BrowserView(
                     accessToken = state.accessToken,
                     headerTokenKeyName = headerTokenKeyName,
                     urlTokenKeyName = urlTokenKeyName,
-                    refreshEvent = refreshEvent,
+                    refreshEvent = viewModel.refreshEvent,
                     {
                         currentProgress = 0f
                         loading = true

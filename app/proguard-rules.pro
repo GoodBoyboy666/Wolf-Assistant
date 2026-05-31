@@ -21,16 +21,8 @@
 #-renamesourcefileattribute SourceFile
 
 -dontobfuscate
--keep class top.goodboyboy.wolfassistant.ui.home.portal.model.** {*;}
--keep class top.goodboyboy.wolfassistant.ui.messagecenter.model.** {*;}
--keep class top.goodboyboy.wolfassistant.ui.personalcenter.personal.model.** {*;}
--keep class top.goodboyboy.wolfassistant.ui.schedulecenter.model.** {*;}
--keep class top.goodboyboy.wolfassistant.ui.servicecenter.model.** {*;}
--keep class top.goodboyboy.wolfassistant.common.** {*;}
--keep class top.goodboyboy.wolfassistant.util.GsonUtil {*;}
--keep class com.google.gson.stream.** { *; }
--keep class com.google.gson.** { *; }
--keepclassmembers,allowobfuscation class * {
+-keep class top.goodboyboy.wolfassistant.**.model.** {<fields>;}
+-keepclassmembers class * {
   @com.google.gson.annotations.SerializedName <fields>;
 }
 -keep class * implements android.os.Parcelable {

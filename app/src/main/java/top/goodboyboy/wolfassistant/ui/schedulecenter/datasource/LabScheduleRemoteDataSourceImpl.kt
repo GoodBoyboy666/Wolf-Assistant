@@ -10,8 +10,10 @@ import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.util.ParseLabScheduleUtil
 import top.goodboyboy.wolfassistant.util.RsaPemUtils
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.cancellation.CancellationException
 
+@Singleton
 class LabScheduleRemoteDataSourceImpl
     @Inject
     constructor(

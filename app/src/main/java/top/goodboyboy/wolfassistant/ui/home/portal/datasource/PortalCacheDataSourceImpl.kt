@@ -3,6 +3,7 @@ package top.goodboyboy.wolfassistant.ui.home.portal.datasource
 import android.content.Context
 import com.google.gson.JsonParseException
 import com.google.gson.reflect.TypeToken
+import dagger.hilt.android.qualifiers.ApplicationContext
 import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.home.portal.datasource.PortalCacheDataSource.CleanResult
@@ -18,11 +19,13 @@ import java.io.IOException
 import java.time.Duration
 import java.time.LocalDateTime
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class PortalCacheDataSourceImpl
     @Inject
     constructor(
-        context: Context,
+        @ApplicationContext context: Context,
         private val logger: AppLogger,
     ) : PortalCacheDataSource {
         private val baseDir = File(context.filesDir, "portal")

@@ -17,6 +17,7 @@ interface ScheduleRepository {
         accessToken: String,
         startDate: LocalDate,
         endDate: LocalDate,
+        forceRefresh: Boolean = false,
     ): ScheduleData
 
     /**

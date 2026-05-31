@@ -1,13 +1,9 @@
 package top.goodboyboy.wolfassistant.ui.servicecenter.service.module
 
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import top.goodboyboy.wolfassistant.api.hutapi.service.ServiceListAPIService
-import top.goodboyboy.wolfassistant.log.AppLogger
-import top.goodboyboy.wolfassistant.room.dao.ServiceItemDao
-import top.goodboyboy.wolfassistant.room.dao.TokenKeyNameDao
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceCacheDataSource
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceCacheDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.datasource.ServiceRemoteDataSource
@@ -16,35 +12,19 @@ import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.SearchRe
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.SearchRepositoryImpl
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.ServiceRepository
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.ServiceRepositoryImpl
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object ServiceModule {
-    @Provides
-    @Singleton
-    fun provideServiceCacheDataSource(
-        serviceItemDao: ServiceItemDao,
-        tokenKeyNameDao: TokenKeyNameDao,
-        logger: AppLogger,
-    ): ServiceCacheDataSource = ServiceCacheDataSourceImpl(serviceItemDao, tokenKeyNameDao, logger)
+abstract class ServiceModule {
+    @Binds
+    abstract fun bindServiceCacheDataSource(impl: ServiceCacheDataSourceImpl): ServiceCacheDataSource
 
-    @Provides
-    @Singleton
-    fun provideServiceRemoteDataSource(
-        apiService: ServiceListAPIService,
-        logger: AppLogger,
-    ): ServiceRemoteDataSource = ServiceRemoteDataSourceImpl(apiService, logger)
+    @Binds
+    abstract fun bindServiceRemoteDataSource(impl: ServiceRemoteDataSourceImpl): ServiceRemoteDataSource
 
-    @Provides
-    @Singleton
-    fun provideServiceRepository(
-        cacheDataSource: ServiceCacheDataSource,
-        remoteDataSource: ServiceRemoteDataSource,
-        logger: AppLogger,
-    ): ServiceRepository = ServiceRepositoryImpl(cacheDataSource, remoteDataSource, logger)
+    @Binds
+    abstract fun bindServiceRepository(impl: ServiceRepositoryImpl): ServiceRepository
 
-    @Provides
-    @Singleton
-    fun provideSearchRepository(): SearchRepository = SearchRepositoryImpl()
+    @Binds
+    abstract fun bindSearchRepository(impl: SearchRepositoryImpl): SearchRepository
 }

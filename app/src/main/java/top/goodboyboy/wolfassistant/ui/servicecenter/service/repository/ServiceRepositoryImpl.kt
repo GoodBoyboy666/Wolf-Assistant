@@ -7,7 +7,9 @@ import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.ServiceR
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.ServiceRepository.ServiceListData.Failed
 import top.goodboyboy.wolfassistant.ui.servicecenter.service.repository.ServiceRepository.ServiceListData.Success
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ServiceRepositoryImpl
     @Inject
     constructor(

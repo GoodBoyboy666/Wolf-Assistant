@@ -1,17 +1,9 @@
 package top.goodboyboy.wolfassistant.ui.schedulecenter.module
 
-import android.content.Context
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import top.goodboyboy.wolfassistant.api.hutapi.schedule.LabScheduleAPIService
-import top.goodboyboy.wolfassistant.api.hutapi.schedule.LabScheduleSSOAPIService
-import top.goodboyboy.wolfassistant.api.hutapi.schedule.ScheduleAPIService
-import top.goodboyboy.wolfassistant.log.AppLogger
-import top.goodboyboy.wolfassistant.room.dao.ScheduleNotificationTaskDao
-import top.goodboyboy.wolfassistant.settings.SettingsRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.LabScheduleCacheDataSource
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.LabScheduleCacheDataSourceImpl
 import top.goodboyboy.wolfassistant.ui.schedulecenter.datasource.LabScheduleRemoteDataSource
@@ -26,63 +18,30 @@ import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleNotific
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleNotificationRepositoryImpl
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepository
 import top.goodboyboy.wolfassistant.ui.schedulecenter.repository.ScheduleRepositoryImpl
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object ScheduleCenterModule {
-    @Provides
-    @Singleton
-    fun provideScheduleCacheDataSource(
-        @ApplicationContext context: Context,
-        logger: AppLogger,
-    ): ScheduleCacheDataSource = ScheduleCacheDataSourceImpl(context, logger)
+abstract class ScheduleCenterModule {
+    @Binds
+    abstract fun bindScheduleCacheDataSource(impl: ScheduleCacheDataSourceImpl): ScheduleCacheDataSource
 
-    @Provides
-    @Singleton
-    fun provideScheduleRemoteDataSource(
-        apiService: ScheduleAPIService,
-        logger: AppLogger,
-    ): ScheduleRemoteDataSource = ScheduleRemoteDataSourceImpl(apiService, logger)
+    @Binds
+    abstract fun bindScheduleRemoteDataSource(impl: ScheduleRemoteDataSourceImpl): ScheduleRemoteDataSource
 
-    @Provides
-    @Singleton
-    fun provideScheduleCenterRepository(
-        scheduleCacheDataSource: ScheduleCacheDataSource,
-        scheduleRemoteDataSource: ScheduleRemoteDataSource,
-        logger: AppLogger,
-    ): ScheduleRepository = ScheduleRepositoryImpl(scheduleCacheDataSource, scheduleRemoteDataSource, logger)
+    @Binds
+    abstract fun bindScheduleRepository(impl: ScheduleRepositoryImpl): ScheduleRepository
 
-    @Provides
-    @Singleton
-    fun provideLabScheduleRemoteDataSource(
-        ssoApiService: LabScheduleSSOAPIService,
-        scheduleAPIService: LabScheduleAPIService,
-        logger: AppLogger,
-    ): LabScheduleRemoteDataSource = LabScheduleRemoteDataSourceImpl(ssoApiService, scheduleAPIService, logger)
+    @Binds
+    abstract fun bindLabScheduleRemoteDataSource(impl: LabScheduleRemoteDataSourceImpl): LabScheduleRemoteDataSource
 
-    @Provides
-    @Singleton
-    fun provideLabScheduleCacheDataSource(
-        @ApplicationContext context: Context,
-        logger: AppLogger,
-    ): LabScheduleCacheDataSource = LabScheduleCacheDataSourceImpl(context, logger)
+    @Binds
+    abstract fun bindLabScheduleCacheDataSource(impl: LabScheduleCacheDataSourceImpl): LabScheduleCacheDataSource
 
-    @Provides
-    @Singleton
-    fun provideLabScheduleRepository(
-        labScheduleRemoteDataSource: LabScheduleRemoteDataSource,
-        labScheduleCacheDataSource: LabScheduleCacheDataSource,
-        settingsRepository: SettingsRepository,
-        logger: AppLogger,
-    ): LabScheduleRepository =
-        LabScheduleRepositoryImpl(labScheduleRemoteDataSource, labScheduleCacheDataSource, settingsRepository, logger)
+    @Binds
+    abstract fun bindLabScheduleRepository(impl: LabScheduleRepositoryImpl): LabScheduleRepository
 
-    @Provides
-    @Singleton
-    fun provideScheduleNotificationRepository(
-        @ApplicationContext context: Context,
-        scheduleNotificationTaskDao: ScheduleNotificationTaskDao,
-        logger: AppLogger,
-    ): ScheduleNotificationRepository = ScheduleNotificationRepositoryImpl(scheduleNotificationTaskDao, context, logger)
+    @Binds
+    abstract fun bindScheduleNotificationRepository(
+        impl: ScheduleNotificationRepositoryImpl,
+    ): ScheduleNotificationRepository
 }

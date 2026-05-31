@@ -13,7 +13,9 @@ import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.login.model.UserInfo
 import top.goodboyboy.wolfassistant.ui.login.repository.LoginRepository.UserData
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class LoginRepositoryImpl
     @Inject
     constructor(

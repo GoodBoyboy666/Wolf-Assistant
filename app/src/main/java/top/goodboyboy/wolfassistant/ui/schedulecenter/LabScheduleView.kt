@@ -144,8 +144,7 @@ fun LabScheduleView(viewModel: ScheduleCenterViewModel) {
                 isRefreshing = isRefreshing,
                 onRefresh = {
                     scope.launch {
-                        viewModel.cleanLabCache()
-                        viewModel.loadLabScheduleList()
+                        viewModel.loadLabScheduleList(forceRefresh = true)
                     }
                     isRefreshing = false
                 },

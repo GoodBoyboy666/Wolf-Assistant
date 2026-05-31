@@ -9,7 +9,9 @@ import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.messagecenter.datasource.MessageDataSource.DataResult
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class MessageDataSourceImpl
     @Inject
     constructor(

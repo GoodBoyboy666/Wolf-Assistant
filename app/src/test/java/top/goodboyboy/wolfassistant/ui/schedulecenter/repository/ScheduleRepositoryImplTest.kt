@@ -167,6 +167,30 @@ class ScheduleRepositoryImplTest {
         }
 
     /**
+     * 测试场景：forceRefresh = true，即使有缓存也跳过，直接请求远程
+     * 预期：
+     * 1. 不检查缓存
+     * 2. 直接发起网络请求
+     * 3. 成功后保存缓存并返回数据
+     */
+    @Test
+    fun `getSchedule with forceRefresh skips cache and fetches from remote`() =
+        runTest {
+            val remoteList = listOf(testScheduleItem)
+            coEvery { remoteDataSource.getSchedule(any(), any(), any()) } returns
+                ScheduleRemoteDataSource.DataResult.Success(remoteList)
+            coEvery { cacheDataSource.saveSchedule(any(), any(), any()) } returns
+                ScheduleCacheDataSource.SaveResult.Success
+
+            val result = repository.getSchedule("token", testDate, testDate, forceRefresh = true)
+
+            assertTrue(result is ScheduleData.Success)
+            assertEquals(remoteList, (result as ScheduleData.Success).data)
+            coVerify(exactly = 0) { cacheDataSource.getSchedule(any(), any()) }
+            coVerify(exactly = 1) { cacheDataSource.saveSchedule(testDate, testDate, remoteList) }
+        }
+
+    /**
      * 测试场景：清除缓存
      * 预期：
      * 1. 调用缓存数据源的 cleanSchedule 方法
