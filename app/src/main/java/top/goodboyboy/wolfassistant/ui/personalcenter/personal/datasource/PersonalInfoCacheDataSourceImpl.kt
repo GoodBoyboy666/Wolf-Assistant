@@ -3,6 +3,7 @@ package top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonParseException
+import dagger.hilt.android.qualifiers.ApplicationContext
 import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.PersonalInfoCacheDataSource.CleanResult
@@ -11,7 +12,6 @@ import top.goodboyboy.wolfassistant.ui.personalcenter.personal.datasource.Person
 import top.goodboyboy.wolfassistant.ui.personalcenter.personal.model.PersonalInfo
 import java.io.File
 import java.io.IOException
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 

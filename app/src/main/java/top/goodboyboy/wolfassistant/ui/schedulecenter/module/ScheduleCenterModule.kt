@@ -41,5 +41,7 @@ abstract class ScheduleCenterModule {
     abstract fun bindLabScheduleRepository(impl: LabScheduleRepositoryImpl): LabScheduleRepository
 
     @Binds
-    abstract fun bindScheduleNotificationRepository(impl: ScheduleNotificationRepositoryImpl): ScheduleNotificationRepository
+    abstract fun bindScheduleNotificationRepository(
+        impl: ScheduleNotificationRepositoryImpl,
+    ): ScheduleNotificationRepository
 }

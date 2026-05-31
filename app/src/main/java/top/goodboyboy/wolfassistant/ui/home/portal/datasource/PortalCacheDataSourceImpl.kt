@@ -3,6 +3,7 @@ package top.goodboyboy.wolfassistant.ui.home.portal.datasource
 import android.content.Context
 import com.google.gson.JsonParseException
 import com.google.gson.reflect.TypeToken
+import dagger.hilt.android.qualifiers.ApplicationContext
 import top.goodboyboy.wolfassistant.common.Failure
 import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.ui.home.portal.datasource.PortalCacheDataSource.CleanResult
@@ -17,7 +18,6 @@ import java.io.File
 import java.io.IOException
 import java.time.Duration
 import java.time.LocalDateTime
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
