@@ -69,7 +69,7 @@ class ScheduleRepositoryImplTest {
     fun `getSchedule returns cached data when cache exists`() =
         runTest {
             // 准备数据
-            val cachedList = listOf(testScheduleItem)
+            val cachedList = listOf(listOf(testScheduleItem))
             coEvery { cacheDataSource.getSchedule(any(), any()) } returns
                 ScheduleCacheDataSource.DataResult.Success(cachedList)
 
@@ -78,7 +78,7 @@ class ScheduleRepositoryImplTest {
 
             // 验证结果
             assertTrue(result is ScheduleData.Success)
-            assertEquals(cachedList, (result as ScheduleData.Success).data)
+            assertEquals(listOf(testScheduleItem), (result as ScheduleData.Success).data)
 
             // 验证没有发起网络请求
             coVerify(exactly = 0) { remoteDataSource.getSchedule(any(), any(), any()) }
@@ -121,7 +121,7 @@ class ScheduleRepositoryImplTest {
     fun `getSchedule fetches from remote and caches when cache missing`() =
         runTest {
             // 准备数据
-            val remoteList = listOf(testScheduleItem)
+            val remoteList = listOf(listOf(testScheduleItem))
             coEvery { cacheDataSource.getSchedule(any(), any()) } returns ScheduleCacheDataSource.DataResult.NoCache
             coEvery { remoteDataSource.getSchedule(any(), any(), any()) } returns
                 ScheduleRemoteDataSource.DataResult.Success(remoteList)
@@ -133,7 +133,7 @@ class ScheduleRepositoryImplTest {
 
             // 验证结果
             assertTrue(result is ScheduleData.Success)
-            assertEquals(remoteList, (result as ScheduleData.Success).data)
+            assertEquals(listOf(testScheduleItem), (result as ScheduleData.Success).data)
 
             // 验证保存了缓存
             coVerify(exactly = 1) { cacheDataSource.saveSchedule(testDate, testDate, remoteList) }
@@ -176,7 +176,7 @@ class ScheduleRepositoryImplTest {
     @Test
     fun `getSchedule with forceRefresh skips cache and fetches from remote`() =
         runTest {
-            val remoteList = listOf(testScheduleItem)
+            val remoteList = listOf(listOf(testScheduleItem))
             coEvery { remoteDataSource.getSchedule(any(), any(), any()) } returns
                 ScheduleRemoteDataSource.DataResult.Success(remoteList)
             coEvery { cacheDataSource.saveSchedule(any(), any(), any()) } returns
@@ -185,7 +185,7 @@ class ScheduleRepositoryImplTest {
             val result = repository.getSchedule("token", testDate, testDate, forceRefresh = true)
 
             assertTrue(result is ScheduleData.Success)
-            assertEquals(remoteList, (result as ScheduleData.Success).data)
+            assertEquals(listOf(testScheduleItem), (result as ScheduleData.Success).data)
             coVerify(exactly = 0) { cacheDataSource.getSchedule(any(), any()) }
             coVerify(exactly = 1) { cacheDataSource.saveSchedule(testDate, testDate, remoteList) }
         }

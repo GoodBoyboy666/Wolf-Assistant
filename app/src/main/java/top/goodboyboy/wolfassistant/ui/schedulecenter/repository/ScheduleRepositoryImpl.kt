@@ -41,7 +41,7 @@ class ScheduleRepositoryImpl
                     }
                     is ScheduleCacheDataSource.DataResult.Success -> {
                         logger.i("获取课表: 缓存命中")
-                        return ScheduleData.Success(cache.list)
+                        return ScheduleData.Success(cache.list.flatten())
                     }
                 }
             } else {
@@ -67,7 +67,7 @@ class ScheduleRepositoryImpl
                         endDate,
                         remote.data,
                     )
-                    return ScheduleData.Success(remote.data)
+                    return ScheduleData.Success(remote.data.flatten())
                 }
             }
         }
