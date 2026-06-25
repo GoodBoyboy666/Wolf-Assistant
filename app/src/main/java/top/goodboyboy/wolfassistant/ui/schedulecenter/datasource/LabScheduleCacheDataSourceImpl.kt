@@ -28,9 +28,9 @@ class LabScheduleCacheDataSourceImpl
                 val labScheduleFile = File(baseDir, "week_$week.json")
                 if (labScheduleFile.isFile && labScheduleFile.exists()) {
                     val fileContent = labScheduleFile.readText()
-                    val type = object : TypeToken<List<LabScheduleItem?>>() {}.type
+                    val type = object : TypeToken<List<List<LabScheduleItem?>>>() {}.type
                     val scheduleObject =
-                        GsonUtil.getGson().fromJson<List<LabScheduleItem?>>(fileContent, type)
+                        GsonUtil.getGson().fromJson<List<List<LabScheduleItem?>>>(fileContent, type)
                     return LabScheduleCacheDataSource.LabScheduleResult.Success(scheduleObject)
                 } else {
                     return LabScheduleCacheDataSource.LabScheduleResult.NoCache
@@ -47,7 +47,7 @@ class LabScheduleCacheDataSourceImpl
         }
 
         override suspend fun saveLabScheduleCache(
-            data: Map<Int, List<LabScheduleItem?>>,
+            data: Map<Int, List<List<LabScheduleItem?>>>,
         ): LabScheduleCacheDataSource.SaveLabScheduleResult {
             try {
                 logger.tag("LabScheduleCache").i("写入实验课表缓存: ${data.keys}")
@@ -59,7 +59,7 @@ class LabScheduleCacheDataSourceImpl
                     val jsonString =
                         GsonUtil.getGson().toJson(
                             scheduleList,
-                            object : TypeToken<List<LabScheduleItem?>>() {}.type,
+                            object : TypeToken<List<List<LabScheduleItem?>>>() {}.type,
                         )
                     labScheduleFile.writeText(jsonString)
                 }

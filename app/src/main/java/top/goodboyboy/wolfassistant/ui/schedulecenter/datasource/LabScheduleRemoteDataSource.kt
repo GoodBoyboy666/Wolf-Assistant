@@ -11,7 +11,7 @@ interface LabScheduleRemoteDataSource {
 
     sealed class LabScheduleDataResult {
         data class Success(
-            val data: Map<Int, List<LabScheduleItem?>>,
+            val data: Map<Int, List<List<LabScheduleItem?>>>,
         ) : LabScheduleDataResult()
 
         data class Error(

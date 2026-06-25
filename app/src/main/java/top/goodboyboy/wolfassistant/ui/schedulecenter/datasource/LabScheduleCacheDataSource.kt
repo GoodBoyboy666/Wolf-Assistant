@@ -6,13 +6,13 @@ import top.goodboyboy.wolfassistant.ui.schedulecenter.model.LabScheduleItem
 interface LabScheduleCacheDataSource {
     suspend fun getLabScheduleCache(week: Int): LabScheduleResult
 
-    suspend fun saveLabScheduleCache(data: Map<Int, List<LabScheduleItem?>>): SaveLabScheduleResult
+    suspend fun saveLabScheduleCache(data: Map<Int, List<List<LabScheduleItem?>>>): SaveLabScheduleResult
 
     suspend fun cleanLabScheduleCache(): CleanLabScheduleResult
 
     sealed class LabScheduleResult {
         data class Success(
-            val data: List<LabScheduleItem?> = emptyList(),
+            val data: List<List<LabScheduleItem?>> = emptyList(),
         ) : LabScheduleResult()
 
         data class Error(
