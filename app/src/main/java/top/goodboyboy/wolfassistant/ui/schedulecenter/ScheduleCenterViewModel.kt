@@ -158,8 +158,7 @@ class ScheduleCenterViewModel
             logger.i("加载实验课表")
             _loadLabScheduleState.value = LoadScheduleState.Loading
 
-            val data = labScheduleRepository.getLabSchedule(weekNumber.first(), forceRefresh)
-            when (data) {
+            when (val data = labScheduleRepository.getLabSchedule(weekNumber.first(), forceRefresh)) {
                 is LabScheduleRepository.LabScheduleData.Failed -> {
                     _errorMessage.send(data.error.message + data.error.cause?.message)
                     logger.e(data.error.cause, "加载实验课表失败")

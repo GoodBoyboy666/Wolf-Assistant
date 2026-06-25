@@ -148,7 +148,6 @@ fun ServiceCenterView(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier.fillMaxSize(),
                         ) {
-                            0
                             items(serviceList) { service ->
                                 ServiceCard(
                                     title = service.text,

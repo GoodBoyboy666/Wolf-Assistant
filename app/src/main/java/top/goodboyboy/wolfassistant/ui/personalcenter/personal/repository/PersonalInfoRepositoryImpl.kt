@@ -18,8 +18,7 @@ class PersonalInfoRepositoryImpl
     ) : PersonalInfoRepository {
         override suspend fun getPersonalInfo(accessToken: String): PersonalInfoData {
             logger.i("获取个人信息")
-            val cache = personalInfoCacheDataSource.getPersonalInfo()
-            when (cache) {
+            when (val cache = personalInfoCacheDataSource.getPersonalInfo()) {
                 is PersonalInfoCacheDataSource.DataResult.Error -> {}
                 PersonalInfoCacheDataSource.DataResult.NoCache -> {}
                 is PersonalInfoCacheDataSource.DataResult.Success -> {
@@ -27,8 +26,7 @@ class PersonalInfoRepositoryImpl
                     return PersonalInfoData.Success(cache.info)
                 }
             }
-            val remote = personalInfoRemoteDataSource.getPersonalInfo(accessToken)
-            when (remote) {
+            when (val remote = personalInfoRemoteDataSource.getPersonalInfo(accessToken)) {
                 is PersonalInfoRemoteDataSource.DataResult.Error -> {
                     logger.e(remote.error.cause, "获取个人信息失败")
                     return Failed(remote.error)

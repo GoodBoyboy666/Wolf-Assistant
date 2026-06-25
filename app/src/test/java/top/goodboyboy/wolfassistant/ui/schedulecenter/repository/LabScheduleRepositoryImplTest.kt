@@ -49,7 +49,10 @@ class LabScheduleRepositoryImplTest {
             val result = repository.getLabSchedule(week)
 
             assertTrue(result is LabScheduleRepository.LabScheduleData.Success)
-            assertEquals(listOf(LabScheduleItem("Course1", "Code1", "Class1", "Room1", "1-2")), (result as LabScheduleRepository.LabScheduleData.Success).data)
+            assertEquals(
+                listOf(LabScheduleItem("Course1", "Code1", "Class1", "Room1", "1-2")),
+                (result as LabScheduleRepository.LabScheduleData.Success).data,
+            )
             // 验证没有调用远程数据源
             coVerify(exactly = 0) { remoteDataSource.getLabSchedule(any(), any()) }
         }
@@ -80,7 +83,10 @@ class LabScheduleRepositoryImplTest {
             val week = 1
             val remoteDataMap =
                 mapOf(
-                    1 to listOf(listOf(LabScheduleItem("CourseRemote", "CodeRemote", "ClassRemote", "RoomRemote", "3-4"))),
+                    1 to
+                        listOf(
+                            listOf(LabScheduleItem("CourseRemote", "CodeRemote", "ClassRemote", "RoomRemote", "3-4")),
+                        ),
                 )
 
             coEvery {
@@ -94,7 +100,10 @@ class LabScheduleRepositoryImplTest {
             val result = repository.getLabSchedule(week)
 
             assertTrue(result is LabScheduleRepository.LabScheduleData.Success)
-            assertEquals(listOf(LabScheduleItem("CourseRemote", "CodeRemote", "ClassRemote", "RoomRemote", "3-4")), (result as LabScheduleRepository.LabScheduleData.Success).data)
+            assertEquals(
+                listOf(LabScheduleItem("CourseRemote", "CodeRemote", "ClassRemote", "RoomRemote", "3-4")),
+                (result as LabScheduleRepository.LabScheduleData.Success).data,
+            )
 
             // 验证保存了缓存
             coVerify(exactly = 1) { cacheDataSource.saveLabScheduleCache(remoteDataMap) }

@@ -23,8 +23,7 @@ class PortalRepositoryImpl
     ) : PortalRepository {
         override suspend fun getPortalCategory(accessToken: String): PortalData<List<PortalCategoryItem>> {
             logger.i("获取门户分类")
-            val getCacheResult = portalCacheDataSource.getPortalCategory(12)
-            when (getCacheResult) {
+            when (val getCacheResult = portalCacheDataSource.getPortalCategory(12)) {
                 is CacheDataResult.Error -> {
                     logger.e(getCacheResult.error.cause, "获取门户分类失败")
                     return Failed(getCacheResult.error)
@@ -58,8 +57,7 @@ class PortalRepositoryImpl
 
         override suspend fun getPortalInfoList(portalID: String): PortalData<List<PortalInfoItem>> {
             logger.i("获取门户信息列表")
-            val getCacheResult = portalCacheDataSource.getPortalInfoList(portalID, 6)
-            when (getCacheResult) {
+            when (val getCacheResult = portalCacheDataSource.getPortalInfoList(portalID, 6)) {
                 is CacheDataResult.Error -> {
                     logger.e(getCacheResult.error.cause, "获取门户信息列表失败")
                     return Failed(getCacheResult.error)

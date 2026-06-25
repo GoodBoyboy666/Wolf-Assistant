@@ -36,8 +36,8 @@ class MessagePagingSource(
                     appId = appID,
                 )
             val messageList = mutableListOf<MessageItem>()
-            response.use {
-                val test = it.string()
+            response.use { body ->
+                val test = body.string()
                 JsonParser.parseString(test).asJsonObject.getAsJsonArray("data").forEach {
                     val item = it.asJsonObject
                     val message =

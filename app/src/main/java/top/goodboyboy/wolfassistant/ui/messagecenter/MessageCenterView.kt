@@ -113,10 +113,11 @@ fun MessageList(
         val appendError = items.loadState.append as? LoadState.Error
         when {
             refreshError != null -> {
-                val result = snackbarHostState.showSnackbar(
-                    message = context.getString(R.string.loading_failed, refreshError.error.localizedMessage ?: ""),
-                    actionLabel = context.getString(R.string.retry),
-                )
+                val result =
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.loading_failed, refreshError.error.localizedMessage ?: ""),
+                        actionLabel = context.getString(R.string.retry),
+                    )
                 if (result == SnackbarResult.ActionPerformed) {
                     items.retry()
                 }

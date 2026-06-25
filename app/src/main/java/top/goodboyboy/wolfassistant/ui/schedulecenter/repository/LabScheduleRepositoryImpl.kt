@@ -23,8 +23,7 @@ class LabScheduleRepositoryImpl
         ): LabScheduleRepository.LabScheduleData {
             logger.i("获取实验课表: 第${week}周")
             if (!forceRefresh) {
-                val cache = labScheduleCacheDataSource.getLabScheduleCache(week)
-                when (cache) {
+                when (val cache = labScheduleCacheDataSource.getLabScheduleCache(week)) {
                     is LabScheduleCacheDataSource.LabScheduleResult.Error -> {
                         logger.i("获取实验课表: 缓存未命中，请求远程数据")
                         return LabScheduleRepository.LabScheduleData.Failed(cache.error)

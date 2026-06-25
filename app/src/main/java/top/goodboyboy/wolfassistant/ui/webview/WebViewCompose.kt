@@ -152,7 +152,7 @@ fun WebViewCompose(
             )
 
         if (headerTokenKeyName != "") {
-            header.put(headerTokenKeyName, accessToken)
+            header[headerTokenKeyName] = accessToken
         }
         webView.loadUrl(newUrl, header)
     }

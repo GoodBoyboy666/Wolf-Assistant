@@ -95,7 +95,11 @@ fun ScheduleCenterView(
             when (page) {
                 0 -> {
                     // 普通课表
-                    ScheduleView(viewModel = viewModel, globalEventBus = globalEventBus, snackbarHostState = snackbarHostState)
+                    ScheduleView(
+                        viewModel = viewModel,
+                        globalEventBus = globalEventBus,
+                        snackbarHostState = snackbarHostState,
+                    )
                 }
 
                 1 -> {

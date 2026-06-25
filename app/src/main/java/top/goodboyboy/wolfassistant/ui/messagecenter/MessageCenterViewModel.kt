@@ -27,7 +27,7 @@ class MessageCenterViewModel
     constructor(
         private val messageRepository: MessageRepository,
         private val settingsRepository: SettingsRepository,
-        private val application: Application,
+        application: Application,
         private val logger: AppLogger,
     ) : ViewModel() {
         //    val messageCategory = listOf("公告", "学工系统", "办事大厅")

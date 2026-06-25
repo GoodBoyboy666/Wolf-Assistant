@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -73,7 +72,7 @@ fun BrowserView(
     val loadState by viewModel.loadState.collectAsStateWithLifecycle()
     // Precompute the localized message at composition time so we don't call a @Composable from a coroutine
     val cantPullUpMessage = stringResource(R.string.cant_pull_up_app)
-    val layoutDirection = LocalLayoutDirection.current
+//    val layoutDirection = LocalLayoutDirection.current
 
     LaunchedEffect(Unit) {
         globalEventBus.subscribeToTarget<BrowserMenuClickEvent>("BrowserView").collect {

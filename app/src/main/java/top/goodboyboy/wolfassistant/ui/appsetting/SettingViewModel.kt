@@ -38,7 +38,7 @@ class SettingViewModel
         private val settingsRepository: SettingsRepository,
         private val appSettingRepository: AppSettingRepository,
         private val labScheduleRepository: LabScheduleRepository,
-        private val application: Application,
+        application: Application,
         private val okHttpClient: OkHttpClient,
         private val logger: AppLogger,
     ) : ViewModel() {
