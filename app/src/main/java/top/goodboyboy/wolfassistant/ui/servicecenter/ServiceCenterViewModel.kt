@@ -4,12 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
@@ -63,10 +65,11 @@ class ServiceCenterViewModel
 
             object Success : LoadServiceState()
 
-            data class Failed(
-                val message: String,
-            ) : LoadServiceState()
+            object Failed : LoadServiceState()
         }
+
+        private val _errorEvent = Channel<String>(Channel.BUFFERED)
+        val errorEvent = _errorEvent.receiveAsFlow()
 
         suspend fun loadService() {
             logger.i("加载服务列表")
@@ -78,7 +81,8 @@ class ServiceCenterViewModel
                 )
             when (data) {
                 is ServiceRepository.ServiceListData.Failed -> {
-                    _loadServiceState.value = LoadServiceState.Failed(data.error.message)
+                    _errorEvent.send(data.error.message)
+                    _loadServiceState.value = LoadServiceState.Failed
                     logger.e(data.error.cause, "加载服务列表失败")
                 }
 

@@ -230,6 +230,7 @@ class MainActivity : ComponentActivity() {
                                     innerPadding,
                                     navController,
                                     viewModel,
+                                    snackbarHostState,
                                 )
                             }
                             composable(ScreenRoute.ServiceCenter.route) {
@@ -246,6 +247,7 @@ class MainActivity : ComponentActivity() {
                                     innerPadding,
                                     navController,
                                     viewModel,
+                                    snackbarHostState,
                                 )
                             }
                             composable(ScreenRoute.MessageCenter.route) {
@@ -261,6 +263,7 @@ class MainActivity : ComponentActivity() {
                                 MessageCenterView(
                                     innerPadding,
                                     viewModel,
+                                    snackbarHostState,
                                 )
                             }
                             composable(ScreenRoute.Schedule.route) {
@@ -286,6 +289,7 @@ class MainActivity : ComponentActivity() {
                                     innerPadding,
                                     navController,
                                     viewModel,
+                                    snackbarHostState,
                                 )
                             }
                             composable("first_page") {

@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -44,7 +45,10 @@ import top.goodboyboy.wolfassistant.ui.schedulecenter.ScheduleCenterViewModel.Lo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LabScheduleView(viewModel: ScheduleCenterViewModel) {
+fun LabScheduleView(
+    viewModel: ScheduleCenterViewModel,
+    snackbarHostState: SnackbarHostState,
+) {
     val loadScheduleState by viewModel.loadLabScheduleState.collectAsStateWithLifecycle()
     val labScheduleList by viewModel.labScheduleList.collectAsStateWithLifecycle()
     val selectWeekNum by viewModel.weekNumber.collectAsStateWithLifecycle()
@@ -52,6 +56,10 @@ fun LabScheduleView(viewModel: ScheduleCenterViewModel) {
     var showSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        viewModel.errorMessage.collect { snackbarHostState.showSnackbar(it) }
+    }
 
     LaunchedEffect(selectWeekNum) {
         viewModel.loadLabScheduleList()
@@ -173,7 +181,7 @@ fun LabScheduleView(viewModel: ScheduleCenterViewModel) {
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = (loadScheduleState as LoadScheduleState.Failed).message,
+                                text = "加载失败",
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.padding(16.dp),
                             )

@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.goodboyboy.wolfassistant.log.AppLogger
@@ -36,10 +38,11 @@ class PersonalCenterViewModel
 
             object Success : LoadState()
 
-            data class Failed(
-                val reason: String,
-            ) : LoadState()
+            object Failed : LoadState()
         }
+
+        private val _errorEvent = Channel<String>(Channel.BUFFERED)
+        val errorEvent = _errorEvent.receiveAsFlow()
 
         init {
             viewModelScope.launch {
@@ -58,7 +61,8 @@ class PersonalCenterViewModel
             when (info) {
                 is PersonalInfoRepository.PersonalInfoData.Failed -> {
                     withContext(Dispatchers.Main) {
-                        _loadState.value = LoadState.Failed(info.error.message)
+                        _errorEvent.send(info.error.message)
+                        _loadState.value = LoadState.Failed
                         logger.e(info.error.cause, "加载个人信息失败")
                     }
                 }

@@ -129,9 +129,6 @@ class PersonalCenterViewModelTest {
             // 验证结果：
             // 1. 加载状态应为 Failed
             assertTrue(viewModel.loadState.value is PersonalCenterViewModel.LoadState.Failed)
-            val state = viewModel.loadState.value as PersonalCenterViewModel.LoadState.Failed
-            // 2. 错误信息包含预期的字符串
-            assertTrue(state.reason.contains(errMsg))
             // 3. 个人信息应为 null
             assertNull(viewModel.personalInfo.value)
             // 4. 验证仓库方法被调用了一次

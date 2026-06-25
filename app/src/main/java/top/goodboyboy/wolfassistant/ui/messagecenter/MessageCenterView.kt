@@ -1,5 +1,6 @@
 package top.goodboyboy.wolfassistant.ui.messagecenter
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,12 +16,16 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -35,6 +40,7 @@ import top.goodboyboy.wolfassistant.ui.messagecenter.model.MessageItem
 fun MessageCenterView(
     innerPadding: PaddingValues,
     viewModel: MessageCenterViewModel,
+    snackbarHostState: SnackbarHostState,
 ) {
     val messageCategory = viewModel.messageCategory
     val pagerState =
@@ -43,6 +49,9 @@ fun MessageCenterView(
             pageCount = { messageCategory.size },
         )
     val scope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        viewModel.errorEvent.collect { snackbarHostState.showSnackbar(it) }
+    }
     OutlinedCard(
         modifier =
             Modifier
@@ -86,14 +95,39 @@ fun MessageCenterView(
                         .getMessagePagingFlow(
                             index,
                         ).collectAsLazyPagingItems()
-                MessageList(lazyMessageItems)
+                MessageList(lazyMessageItems, snackbarHostState)
             }
         }
     }
 }
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
-fun MessageList(items: LazyPagingItems<MessageItem>) {
+fun MessageList(
+    items: LazyPagingItems<MessageItem>,
+    snackbarHostState: SnackbarHostState,
+) {
+    val context = LocalContext.current
+    LaunchedEffect(items.loadState.refresh, items.loadState.append) {
+        val refreshError = items.loadState.refresh as? LoadState.Error
+        val appendError = items.loadState.append as? LoadState.Error
+        when {
+            refreshError != null -> {
+                val result = snackbarHostState.showSnackbar(
+                    message = context.getString(R.string.loading_failed, refreshError.error.localizedMessage ?: ""),
+                    actionLabel = context.getString(R.string.retry),
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    items.retry()
+                }
+            }
+            appendError != null -> {
+                snackbarHostState.showSnackbar(
+                    message = context.getString(R.string.load_more_failed, appendError.error.localizedMessage ?: ""),
+                )
+            }
+        }
+    }
     LazyColumn(
         modifier = Modifier.padding(start = 5.dp, end = 5.dp),
     ) {
@@ -129,14 +163,13 @@ fun MessageList(items: LazyPagingItems<MessageItem>) {
                 }
 
                 refresh is LoadState.Error -> {
-                    val e = items.loadState.refresh as LoadState.Error
                     item {
                         Column(
                             modifier = Modifier.fillParentMaxSize(),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Text(stringResource(R.string.loading_failed, e.error.localizedMessage))
+                            Text(stringResource(R.string.load_fail))
                             Button(onClick = { items.retry() }) {
                                 Text(stringResource(R.string.retry))
                             }
@@ -145,7 +178,6 @@ fun MessageList(items: LazyPagingItems<MessageItem>) {
                 }
 
                 append is LoadState.Error -> {
-                    val e = items.loadState.append as LoadState.Error
                     item {
                         Box(
                             modifier =
@@ -155,7 +187,7 @@ fun MessageList(items: LazyPagingItems<MessageItem>) {
                             contentAlignment = Alignment.Center,
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(stringResource(R.string.load_more_failed, e.error.localizedMessage))
+                                Text(stringResource(R.string.load_fail))
                                 Button(onClick = { items.retry() }) {
                                     Text(stringResource(R.string.retry))
                                 }
