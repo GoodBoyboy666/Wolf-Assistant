@@ -95,6 +95,7 @@ class ScheduleCenterViewModel
             val startDay = firstDay.value
             val endDay = lastDay.value
             if (startDay == null || endDay == null) {
+                logger.e(null, "日期不可为Null")
                 _errorMessage.send("日期不可为Null")
                 _loadScheduleState.value = LoadScheduleState.Failed
             } else {
@@ -183,6 +184,7 @@ class ScheduleCenterViewModel
             if (loadScheduleState.value != LoadScheduleState.Success ||
                 loadLabScheduleState.value != LoadScheduleState.Success
             ) {
+                logger.e(null, "请先成功加载所有课表后再设置课表通知（包括实验课表）")
                 _errorMessage.send("请先成功加载所有课表后再设置课表通知（包括实验课表）")
                 return
             } else {
