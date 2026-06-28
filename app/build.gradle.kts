@@ -15,8 +15,11 @@ android {
         applicationId = "top.goodboyboy.wolfassistant"
         minSdk = 28
         targetSdk = 37
-        versionCode = 22
-        versionName = "1.6.0-beta.1"
+        val ciVersionCode = (System.getenv("CI_VERSION_CODE")?.toIntOrNull() ?: 1) + 22
+        val rawCiVersionName = System.getenv("CI_VERSION_NAME") ?: "1.0.0-dev"
+        val cleanVersionName = rawCiVersionName.removePrefix("v")
+        versionCode = ciVersionCode
+        versionName = cleanVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         android.buildFeatures.buildConfig = true
