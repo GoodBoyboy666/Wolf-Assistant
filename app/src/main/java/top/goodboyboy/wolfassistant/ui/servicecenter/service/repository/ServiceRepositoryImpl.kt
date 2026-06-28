@@ -19,8 +19,7 @@ class ServiceRepositoryImpl
     ) : ServiceRepository {
         override suspend fun getServiceList(accessToken: String): ServiceListData {
             logger.i("获取服务列表")
-            val cache = serviceCacheDataSource.getServiceList()
-            when (cache) {
+            when (val cache = serviceCacheDataSource.getServiceList()) {
                 is ServiceCacheDataSource.DataResult.Error -> {
                     logger.e(cache.error.cause, "获取服务列表缓存失败")
                     return Failed(cache.error)

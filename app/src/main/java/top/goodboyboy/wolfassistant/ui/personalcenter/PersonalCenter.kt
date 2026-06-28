@@ -19,9 +19,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,11 +48,15 @@ fun PersonalCenter(
     innerPadding: PaddingValues,
     navController: NavController,
     viewModel: PersonalCenterViewModel,
+    snackbarHostState: SnackbarHostState,
 ) {
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     val loadState by viewModel.loadState.collectAsStateWithLifecycle()
     val personalInfo by viewModel.personalInfo.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) {
+        viewModel.errorEvent.collect { snackbarHostState.showSnackbar(it) }
+    }
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = {
@@ -102,7 +108,7 @@ fun PersonalCenter(
         ) {
             when (loadState) {
                 is PersonalCenterViewModel.LoadState.Failed -> {
-                    Text("出错了……（悲）\n原因：" + (loadState as PersonalCenterViewModel.LoadState.Failed).reason)
+                    Text("出错了……（悲）")
                 }
 
                 PersonalCenterViewModel.LoadState.Idle -> {

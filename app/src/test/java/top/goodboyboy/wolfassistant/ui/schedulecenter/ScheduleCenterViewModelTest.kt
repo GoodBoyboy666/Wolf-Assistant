@@ -114,7 +114,6 @@ class ScheduleCenterViewModelTest {
 
             val state = viewModel.loadScheduleState.value
             assertTrue(state is ScheduleCenterViewModel.LoadScheduleState.Failed)
-            assertEquals("日期不可为Null", (state as ScheduleCenterViewModel.LoadScheduleState.Failed).message)
         }
 
     /**
@@ -187,7 +186,6 @@ class ScheduleCenterViewModelTest {
 
             val state = viewModel.loadScheduleState.value
             assertTrue(state is ScheduleCenterViewModel.LoadScheduleState.Failed)
-            assertEquals(errorMsg, (state as ScheduleCenterViewModel.LoadScheduleState.Failed).message)
         }
 
     /**
@@ -251,8 +249,6 @@ class ScheduleCenterViewModelTest {
 
             val state = viewModel.loadLabScheduleState.value
             assertTrue(state is ScheduleCenterViewModel.LoadScheduleState.Failed)
-            // 错误信息拼接了 cause?.message，这里 cause 为 null，所以只包含 errorMsg + "null"
-            assertEquals(errorMsg + "null", (state as ScheduleCenterViewModel.LoadScheduleState.Failed).message)
         }
 
     /**

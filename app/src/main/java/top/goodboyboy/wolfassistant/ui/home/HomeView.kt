@@ -28,10 +28,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,7 +44,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -58,7 +59,7 @@ import java.net.URLEncoder
 @Preview
 @Composable
 private fun HomeViewPreview() {
-    HomeView(PaddingValues(), rememberNavController(), hiltViewModel())
+    HomeView(PaddingValues(), rememberNavController(), hiltViewModel(), remember { SnackbarHostState() })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,10 +68,14 @@ fun HomeView(
     innerPadding: PaddingValues,
     navController: NavController,
     viewModel: HomeViewModel,
+    snackbarHostState: SnackbarHostState,
 ) {
     val name by viewModel.userName.collectAsState(stringResource(R.string.friends))
     val timeTalk by viewModel.timeTalk.collectAsStateWithLifecycle()
     val shape = RoundedCornerShape(12.dp)
+    LaunchedEffect(Unit) {
+        viewModel.errorEvent.collect { snackbarHostState.showSnackbar(it) }
+    }
     Column(
         modifier =
             Modifier
@@ -236,15 +241,7 @@ fun HomeView(
                                     .verticalScroll(rememberScrollState()),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(stringResource(R.string.load_fail))
-                                Text(
-                                    stringResource(R.string.reason) +
-                                        (portalState as HomeViewModel.PortalState.Failed).message,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.padding(16.dp),
-                                )
-                            }
+                            Text(stringResource(R.string.load_fail))
                         }
                     }
 

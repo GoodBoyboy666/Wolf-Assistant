@@ -114,7 +114,7 @@ class ScheduleNotificationRepositoryImpl
         override suspend fun getAllLabScheduleNotificationTasks(): List<ScheduleNotificationTaskEntity> =
             scheduleNotificationTaskDao.getAllEntitiesByType(ScheduleType.LAB)
 
-        private suspend fun getScheduleItems(time: LocalDate): List<ScheduleItem> {
+        private fun getScheduleItems(time: LocalDate): List<ScheduleItem> {
             val baseDir = File(context.filesDir, "schedule")
             // 获取当前默认系统环境的星期规则
             val weekFields = WeekFields.of(Locale.getDefault())
@@ -147,7 +147,7 @@ class ScheduleNotificationRepositoryImpl
             return emptyList()
         }
 
-        private suspend fun getLabScheduleItems(week: Int): List<LabScheduleItem?> {
+        private fun getLabScheduleItems(week: Int): List<LabScheduleItem?> {
             val baseDir = File(context.filesDir, "labSchedule")
             try {
                 val labScheduleFile = File(baseDir, "week_$week.json")

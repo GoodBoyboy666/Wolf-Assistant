@@ -6,6 +6,7 @@ import okhttp3.Request
 import okhttp3.Response
 
 object UserAvatar {
+    @Deprecated("Use getUserAvatarUrl instead", level = DeprecationLevel.HIDDEN)
     fun getUserAvatar(
         accessToken: String,
         imageUrl: String,

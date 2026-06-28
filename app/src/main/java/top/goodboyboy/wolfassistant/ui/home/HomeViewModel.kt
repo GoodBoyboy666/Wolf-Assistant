@@ -3,9 +3,11 @@ package top.goodboyboy.wolfassistant.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import top.goodboyboy.wolfassistant.log.AppLogger
 import top.goodboyboy.wolfassistant.settings.SettingsRepository
@@ -30,10 +32,11 @@ class HomeViewModel
 
             object Success : PortalState()
 
-            data class Failed(
-                val message: String,
-            ) : PortalState()
+            object Failed : PortalState()
         }
+
+        private val _errorEvent = Channel<String>(Channel.BUFFERED)
+        val errorEvent = _errorEvent.receiveAsFlow()
 
         private val _timeTalk = MutableStateFlow("今天过得怎么样？")
         val timeTalk: StateFlow<String> = _timeTalk.asStateFlow()
@@ -77,7 +80,8 @@ class HomeViewModel
                 )
             when (categories) {
                 is PortalRepository.PortalData.Failed -> {
-                    _portalState.value = PortalState.Failed(categories.e.message)
+                    _errorEvent.send(categories.e.message)
+                    _portalState.value = PortalState.Failed
                     logger.e(categories.e.cause, "加载门户分类失败")
                 }
 
@@ -101,6 +105,7 @@ class HomeViewModel
                     )
                 when (infos) {
                     is PortalRepository.PortalData.Failed -> {
+                        _errorEvent.send(infos.e.message)
                         logger.e(infos.e.cause, "加载门户信息列表失败")
                         allInfos.add(emptyList())
                     }

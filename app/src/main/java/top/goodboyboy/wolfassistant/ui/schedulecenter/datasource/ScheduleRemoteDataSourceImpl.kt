@@ -30,6 +30,7 @@ class ScheduleRemoteDataSourceImpl
         ): DataResult {
             try {
                 logger.tag("ScheduleRemote").i("获取课表远程数据: $startDate ~ $endDate")
+                val timeList = listOf("08:00:00", "10:00:00", "14:00:00", "16:00:00", "19:00:00", "21:00:00")
                 val response =
                     apiService.getSchedule(
                         accessToken = accessToken,
@@ -37,11 +38,12 @@ class ScheduleRemoteDataSourceImpl
                         endDate = endDate.toString(),
                     )
 
-                response.use {
+                response.use { body ->
                     val jsonElement =
-                        JsonParser.parseString(it.string()).asJsonObject.get("data")
+                        JsonParser.parseString(body.string()).asJsonObject.get("data")
                     if (jsonElement.isJsonNull) {
-                        return DataResult.Success(List(35) { null })
+                        val numDays = (endDate.toEpochDay() - startDate.toEpochDay() + 1).toInt()
+                        return DataResult.Success(List(numDays) { List(timeList.size) { null } })
                     }
 
                     val schedule =
@@ -49,18 +51,16 @@ class ScheduleRemoteDataSourceImpl
                             .get("schedule")
                             .asJsonObject
                             .asMap()
-                    val list = mutableListOf<ScheduleItem?>()
-                    val timeList = listOf("08:00:00", "10:00:00", "14:00:00", "16:00:00", "19:00:00")
+                    val list = mutableListOf<List<ScheduleItem?>>()
                     generateSequence(startDate) { it.plusDays(1) }
                         .takeWhile { it <= endDate }
-                        .forEach {
-                            val date = schedule[it.toString()]
-                            if (date == null) {
-                                val emptyDay = List(5) { null }
-                                list.addAll(emptyDay)
+                        .forEach { date ->
+                            val currentDateSchedule = schedule[date.toString()]
+                            if (currentDateSchedule == null) {
+                                list.add(List(timeList.size) { null })
                                 return@forEach
                             }
-                            val calendarList = date.asJsonObject.get("calendarList").asJsonArray
+                            val calendarList = currentDateSchedule.asJsonObject.get("calendarList").asJsonArray
                             val calendarMap = mutableMapOf<String, ScheduleItem>()
                             calendarList.forEach {
                                 val calendar = it.asJsonObject
@@ -79,14 +79,7 @@ class ScheduleRemoteDataSourceImpl
                                     )
                                 calendarMap[startTime] = scheduleItem
                             }
-                            timeList.forEach {
-                                val calendar = calendarMap[it]
-                                if (calendar == null) {
-                                    list.add(null)
-                                } else {
-                                    list.add(calendar)
-                                }
-                            }
+                            list.add(timeList.map { calendarMap[it] })
                         }
                     logger.tag("ScheduleRemote").i("获取课表远程数据成功")
                     return DataResult.Success(list)

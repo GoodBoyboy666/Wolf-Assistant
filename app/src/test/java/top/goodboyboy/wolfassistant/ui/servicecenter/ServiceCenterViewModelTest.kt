@@ -127,7 +127,6 @@ class ServiceCenterViewModelTest {
             // Assert
             val state = viewModel.loadServiceState.value
             assertTrue(state is ServiceCenterViewModel.LoadServiceState.Failed)
-            assertEquals(errorMsg, (state as ServiceCenterViewModel.LoadServiceState.Failed).message)
         }
 
     /**

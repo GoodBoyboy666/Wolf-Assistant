@@ -102,7 +102,7 @@ object HUTAPIModule {
         val dynamicIpv4Only =
             Dns { hostname ->
                 if (GlobalInitConfig.onlyIPv4) {
-                    Dns.SYSTEM.lookup(hostname).filter { it is Inet4Address }
+                    Dns.SYSTEM.lookup(hostname).filterIsInstance<Inet4Address>()
                 } else {
                     Dns.SYSTEM.lookup(hostname)
                 }

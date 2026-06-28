@@ -5,12 +5,12 @@ import org.jsoup.nodes.Element
 import top.goodboyboy.wolfassistant.ui.schedulecenter.model.LabScheduleItem
 
 object ParseLabScheduleUtil {
-    fun parseCourseTable(html: String): Map<Int, List<LabScheduleItem?>> {
+    fun parseCourseTable(html: String): Map<Int, List<List<LabScheduleItem?>>> {
         val doc = Jsoup.parse(html)
         // 获取表格主体中的所有行
         val rows = doc.select(".qz-weeklyTable-thbody tr")
 
-        val result = mutableMapOf<Int, List<LabScheduleItem?>>()
+        val result = mutableMapOf<Int, List<List<LabScheduleItem?>>>()
 
         // 使用 chunked 方法将行按每6行分一组，每一组代表一周
         // 假设HTML结构是完美的，每6行为一个周期
@@ -21,7 +21,7 @@ object ParseLabScheduleUtil {
             val weekNumText = weekRows[0].selectFirst("td[rowspan] .index-title")?.text()
             val weekNum = weekNumText?.toIntOrNull() ?: throw ParseException("解析周次失败！")
 
-            val weekScheduleList = mutableListOf<LabScheduleItem?>()
+            val weekScheduleList = mutableListOf<List<LabScheduleItem?>>()
 
             // 2. 遍历这一周的6行（6个大节）
             for ((rowIndex, row) in weekRows.withIndex()) {
@@ -33,17 +33,19 @@ object ParseLabScheduleUtil {
                 val offset = if (rowIndex == 0) 2 else 1
 
                 // 3. 遍历周一到周日 (共7列)
+                val rowList = mutableListOf<LabScheduleItem?>()
                 for (i in 0 until 7) {
                     val cellIndex = offset + i
                     if (cellIndex < cells.size) {
                         val cell = cells[cellIndex]
                         // 解析单元格
-                        weekScheduleList.add(parseCell(cell))
+                        rowList.add(parseCell(cell))
                     } else {
                         // 防止越界，虽然在标准表格中不应该发生
-                        weekScheduleList.add(null)
+                        rowList.add(null)
                     }
                 }
+                weekScheduleList.add(rowList)
             }
 
             // 将当前周的数据存入 Map

@@ -7,10 +7,12 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import top.goodboyboy.wolfassistant.R
 import top.goodboyboy.wolfassistant.log.AppLogger
@@ -25,12 +27,15 @@ class MessageCenterViewModel
     constructor(
         private val messageRepository: MessageRepository,
         private val settingsRepository: SettingsRepository,
-        private val application: Application,
+        application: Application,
         private val logger: AppLogger,
     ) : ViewModel() {
         //    val messageCategory = listOf("公告", "学工系统", "办事大厅")
         val messageCategory = listOf(application.getString(R.string.announcement), application.getString(R.string.xgxt))
         private val messageFlows = mutableMapOf<Int, Flow<PagingData<MessageItem>>>()
+
+        private val _errorEvent = Channel<String>(Channel.BUFFERED)
+        val errorEvent = _errorEvent.receiveAsFlow()
 
         @OptIn(ExperimentalCoroutinesApi::class)
         fun getMessagePagingFlow(category: Int): Flow<PagingData<MessageItem>> {
@@ -45,6 +50,7 @@ class MessageCenterViewModel
                     val accessToken = settingsRepository.getAccessTokenDecrypted()
                     if (accessToken.isBlank()) {
                         logger.e(null, "令牌为空，无法获取消息")
+                        _errorEvent.send("accessToken为空或null")
                         emit(messageRepository.createErrorFlow(Throwable("accessToken为空或null")))
                     } else {
                         val appidData =
@@ -54,6 +60,7 @@ class MessageCenterViewModel
                         when (appidData) {
                             is MessageRepository.AppIDData.Failed -> {
                                 logger.e(null, "获取APPID失败")
+                                _errorEvent.send("获取APPID失败")
                                 emit(messageRepository.createErrorFlow(Throwable("获取APPID失败")))
                             }
 

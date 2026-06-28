@@ -36,9 +36,9 @@ class ScheduleCacheDataSourceImpl
                 val scheduleFile = File(baseDir, "$startDate-$endDate.json")
                 if (scheduleFile.isFile && scheduleFile.exists()) {
                     val fileContent = scheduleFile.readText()
-                    val type = object : TypeToken<List<ScheduleItem?>>() {}.type
+                    val type = object : TypeToken<List<List<ScheduleItem?>>>() {}.type
                     val scheduleObject =
-                        GsonUtil.getGson().fromJson<List<ScheduleItem?>>(fileContent, type)
+                        GsonUtil.getGson().fromJson<List<List<ScheduleItem?>>>(fileContent, type)
                     return DataResult.Success(scheduleObject)
                 } else {
                     return DataResult.NoCache
@@ -63,7 +63,7 @@ class ScheduleCacheDataSourceImpl
         override suspend fun saveSchedule(
             startDate: LocalDate,
             endDate: LocalDate,
-            list: List<ScheduleItem?>,
+            list: List<List<ScheduleItem?>>,
         ): SaveResult {
             try {
                 logger.tag("ScheduleCache").i("写入课表缓存: $startDate ~ $endDate")

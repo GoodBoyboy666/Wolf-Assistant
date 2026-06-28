@@ -147,8 +147,6 @@ class HomeViewModelTest {
 
             val state = viewModel.portalState.value
             assertTrue(state is HomeViewModel.PortalState.Failed)
-            val msg = (state as HomeViewModel.PortalState.Failed).message
-            assertEquals("Network error", msg)
 
             // lists should remain empty on failure
             assertEquals(emptyList<PortalCategoryItem>(), viewModel.portalCategoryList.value)

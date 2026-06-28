@@ -24,10 +24,10 @@ class MessageDataSourceImpl
                 val response =
                     apiService.getAppGroupByTag(accessToken)
 
-                response.use {
+                response.use { body ->
                     val list =
                         JsonParser
-                            .parseString(it.string())
+                            .parseString(body.string())
                             .asJsonObject
                             .getAsJsonObject("data")
                             .getAsJsonArray("list")

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -53,6 +54,7 @@ import java.util.Locale
 fun ScheduleView(
     viewModel: ScheduleCenterViewModel,
     globalEventBus: GlobalEventBus,
+    snackbarHostState: SnackbarHostState,
 ) {
     val currentDate = remember { LocalDate.now() }
     val startDate = remember { currentDate.minusDays(500) }
@@ -72,6 +74,9 @@ fun ScheduleView(
     val loadScheduleState by viewModel.loadScheduleState.collectAsStateWithLifecycle()
     val scheduleList by viewModel.scheduleList.collectAsStateWithLifecycle()
     var isRefreshing by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        viewModel.errorMessage.collect { snackbarHostState.showSnackbar(it) }
+    }
     LaunchedEffect(state) {
         snapshotFlow { state.isScrollInProgress }
             .filter { scrolling -> !scrolling }
@@ -153,7 +158,7 @@ fun ScheduleView(
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = (loadScheduleState as LoadScheduleState.Failed).message,
+                            text = "加载失败",
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(16.dp),
                         )

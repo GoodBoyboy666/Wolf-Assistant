@@ -110,7 +110,7 @@ fun LoginView(
                             .widthIn(min = 280.dp, max = 280.dp),
                     value = userId,
                     singleLine = true,
-                    onValueChange = { userId = it.filter { it.isDigit() } },
+                    onValueChange = { str -> userId = str.filter { it.isDigit() } },
                     label = { Text(stringResource(R.string.academic_number)) },
                     leadingIcon = { Icon(Icons.Rounded.AssignmentInd, null) },
                     placeholder = { Text(stringResource(R.string.enter_num)) },

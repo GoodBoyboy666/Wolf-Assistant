@@ -12,9 +12,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,9 +46,13 @@ fun ServiceCenterView(
     innerPadding: PaddingValues,
     navController: NavController,
     viewModel: ServiceCenterViewModel,
+    snackbarHostState: SnackbarHostState,
 ) {
     val loadServiceState by viewModel.loadServiceState.collectAsStateWithLifecycle()
     val serviceList by viewModel.serviceList.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) {
+        viewModel.errorEvent.collect { snackbarHostState.showSnackbar(it) }
+    }
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -115,7 +121,7 @@ fun ServiceCenterView(
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = (loadServiceState as LoadServiceState.Failed).message,
+                            text = stringResource(R.string.load_fail),
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(16.dp),
                         )
@@ -142,7 +148,6 @@ fun ServiceCenterView(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier.fillMaxSize(),
                         ) {
-                            0
                             items(serviceList) { service ->
                                 ServiceCard(
                                     title = service.text,

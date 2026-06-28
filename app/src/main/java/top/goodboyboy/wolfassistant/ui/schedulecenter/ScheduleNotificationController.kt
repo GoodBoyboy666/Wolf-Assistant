@@ -22,7 +22,7 @@ import javax.inject.Singleton
 class ScheduleNotificationController
     @Inject
     constructor(
-        private val eventBus: GlobalEventBus,
+        eventBus: GlobalEventBus,
         private val scheduleNotificationRepository: ScheduleNotificationRepository,
         private val appAlarmManager: AppAlarmManager,
         private val appNotificationManager: AppNotificationManager,

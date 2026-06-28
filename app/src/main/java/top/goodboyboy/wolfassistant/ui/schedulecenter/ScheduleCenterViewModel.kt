@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.goodboyboy.wolfassistant.common.GlobalEventBus
@@ -41,8 +41,8 @@ class ScheduleCenterViewModel
             const val SCHEDULE_CENTER_TAG = "ScheduleCenter"
         }
 
-        private val _errorMessage = MutableSharedFlow<String>()
-        val errorMessage = _errorMessage.asSharedFlow()
+        private val _errorMessage = Channel<String>(Channel.BUFFERED)
+        val errorMessage = _errorMessage.receiveAsFlow()
 
         // 订阅课表提示框展示
 
@@ -76,9 +76,7 @@ class ScheduleCenterViewModel
 
             object Success : LoadScheduleState()
 
-            data class Failed(
-                val message: String,
-            ) : LoadScheduleState()
+            object Failed : LoadScheduleState()
         }
 
         // 实验课表
@@ -97,7 +95,9 @@ class ScheduleCenterViewModel
             val startDay = firstDay.value
             val endDay = lastDay.value
             if (startDay == null || endDay == null) {
-                _loadScheduleState.value = LoadScheduleState.Failed("日期不可为Null")
+                logger.e(null, "日期不可为Null")
+                _errorMessage.send("日期不可为Null")
+                _loadScheduleState.value = LoadScheduleState.Failed
             } else {
                 loadSchedule(startDay, endDay, forceRefresh)
             }
@@ -119,7 +119,8 @@ class ScheduleCenterViewModel
                 )
             when (data) {
                 is Failed -> {
-                    _loadScheduleState.value = LoadScheduleState.Failed(data.error.message)
+                    _errorMessage.send(data.error.message)
+                    _loadScheduleState.value = LoadScheduleState.Failed
                     logger.e(data.error.cause, "加载课表失败")
                 }
 
@@ -157,12 +158,11 @@ class ScheduleCenterViewModel
             logger.i("加载实验课表")
             _loadLabScheduleState.value = LoadScheduleState.Loading
 
-            val data = labScheduleRepository.getLabSchedule(weekNumber.first(), forceRefresh)
-            when (data) {
+            when (val data = labScheduleRepository.getLabSchedule(weekNumber.first(), forceRefresh)) {
                 is LabScheduleRepository.LabScheduleData.Failed -> {
+                    _errorMessage.send(data.error.message + data.error.cause?.message)
                     logger.e(data.error.cause, "加载实验课表失败")
-                    _loadLabScheduleState.value =
-                        LoadScheduleState.Failed(data.error.message + data.error.cause?.message)
+                    _loadLabScheduleState.value = LoadScheduleState.Failed
                 }
 
                 is LabScheduleRepository.LabScheduleData.Success -> {
@@ -183,7 +183,8 @@ class ScheduleCenterViewModel
             if (loadScheduleState.value != LoadScheduleState.Success ||
                 loadLabScheduleState.value != LoadScheduleState.Success
             ) {
-                _errorMessage.emit("请先成功加载所有课表后再设置课表通知（包括实验课表）")
+                logger.e(null, "请先成功加载所有课表后再设置课表通知（包括实验课表）")
+                _errorMessage.send("请先成功加载所有课表后再设置课表通知（包括实验课表）")
                 return
             } else {
                 withContext(Dispatchers.IO) {

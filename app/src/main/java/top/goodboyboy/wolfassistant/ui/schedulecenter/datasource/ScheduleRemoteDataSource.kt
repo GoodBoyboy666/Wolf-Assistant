@@ -21,7 +21,7 @@ interface ScheduleRemoteDataSource {
 
     sealed class DataResult {
         data class Success(
-            val data: List<ScheduleItem?>,
+            val data: List<List<ScheduleItem?>>,
         ) : DataResult()
 
         data class Error(

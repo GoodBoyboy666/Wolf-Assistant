@@ -9,14 +9,17 @@ plugins {
 
 android {
     namespace = "top.goodboyboy.wolfassistant"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "top.goodboyboy.wolfassistant"
         minSdk = 28
-        targetSdk = 36
-        versionCode = 22
-        versionName = "1.6.0-beta.1"
+        targetSdk = 37
+        val ciVersionCode = (System.getenv("CI_VERSION_CODE")?.toIntOrNull() ?: 1) + 22
+        val rawCiVersionName = System.getenv("CI_VERSION_NAME") ?: "1.0.0-dev"
+        val cleanVersionName = rawCiVersionName.removePrefix("v")
+        versionCode = ciVersionCode
+        versionName = cleanVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         android.buildFeatures.buildConfig = true

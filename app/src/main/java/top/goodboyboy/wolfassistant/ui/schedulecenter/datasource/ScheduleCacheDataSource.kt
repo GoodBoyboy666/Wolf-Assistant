@@ -28,7 +28,7 @@ interface ScheduleCacheDataSource {
     suspend fun saveSchedule(
         startDate: LocalDate,
         endDate: LocalDate,
-        list: List<ScheduleItem?>,
+        list: List<List<ScheduleItem?>>,
     ): SaveResult
 
     /**
@@ -40,7 +40,7 @@ interface ScheduleCacheDataSource {
 
     sealed class DataResult {
         data class Success(
-            val list: List<ScheduleItem?>,
+            val list: List<List<ScheduleItem?>>,
         ) : DataResult()
 
         object NoCache : DataResult()
