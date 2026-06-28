@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "top.goodboyboy.wolfassistant"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "top.goodboyboy.wolfassistant"
         minSdk = 28
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 22
         versionName = "1.6.0-beta.1"
 
