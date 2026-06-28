@@ -9,11 +9,11 @@ import android.net.Uri
 import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.GeolocationPermissions
+import android.webkit.MimeTypeMap
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
-import android.webkit.MimeTypeMap
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
@@ -35,9 +35,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
-import java.io.File
 import kotlinx.coroutines.flow.Flow
 import top.goodboyboy.wolfassistant.R
+import java.io.File
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -65,53 +65,57 @@ fun WebViewCompose(
     var showFileChooserDialog by remember { mutableStateOf(false) }
 
     // 相机拍照 launcher
-    val cameraLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicture(),
-    ) { success ->
-        if (success) {
-            cameraImageUri?.let { filePathCallback?.onReceiveValue(arrayOf(it)) }
-                ?: filePathCallback?.onReceiveValue(null)
-        } else {
-            filePathCallback?.onReceiveValue(null)
+    val cameraLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.TakePicture(),
+        ) { success ->
+            if (success) {
+                cameraImageUri?.let { filePathCallback?.onReceiveValue(arrayOf(it)) }
+                    ?: filePathCallback?.onReceiveValue(null)
+            } else {
+                filePathCallback?.onReceiveValue(null)
+            }
+            filePathCallback = null
+            cameraImageUri = null
         }
-        filePathCallback = null
-        cameraImageUri = null
-    }
 
     // 单文件选择 launcher
-    val fileChooserLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent(),
-    ) { uri ->
-        if (uri != null) {
-            filePathCallback?.onReceiveValue(arrayOf(uri))
-        } else {
-            filePathCallback?.onReceiveValue(null)
+    val fileChooserLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.GetContent(),
+        ) { uri ->
+            if (uri != null) {
+                filePathCallback?.onReceiveValue(arrayOf(uri))
+            } else {
+                filePathCallback?.onReceiveValue(null)
+            }
+            filePathCallback = null
         }
-        filePathCallback = null
-    }
 
     // 多文件选择 launcher
-    val multipleFileLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetMultipleContents(),
-    ) { uris ->
-        if (uris.isNotEmpty()) {
-            filePathCallback?.onReceiveValue(uris.toTypedArray())
-        } else {
-            filePathCallback?.onReceiveValue(null)
+    val multipleFileLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.GetMultipleContents(),
+        ) { uris ->
+            if (uris.isNotEmpty()) {
+                filePathCallback?.onReceiveValue(uris.toTypedArray())
+            } else {
+                filePathCallback?.onReceiveValue(null)
+            }
+            filePathCallback = null
         }
-        filePathCallback = null
-    }
 
     // CAMERA 权限请求 launcher
-    val cameraPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { granted ->
-        if (granted) {
-            cameraImageUri?.let { cameraLauncher.launch(it) }
-        } else {
-            fileChooserLauncher.launch("image/*")
+    val cameraPermissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { granted ->
+            if (granted) {
+                cameraImageUri?.let { cameraLauncher.launch(it) }
+            } else {
+                fileChooserLauncher.launch("image/*")
+            }
         }
-    }
 
     val webView =
         remember {
@@ -212,8 +216,9 @@ fun WebViewCompose(
                             val acceptTypes = params?.acceptTypes ?: arrayOf("*/*")
                             val isCaptureEnabled = params?.isCaptureEnabled ?: false
                             val isImageRequest = acceptTypes.any { it.startsWith("image/") }
-                            val isMultiple = params?.mode ==
-                                WebChromeClient.FileChooserParams.MODE_OPEN_MULTIPLE
+                            val isMultiple =
+                                params?.mode ==
+                                    WebChromeClient.FileChooserParams.MODE_OPEN_MULTIPLE
 
                             if (isCaptureEnabled || isImageRequest) {
                                 showFileChooserDialog = true
@@ -301,9 +306,11 @@ fun WebViewCompose(
             confirmButton = {
                 TextButton(onClick = {
                     showFileChooserDialog = false
-                    val hasCameraPermission = ContextCompat.checkSelfPermission(
-                        context, Manifest.permission.CAMERA,
-                    ) == PackageManager.PERMISSION_GRANTED
+                    val hasCameraPermission =
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.CAMERA,
+                        ) == PackageManager.PERMISSION_GRANTED
                     if (hasCameraPermission) {
                         cameraImageUri = createCameraImageUri(context)
                         cameraImageUri?.let { cameraLauncher.launch(it) }
@@ -328,9 +335,12 @@ fun WebViewCompose(
 }
 
 private fun createCameraImageUri(context: android.content.Context): Uri {
-    val imageFile = File.createTempFile(
-        "webview_camera_", ".jpg", context.cacheDir,
-    )
+    val imageFile =
+        File.createTempFile(
+            "webview_camera_",
+            ".jpg",
+            context.cacheDir,
+        )
     return FileProvider.getUriForFile(
         context,
         "${context.packageName}.fileprovider",
